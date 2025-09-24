@@ -1,0 +1,91 @@
+// Recursive-descent friendly grammar for minishell (no left recursion)
+// Notes:
+//  - Factorized precedence: pipelines > && > || > command terminators (; & end)
+//  - Lists of repeated operators expressed via tail nonterminals (right recursion) suitable for RD parser
+//  - ε denotes empty (optional) production
+//  - Adjust/extend tokens (WORD, IO_NUMBER, etc.) per your lexer
+//  - You can implement the *tail nonterminals iteratively in code for efficiency
+
+command_line ::= list command_line_endopt ;
+
+command_line_endopt ::= ";"
+                     | "&"
+                     | ε
+                     ;
+
+list ::= or_list ;
+
+or_list ::= and_list or_list_tail ;
+
+or_list_tail ::= "||" and_list or_list_tail
+               | ε
+               ;
+
+and_list ::= pipeline and_list_tail ;
+
+and_list_tail ::= "&&" pipeline and_list_tail
+                | ε
+                ;
+
+pipeline ::= command pipeline_tail ;
+
+pipeline_tail ::= "|" command pipeline_tail
+                | ε
+                ;
+
+// Command forms: grouping (subshell) or simple command
+command ::= command_core command_trailing_redirs ;
+
+command_core ::= grouping
+              | simple_command
+              ;
+
+command_trailing_redirs ::= redirection command_trailing_redirs
+                         | ε
+                         ;
+
+// Simple command: sequence of items (words or redirections)
+simple_command ::= assignment_prefix_list simple_body_opt ;
+
+assignment_prefix_list ::= assignment_word assignment_prefix_list
+                         | ε
+                         ;
+
+simple_body_opt ::= cmd_word_and_redirs
+                  | ε
+                  ;
+
+cmd_word_and_redirs ::= cmd_item cmd_item_list ;
+
+// Sequence of command items (words or redirections); assignment_word is NOT part of cmd_item to enforce leading position only
+cmd_item_list ::= cmd_item cmd_item_list
+                | ε
+                ;
+
+cmd_item ::= word
+          | redirection
+          ;
+
+// Grouping (subshell)
+grouping ::= "(" list ")" ;
+
+// Redirections (add IO_NUMBER variants if desired: IO_NUMBER redirection_op ...)
+redirection ::= redirection_op filename
+              | "<<" word
+              ;
+
+filename ::= word
+          | "*"
+          ;
+
+redirection_op ::= "<"
+                 | ">"
+                 | ">>"
+                 ;
+
+// Lexical terminals (token layer) — define in lexer
+// word ::= WORD ;  // generic shell word (unquoted/quoted already normalized by lexer)
+// You may want: WORD, ASSIGNMENT_WORD, DOLLAR, STRING, etc.
+// assignment_word ::= ASSIGNMENT_WORD ; // lexer should classify NAME=VALUE forms appearing at start of simple_command
+
+// End of grammar
