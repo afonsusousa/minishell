@@ -6,13 +6,15 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 03:29:15 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/09/24 05:11:48 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/09/24 13:41:21 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 typedef enum e_token_type
 {
@@ -163,51 +165,67 @@ t_token   *token_new(t_token_type type)
     token->type = type;
     return (token);
 }
-bool    *lexer_next_token_peek(t_lexer *lexer, t_token **token)
+bool    lexer_next_token_dmeta(t_lexer *lexer, t_token **token)
 {
     char peek;
 
     peek = lexer_peek_char(lexer);
     if (lexer->ch == '|' && peek == '|')
-        token = token_new(TOK_OR_IF);
+        *token = token_new(TOK_OR_IF);
     else if (lexer->ch == '&' && peek == '&')
-        token = token_new(TOK_AND_IF);
+        *token = token_new(TOK_AND_IF);
     else if (lexer->ch == '>' && peek == '>')
-        token = token_new(TOK_REDIR_APPEND);
+        *token = token_new(TOK_REDIR_APPEND);
     else if (lexer->ch == '<' && peek == '<')
-        token = token_new(TOK_HEREDOC);
+        *token = token_new(TOK_HEREDOC);
     else 
+        return (false);
+    lexer_read_char(lexer);
+    return (true);
+}
+
+bool    lexer_next_token_smeta(t_lexer *lexer, t_token **token)
+{
+    if (lexer->ch == '|')
+        *token = token_new(TOK_PIPE);
+    else if (lexer->ch == '&')
+        *token = token_new(TOK_AMP);
+    else if (lexer->ch == '>')
+        *token = token_new(TOK_REDIR_OUT);
+    else if (lexer->ch == '<')
+        *token = token_new(TOK_REDIR_IN);
+    else if (lexer->ch == ';')
+        *token = token_new(TOK_SEMI);
+    else if (lexer->ch == '(')
+        *token = token_new(TOK_LPAREN);
+    else if (lexer->ch == ')')
+        *token = token_new(TOK_RPAREN);
+    else if (lexer->ch == '*')
+        *token = token_new(TOK_STAR);
+    else
         return (false);
     return (true);
 }
+
 t_token *lexer_next_token(t_lexer *lexer)
 {
-    t_token *token;
+    t_token	*token;
 
     lexer_skip_space(lexer);
     if (lexer->ch == '\0')
         token = token_new(TOK_EOF);
-    else if (lexer_next_token_peek(lexer, &token))
+    else if (lexer_next_token_dmeta(lexer, &token))
         lexer_read_char(lexer);
-    else if (lexer->ch == '|')
-        token = token_new(TOK_PIPE);
-    else if (lexer->ch == '&')
-        token = token_new(TOK_AMP);
-    else if (lexer->ch == '>')
-        token = token_new(TOK_REDIR_OUT);
-    else if (lexer->ch == '<')
-        token = token_new(TOK_REDIR_IN);
-    else if (lexer->ch == ';')
-        token = token_new(TOK_SEMI);
-    else if (lexer->ch == '(')
-        token = token_new(TOK_LPAREN);
-    else if (lexer->ch == ')')
-        token = token_new(TOK_RPAREN);
-    else if (lexer->ch == '*')
-        token = token_new(TOK_STAR);
-    lexer_read_char(lexer);
+    else if (lexer_next_token_smeta(lexer, &token))
+        lexer_read_char(lexer);
+    else
+    {
+        token = token_new(TOK_WORD);
+        if (token == NULL)
+            return (NULL);
+        lexer_read_word(lexer, token);
+    }
     return (token);
 }
-
 
 
