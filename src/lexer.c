@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 03:29:15 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/09/24 05:04:52 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/09/24 05:11:48 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,33 +59,86 @@ void lexer_read_char(t_lexer *lexer)
     lexer->read_position++;
 }
 
-char lexer_peek_char(t_lexer *lexer)
+static int	is_space(char c)
+{
+    return (c == ' ' || c == '\t' || c == '\n');
+}
+
+static int	is_meta(char c)
+{
+    return (c == '|' || c == '&' || c == ';'
+        || c == '(' || c == ')' || c == '<' || c == '>');
+}
+
+static int	is_break(char c)
+{
+    return (c == '\0' || is_space(c) || is_meta(c));
+}
+
+static int	handle_escape(t_lexer *lx, int in_squote)
+{
+    if (!in_squote && lx->ch == '\\')
+    {
+        lexer_read_char(lx);
+        if (lx->ch != '\0')
+            lexer_read_char(lx);
+        return (1);
+    }
+    return (0);
+}
+
+static int	handle_quotes(t_lexer *lx, int *sq, int *dq)
+{
+    if (*dq == 0 && lx->ch == '\'')
+    {
+        *sq = !*sq;
+        lexer_read_char(lx);
+        return (1);
+    }
+    if (*sq == 0 && lx->ch == '"')
+    {
+        *dq = !*dq;
+        lexer_read_char(lx);
+        return (1);
+    }
+    return (0);
+}
+
+char	lexer_peek_char(t_lexer *lexer)
 {
     if (lexer->read_position >= lexer->input_len)
-		lexer->ch = '\0';
-	else
-		lexer->ch = lexer->input[lexer->read_position];
-  return lexer->ch;
+        return ('\0');
+    return (lexer->input[lexer->read_position]);
+}
+
+void	lexer_read_word(t_lexer *lexer, t_token *token)
+{
+    size_t	start;
+    int		sq;
+    int		dq;
+
+    start = lexer->position;
+    sq = 0;
+    dq = 0;
+    while (lexer->ch != '\0')
+    {
+        if (handle_escape(lexer, sq))
+            continue ;
+        if (handle_quotes(lexer, &sq, &dq))
+            continue ;
+        if (!sq && !dq && is_break(lexer->ch))
+            break ;
+        lexer_read_char(lexer);
+    }
+    token->type = TOK_WORD;
+    token->lexeme = lexer->input + start;
+    token->len = lexer->position - start;
 }
 
 void lexer_skip_space(t_lexer *lexer)
 {
-    while (lexer->ch == ' ' || lexer->ch == '\t' || lexer->ch == '\n')
+    while (is_space(lexer->ch))
         lexer_read_char(lexer);
-}
-
-//NEEDS TO ALLOW MORE CHARS
-void lexer_read_word(t_lexer *lexer, t_token *token)
-{
-    size_t  start_pos;
-    
-    start_pos = lexer->position;
-    while ((lexer->ch >= 'A' && lexer->ch <= 'Z') 
-            || (lexer->ch >= 'a' && lexer->ch <= 'z')
-            || lexer->ch == '_' && lexer->ch == '-')
-            lexer_read_char(lexer);
-    token->lexeme = lexer->input + lexer->position;
-    token->len = lexer->position - start_pos;
 }
 
 bool token_strcmp(t_token *token, const char *str)
