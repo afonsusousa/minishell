@@ -1,120 +1,136 @@
-#include <stddef.h>
-#include <stdio.h>
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parser.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: afonsusousa <student@42>                   +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/09/25 00:00:00 by afonsusousa       #+#    #+#             */
+/*   Updated: 2025/09/25 00:00:00 by afonsusousa      ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "parser.h"
 
 
-typedef struct s_parser {
-    t_token_stream ts;     // token stream (array + current index)
-} t_parser;
+typedef struct s_parser
+{
+	 t_token_stream	ts;
+}t_parser;
 
-/*
-	command_line ::= list command_line_endopt ;
+static t_ast	*parse_command_line(t_parser *p);
+static t_ast	*parse_list(t_parser *p);
+static t_ast	*parse_or_list(t_parser *p);
+static t_ast	*parse_and_list(t_parser *p);
+static t_ast	*parse_pipeline(t_parser *p);
 
-	command_line_endopt ::= ";"
-		| "&"
-		| ε
-		;
-*/
-static t_ast *parse_command_line(t_parser *p);
+static t_ast	*ast_make_binary_node(t_ast_type type, t_ast *left, t_ast *right)
+{
+	t_ast	*n;
 
-/*
-	list ::= or_list ;
-*/
-static t_ast *parse_list(t_parser *p);
+	n = ast_new(type);
+	if (!n)
+		return (NULL);
+	n->as.binop.left = left;
+	n->as.binop.right = right;
+	return (n);
+}
 
-/*
-Production:
-	or_list ::= and_list or_list_tail ;
+static t_ast	*ast_make_command_line_node(t_ast *list, int terminator)
+{
+	t_ast	*n;
 
-	or_list_tail ::= "||" and_list or_list_tail
-		| ε
-		;
-*/
-static t_ast *parse_or_list(t_parser *p);
+	n = ast_new(AST_COMMAND_LINE);
+	if (!n)
+		return (NULL);
+	n->as.command_line.list = list;
+	n->as.command_line.terminator = terminator;
+	return (n);
+}
 
-/*
-	and_list ::= pipeline and_list_tail ;
+static t_ast	*parse_command_line(t_parser *p)
+{
+	int		term;
+	t_ast	*list_node;
 
-	and_list_tail ::= "&&" pipeline and_list_tail
-		| ε
-		;
-*/
-static t_ast *parse_and_list(t_parser *p);
+	if (!p)
+		return (NULL);
+	list_node = parse_list(p);
+	if (!list_node)
+		return (NULL);
+	term = 0;
+	if (ts_match(&p->ts, TOK_SEMI))
+		term = ';';
+	else if (ts_match(&p->ts, TOK_AMP))
+		term = '&';
+	return (ast_make_command_line_node(list_node, term));
+}
 
-/*
-	pipeline ::= command pipeline_tail ;
+static t_ast	*parse_list(t_parser *p)
+{
+	return (parse_or_list(p));
+}
 
-	pipeline_tail ::= "|" command pipeline_tail
-		| ε
-		;
-*/
-static t_ast *parse_pipeline(t_parser *p);
+static t_ast	*parse_or_list(t_parser *p)
+{
+	t_ast	*lhs;
+	t_ast	*rhs;
 
-/*
-	command ::= command_core command_trailing_redirs ;
+	lhs = parse_and_list(p);
+	if (!lhs)
+		return (NULL);
+	while (ts_match(&p->ts, TOK_OR_IF))
+	{
+		rhs = parse_and_list(p);
+		if (!rhs)
+			return (NULL);
+		lhs = ast_make_binary_node(AST_OR_LIST, lhs, rhs);
+		if (!lhs)
+			return (NULL);
+	}
+	return (lhs);
+}
 
-	command_core ::= grouping
-		| simple_command
-		;
+static t_ast	*parse_and_list(t_parser *p)
+{
+	t_ast	*lhs;
+	t_ast	*rhs;
 
-	command_trailing_redirs ::= redirection command_trailing_redirs
-		| ε
-		;
-*/
-static t_ast *parse_command(t_parser *p);
+	lhs = parse_pipeline(p);
+	if (!lhs)
+		return (NULL);
+	while (ts_match(&p->ts, TOK_AND_IF))
+	{
+		rhs = parse_pipeline(p);
+		if (!rhs)
+			return (NULL);
+		lhs = ast_make_binary_node(AST_AND_LIST, lhs, rhs);
+		if (!lhs)
+			return (NULL);
+	}
+	return (lhs);
+}
 
-/*
-	command_core ::= grouping
-		| simple_command
-		;
-*/
-static t_ast *parse_command_core(t_parser *p);
+static t_ast	*parse_pipeline(t_parser *p)
+{
+	t_ast	*lhs;
+	t_ast	*rhs;
+	lhs = parse_command(p);
+	if (!lhs)
+		return (NULL);
+	while (ts_match(&p->ts, TOK_PIPE))
+	{
+		rhs = parse_command(p);
+		if (!rhs)
+			return (NUll);
+		lhs  = ast_make_binary_node(AST_PIPELINE, lhs, rhs);
+		if (!lhs)
+			return (NULL);
+	}
+	return (lhs);
+}
 
-/*
-	simple_command ::= assignment_prefix_list simple_body_opt ;
+static t_ast	*parse_command(t_parser *p)
+{
 
-	assignment_prefix_list ::= assignment_word assignment_prefix_list
-		| ε
-		;
-
-	simple_body_opt ::= cmd_word_and_redirs
-		| ε
-		;
-
-	cmd_word_and_redirs ::= cmd_item cmd_item_list ;
-
-	cmd_item_list ::= cmd_item cmd_item_list
-		| ε
-		;
-
-	cmd_item ::= word
-		| redirection
-		;
-*/
-static t_ast *parse_simple_command(t_parser *p);
-
-/*
-	redirection ::= redirection_op filename
-		| "<<" word
-		;
-*/
-static t_ast *parse_redirection(t_parser *p);
-
-// command_line: Parse list then optional ';' or '&' terminator (store it) else ε.
-static t_ast *parse_command_line(t_parser *p) { (void)p; return NULL; }
-// list: Thin wrapper for or_list for future extensibility.
-static t_ast *parse_list(t_parser *p) { (void)p; return NULL; }
-// or_list: Left-associative chain of and_list joined by '||'.
-static t_ast *parse_or_list(t_parser *p) { (void)p; return NULL; }
-// and_list: Left-associative chain of pipeline joined by '&&'.
-static t_ast *parse_and_list(t_parser *p) { (void)p; return NULL; }
-// pipeline: Sequence of one or more command nodes separated by '|'.
-static t_ast *parse_pipeline(t_parser *p) { (void)p; return NULL; }
-// command: Core (grouping | simple_command) plus zero or more trailing redirections.
-static t_ast *parse_command(t_parser *p) { (void)p; return NULL; }
-// command_core: Distinguish grouping from simple_command based on '('.
-static t_ast *parse_command_core(t_parser *p) { (void)p; return NULL; }
-// simple_command: Leading assignment words then optional body: first cmd item + following items.
-static t_ast *parse_simple_command(t_parser *p) { (void)p; return NULL; }
-// redirection: Parse operator + filename OR heredoc operator + delimiter.
-static t_ast *parse_redirection(t_parser *p) { (void)p; return NULL; }
+}

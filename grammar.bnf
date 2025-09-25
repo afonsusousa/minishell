@@ -47,7 +47,7 @@ command_trailing_redirs ::= redirection command_trailing_redirs
 // Simple command: sequence of items (words or redirections)
 simple_command ::= assignment_prefix_list simple_body_opt ;
 
-assignment_prefix_list ::= assignment_word assignment_prefix_list
+assignment_prefix_list ::= word assignment_prefix_list
                          | ε
                          ;
 
@@ -70,20 +70,15 @@ cmd_item ::= word
 grouping ::= "(" list ")" ;
 
 // Redirections (add IO_NUMBER variants if desired: IO_NUMBER redirection_op ...)
-redirection ::= redirection_op filename
+redirection ::= redirection_op word
               | "<<" word
               ;
-
-filename ::= word
-          | "*"
-          ;
 
 redirection_op ::= "<"
                  | ">"
                  | ">>"
                  ;
 
-// Lexical terminals (token layer) — define in lexer
 // word ::= WORD ;  // generic shell word (unquoted/quoted already normalized by lexer)
 // You may want: WORD, ASSIGNMENT_WORD, DOLLAR, STRING, etc.
 // assignment_word ::= ASSIGNMENT_WORD ; // lexer should classify NAME=VALUE forms appearing at start of simple_command
