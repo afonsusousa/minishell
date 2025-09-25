@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 03:29:15 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/09/24 13:41:21 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/09/24 21:41:31 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,41 +15,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "../includes/lexer.h"
 
-typedef enum e_token_type
-{
-    TOK_WORD = 0,
-    TOK_ASSIGNMENT_WORD,
-    TOK_PIPE,         // |
-    TOK_AND_IF,       // &&
-    TOK_OR_IF,        // ||
-    TOK_SEMI,         // ;
-    TOK_AMP,          // &
-    TOK_REDIR_IN,     // <
-    TOK_REDIR_OUT,    // >
-    TOK_REDIR_APPEND, // >>
-    TOK_HEREDOC,      // <<
-    TOK_LPAREN,       // (
-    TOK_RPAREN,       // )
-    TOK_STAR,         // *
-    TOK_EOF
-} t_token_type;
-
-typedef struct s_token 
-{
-    t_token_type type;
-    const char  *lexeme;
-    size_t       len;
-}   t_token;
-
-typedef struct s_lexer
-{
-    const char *input;
-    size_t      input_len;
-    size_t      position;
-    size_t      read_position;
-    char        ch;
-} t_lexer;
 
 void lexer_read_char(t_lexer *lexer)
 {
@@ -59,6 +26,13 @@ void lexer_read_char(t_lexer *lexer)
         lexer->ch = lexer->input[lexer->read_position];
     lexer->position = lexer->read_position;
     lexer->read_position++;
+}
+
+char	lexer_peek_char(t_lexer *lexer)
+{
+    if (lexer->read_position >= lexer->input_len)
+        return ('\0');
+    return (lexer->input[lexer->read_position]);
 }
 
 static int	is_space(char c)
@@ -77,16 +51,30 @@ static int	is_break(char c)
     return (c == '\0' || is_space(c) || is_meta(c));
 }
 
-static int	handle_escape(t_lexer *lx, int in_squote)
+static int	handle_escape(t_lexer *lx, int in_squote, int in_dquote)
 {
-    if (!in_squote && lx->ch == '\\')
+    char next;
+
+    if (lx->ch != '\\')
+        return (0);
+    if (in_squote)
+        return (0);
+    next = lexer_peek_char(lx);
+    if (in_dquote)
     {
-        lexer_read_char(lx);
-        if (lx->ch != '\0')
+        if (next == '$' || next == '`' || next == '"' || next == '\\' || next == '\n')
+        {
             lexer_read_char(lx);
-        return (1);
+            if (lx->ch != '\0')
+                lexer_read_char(lx);
+            return (1);
+        }
+        return (0);
     }
-    return (0);
+    lexer_read_char(lx);
+    if (lx->ch != '\0')
+        lexer_read_char(lx);
+    return (1);
 }
 
 static int	handle_quotes(t_lexer *lx, int *sq, int *dq)
@@ -106,25 +94,20 @@ static int	handle_quotes(t_lexer *lx, int *sq, int *dq)
     return (0);
 }
 
-char	lexer_peek_char(t_lexer *lexer)
-{
-    if (lexer->read_position >= lexer->input_len)
-        return ('\0');
-    return (lexer->input[lexer->read_position]);
-}
-
 void	lexer_read_word(t_lexer *lexer, t_token *token)
 {
     size_t	start;
     int		sq;
     int		dq;
+    int     is_quoted;
 
     start = lexer->position;
     sq = 0;
     dq = 0;
+    is_quoted = lexer->ch == '\'' || lexer->ch == '"';
     while (lexer->ch != '\0')
     {
-        if (handle_escape(lexer, sq))
+        if (handle_escape(lexer, sq, dq))
             continue ;
         if (handle_quotes(lexer, &sq, &dq))
             continue ;
@@ -133,8 +116,8 @@ void	lexer_read_word(t_lexer *lexer, t_token *token)
         lexer_read_char(lexer);
     }
     token->type = TOK_WORD;
-    token->lexeme = lexer->input + start;
-    token->len = lexer->position - start;
+    token->lexeme = lexer->input + start + is_quoted;
+    token->len = lexer->position - start - (is_quoted * 2);
 }
 
 void lexer_skip_space(t_lexer *lexer)
@@ -145,7 +128,7 @@ void lexer_skip_space(t_lexer *lexer)
 
 bool token_strcmp(t_token *token, const char *str)
 {
-    int i;
+    size_t i;
 
     i = 0;
     while (token->lexeme[i] == str[i] &&  i < token->len)
@@ -155,7 +138,7 @@ bool token_strcmp(t_token *token, const char *str)
     return (token->lexeme[i] - str[i]);
 }
 
-t_token   *token_new(t_token_type type)
+t_token   *token_new(const t_token_type type)
 {
     t_token *token;
 
@@ -184,7 +167,7 @@ bool    lexer_next_token_dmeta(t_lexer *lexer, t_token **token)
     return (true);
 }
 
-bool    lexer_next_token_smeta(t_lexer *lexer, t_token **token)
+bool    lexer_next_token_smeta(const t_lexer *lexer, t_token **token)
 {
     if (lexer->ch == '|')
         *token = token_new(TOK_PIPE);
@@ -227,5 +210,3 @@ t_token *lexer_next_token(t_lexer *lexer)
     }
     return (token);
 }
-
-

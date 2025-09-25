@@ -87,5 +87,4 @@ redirection_op ::= "<"
 // word ::= WORD ;  // generic shell word (unquoted/quoted already normalized by lexer)
 // You may want: WORD, ASSIGNMENT_WORD, DOLLAR, STRING, etc.
 // assignment_word ::= ASSIGNMENT_WORD ; // lexer should classify NAME=VALUE forms appearing at start of simple_command
-
 // End of grammar

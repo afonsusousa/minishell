@@ -15,13 +15,13 @@ typedef enum e_ast_type {
     AST_OR_LIST,
     AST_AND_LIST,
     AST_PIPELINE,
-    AST_COMMAND,        // command_core + trailing redirs already merged
+    AST_COMMAND,
     AST_SIMPLE_COMMAND,
     AST_GROUPING,
-    AST_ASSIGNMENT,     // Single assignment (NAME=VALUE) token
-    AST_WORD,           // Word token
-    AST_REDIR,          // Redirection node (<, >, >>)
-    AST_HEREDOC         // Heredoc delimiter (<<)
+    AST_ASSIGNMENT,
+    AST_WORD,
+    AST_REDIR,
+    AST_HEREDOC
 } t_ast_type;
 
 typedef enum e_redir_kind {
@@ -72,7 +72,7 @@ typedef struct s_ast {
         struct {                // AST_ASSIGNMENT / AST_WORD / HEREDOC delimiter or filename
             const char *text;
             size_t      len;
-        } token_like;
+        } leaf;
 
         struct {                // AST_REDIR / AST_HEREDOC (normalized redirection)
             t_redir_kind kind;
