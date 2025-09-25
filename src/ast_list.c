@@ -25,25 +25,26 @@ static t_ast_list	*ast_list_new(t_ast *n)
 	return (ln);
 }
 
-void	ast_list_push(t_ast_list **head, t_ast *node)
+t_ast_list	*ast_list_push(t_ast_list **head, t_ast *ast_node)
 {
-	t_ast_list	*ln;
-	t_ast_list	*cur;
+	t_ast_list	*new_list_node;
+	t_ast_list	*current;
 
-	if (node == NULL)
-		return ;
-	ln = ast_list_new(node);
-	if (ln == NULL)
-		return ;
+	if (head == NULL || ast_node == NULL)
+		return NULL;
+	new_list_node = ast_list_new(ast_node);
+	if (new_list_node == NULL)
+		return NULL;
 	if (*head == NULL)
 	{
-		*head = ln;
-		return ;
+		*head = new_list_node;
+		return new_list_node;
 	}
-	cur = *head;
-	while (cur->next != NULL)
-		cur = cur->next;
-	cur->next = ln;
+	current = *head;
+	while (current->next != NULL)
+		current = current->next;
+	current->next = new_list_node;
+	return new_list_node;
 }
 
 void	ast_list_free(t_ast_list *lst)

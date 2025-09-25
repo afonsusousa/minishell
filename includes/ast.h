@@ -2,6 +2,7 @@
 #define MINISHELL_AST_H
 
 #include <stddef.h>
+#include "lexer.h"
 
 // Forward declarations
 struct s_ast;
@@ -24,22 +25,10 @@ typedef enum e_ast_type {
     AST_HEREDOC
 } t_ast_type;
 
-typedef enum e_redir_kind {
-    R_IN,
-    R_OUT,
-    R_APPEND,
-    R_HEREDOC_KIND   // << (separate from AST_HEREDOC node type used if you prefer)
-} t_redir_kind;
-
 typedef struct s_ast_list {
     struct s_ast       *node;
     struct s_ast_list  *next;
 } t_ast_list;
-
-typedef struct s_redir {
-    t_redir_kind kind;
-    struct s_ast *target;
-} t_redir;
 
 typedef struct s_ast {
     t_ast_type type;
@@ -75,7 +64,7 @@ typedef struct s_ast {
         } leaf;
 
         struct {                // AST_REDIR / AST_HEREDOC (normalized redirection)
-            t_redir_kind kind;
+            t_token_type kind;
             struct s_ast *target; // AST_WORD
         } redir;
 
@@ -87,7 +76,8 @@ typedef struct s_ast {
 } t_ast;
 
 t_ast *ast_new(t_ast_type type);
-void   ast_list_push(t_ast_list **head, t_ast *node);
+//static t_ast_list	*ast_list_new(t_ast *n);
+t_ast_list *ast_list_push(t_ast_list **head, t_ast *node);
 void   ast_list_free(t_ast_list *lst);
 
 void   ast_free(t_ast *node);

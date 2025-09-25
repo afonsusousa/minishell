@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     if (argc > 1)
         input = argv[1];
     else
-        input = "echo 'hello' && ls | wc -l";
+        input = "a=\"pila\" echo 'hello' && ls | wc -l";
     t_lexer lx;
     lx.input = input;
     lx.input_len = strlen(input);

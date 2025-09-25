@@ -94,6 +94,30 @@ static int	handle_quotes(t_lexer *lx, int *sq, int *dq)
     return (0);
 }
 
+static bool			is_assigment(t_token *t)
+{
+    size_t i;
+    bool    first;
+
+    i = 0;
+    first = true;
+    if (t->type != TOK_WORD)
+        return (false);
+    while (i < t->len)
+    {
+        if (first && t->lexeme[i] == '=')
+        {
+            if (i && i + 1 < t->len
+            && (!is_space(t->lexeme[i - 1])
+            || !is_space(t->lexeme[i + 1])))
+                return (true);
+            first = !first;
+        }
+        i++;
+    }
+    return (false);
+}
+
 void	lexer_read_word(t_lexer *lexer, t_token *token)
 {
     size_t	start;
@@ -207,6 +231,8 @@ t_token *lexer_next_token(t_lexer *lexer)
         if (token == NULL)
             return (NULL);
         lexer_read_word(lexer, token);
+        if (is_assigment(token))
+            token->type = TOK_ASSIGNMENT_WORD;
     }
     return (token);
 }
