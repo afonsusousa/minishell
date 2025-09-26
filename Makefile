@@ -7,10 +7,10 @@ SRCS := \
 	$(SRC_DIR)/main.c \
 	$(SRC_DIR)/lexer.c \
 	$(SRC_DIR)/token_stream.c \
-	$(SRC_DIR)/parser.c \
 	$(SRC_DIR)/ast.c \
 	$(SRC_DIR)/ast_free.c \
-	$(SRC_DIR)/ast_list.c
+	$(SRC_DIR)/ast_list.c \
+	$(SRC_DIR)/parser.c
 
 OBJS := $(SRCS:.c=.o)
 NAME := minishell_demo

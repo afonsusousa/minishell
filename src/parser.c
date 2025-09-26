@@ -26,7 +26,6 @@ static t_ast	*parse_list(t_parser *p);
 static t_ast	*parse_or_list(t_parser *p);
 static t_ast	*parse_and_list(t_parser *p);
 static t_ast	*parse_pipeline(t_parser *p);
-// Forward decls for helpers referenced below
 static t_ast		*parse_redir(t_parser *p);
 static t_ast_list	*parse_command_redirs(t_parser *p);
 static t_ast		*parse_simple_command(t_parser *p);
@@ -82,7 +81,6 @@ static t_ast	*ast_make_command_line_node(t_ast *list, int terminator)
 
 static t_ast	*ast_make_pipeline_node(t_ast *first_cmd)
 {
-	// Create a pipeline node and push the first command into its commands list
 	t_ast	*n;
 
 	n = ast_new(AST_PIPELINE);
@@ -122,11 +120,8 @@ static t_ast	*ast_make_redir_node(t_token_type type)
 
 static t_ast	*ast_make_leaf_node(const char *text, size_t len)
 {
-	// Delegate to typed leaf helper for AST_WORD
 	return ast_make_leaf_typed(AST_WORD, text, len);
 }
-
-// Removed unused empty ast_make_simple_cmd_node to avoid undefined behavior
 
 static t_ast	*parse_command_line(t_parser *p)
 {
@@ -215,7 +210,6 @@ static t_ast	*parse_pipeline(t_parser *p)
 
 static t_ast	*parse_grouping(t_parser *p)
 {
-	// Parse a parenthesized command list into a grouping node
 	t_ast	*list;
 	t_ast	*grp;
 
@@ -226,7 +220,6 @@ static t_ast	*parse_grouping(t_parser *p)
 		return (NULL);
 	if (!ts_match(&p->ts, TOK_RPAREN))
 	{
-		// unmatched '(', fail
 		ast_free(list);
 		return (NULL);
 	}
@@ -290,7 +283,6 @@ static t_ast_list	*parse_command_redirs(t_parser *p)
 			break;
 		if (ast_list_push(&redirs, redir_node) == NULL)
 		{
-			// allocation failure; stop collecting
 			break;
 		}
 	}
@@ -299,7 +291,6 @@ static t_ast_list	*parse_command_redirs(t_parser *p)
 
 static t_ast *parse_redir(t_parser *p)
 {
-	// Parse a redirection operator followed by a WORD target
 	t_ast		*redir;
 	const t_token *op;
 	const t_token *tk;
@@ -313,21 +304,16 @@ static t_ast *parse_redir(t_parser *p)
 	tk = ts_peek(&p->ts);
 	if (tk && tk->type == TOK_WORD)
 	{
-		// consume the filename token
 		ts_advance(&p->ts);
 		redir->as.redir.target = ast_make_leaf_node(tk->lexeme, tk->len);
 	}
 	else
-	{
-		// missing filename; you may want to signal an error later
 		redir->as.redir.target = NULL;
-	}
 	return (redir);
 }
 
 static t_ast_list	*parse_assignments(t_parser *p)
 {
-	// Collect leading assignment words into AST_ASSIGNMENT leaf nodes
 	t_ast_list	*assignments;
 	const t_token	*tk;
 	t_ast		*node;
@@ -338,7 +324,6 @@ static t_ast_list	*parse_assignments(t_parser *p)
 		tk = ts_peek(&p->ts);
 		if (!tk || tk->type != TOK_ASSIGNMENT_WORD)
 			break;
-		// consume assignment token
 		ts_advance(&p->ts);
 		node = ast_make_leaf_typed(AST_ASSIGNMENT, tk->lexeme, tk->len);
 		if (!node)
@@ -351,16 +336,18 @@ static t_ast_list	*parse_assignments(t_parser *p)
 
 static t_ast		*parse_simple_command(t_parser *p)
 {
-	t_ast			*simple_cmd;
-	t_ast_list		*words;
-	t_ast_list		*redirs;
+	t_ast		*simple_cmd;
+	t_ast_list	*words;
+	t_ast_list	*redirs;
 	const t_token	*peek;
-	t_ast			*node;
+	t_ast		*node;
 
 	simple_cmd = ast_new(AST_SIMPLE_COMMAND);
 	if (!simple_cmd)
 		return (NULL);
 	simple_cmd->as.simple_command.assignments = parse_assignments(p);
+	words = NULL;
+	redirs = NULL;
 	while (1)
 	{
 		peek = ts_peek(&p->ts);
@@ -376,7 +363,9 @@ static t_ast		*parse_simple_command(t_parser *p)
 		else if (is_trailing_redir_ahead(p))
 		{
 			node = parse_redir(p);
-			if (!node || !ast_list_push(&redirs, node))
+			if (!node)
+				return (NULL);
+			if (!ast_list_push(&redirs, node))
 				break;
 		}
 		else
@@ -385,4 +374,18 @@ static t_ast		*parse_simple_command(t_parser *p)
 	simple_cmd->as.simple_command.words = words;
 	simple_cmd->as.simple_command.redirs = redirs;
 	return (simple_cmd);
+}
+
+t_ast	*parse(const t_token *tokens, size_t count)
+{
+	t_parser	p;
+
+	memset(&p, 0, sizeof(p));
+	p.ts.data = (t_token *)tokens; // read-only use
+	p.ts.count = count;
+	p.ts.capacity = count;
+	p.ts.position = 0;
+	p.ts.read_position = 0;
+	p.ts.tk = NULL;
+	return (parse_command_line(&p));
 }

@@ -71,7 +71,6 @@ grouping ::= "(" list ")" ;
 
 // Redirections (add IO_NUMBER variants if desired: IO_NUMBER redirection_op ...)
 redirection ::= redirection_op word
-              | "<<" word
               ;
 
 redirection_op ::= "<"
