@@ -42,7 +42,7 @@ bool    token_stream_reserve(t_token_stream *ts, size_t needed)
     to_reserve = ts->capacity ? ts->capacity : 32;
     while (to_reserve < needed)
         to_reserve <<= 1;
-    new_data = (t_token *)malloc(to_reserve * sizeof(t_token));
+    new_data = (t_token *)calloc(to_reserve, sizeof(t_token));
     if (!new_data)
         return (false);
     if (ts->data && ts->count)

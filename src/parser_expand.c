@@ -6,23 +6,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "../includes/minishell.h"
 
 char    *ft_strndup(const char *src, size_t len)
 {
-    size_t i;
     char *ret;
 
-    i = 0;
-    ret = malloc(sizeof(char) * len + 1);
+    ret = (char *)malloc(len + 1);
     if (!ret)
         return (NULL);
-    while (i < len && src[i])
-    {
-        ret[i] = src[i];
-        i++;
-    }
+    if (len)
+        memcpy(ret, src, len);
+    ret[len] = '\0';
     return (ret);
 }
 
@@ -47,20 +44,22 @@ bool    envp_reserve(t_envp *env, size_t needed)
     return (true);
 }
 
-t_envp_elem *elem_set(t_envp_elem *target, const char *elem, bool export)
+t_envp_elem *elem_set(t_envp_elem *target, const char *elem, bool export_flag)
 {
-    char *start;
+    const char *start;
+    size_t      key_len;
 
-    start = (char *) elem;
-    while (*start != '=' && *start)
+    start = elem;
+    while (*start && *start != '=')
         start++;
-    target->tag = ft_strndup(elem, start - elem);
+    key_len = (size_t)(start - elem);
+    target->tag = ft_strndup(elem, key_len);
     if (!target->tag)
         return (NULL);
-    target->value = strdup(start);
+    target->value = strdup(start + 1);
     if (!target->value)
         return (free(target->tag), NULL);
-    target->export = true;
+    target->export = export_flag;
     return (target);
 }
 
@@ -73,7 +72,7 @@ t_envp_elem *envp_get_elem(const t_envp *env, const char *tag)
     found = false;
     while (i < env->count)
     {
-        if (strcmp(env->data[i].tag, tag) == 0)
+        if (env->data[i].tag && strcmp(env->data[i].tag, tag) == 0)
         {
             found = true;
             break;
@@ -90,9 +89,15 @@ void elem_free(t_envp_elem **elem)
     if (!elem || !*elem)
         return ;
     if ((*elem)->tag)
+    {
         free((*elem)->tag);
+        (*elem)->tag = NULL;
+    }
     if ((*elem)->value)
+    {
         free((*elem)->value);
+        (*elem)->value = NULL;
+    }
     *elem = NULL;
 }
 
@@ -118,12 +123,17 @@ bool envp_save_elem(t_envp *env, const char *elem)
 bool    envp_remove_elem(t_envp *env, const char *tag)
 {
     t_envp_elem *remove;
+    bool        last;
 
+    last = false;
     remove = envp_get_elem(env, tag);
     if (!remove)
         return (false);
+    if (remove == &env->data[env->count])
+        last = true;
     elem_free(&remove);
-    env->count--;
+    env->count -= last;
+    return (true);
 }
 
 int main(int argc, char **argv, char **envp)
@@ -135,6 +145,10 @@ int main(int argc, char **argv, char **envp)
 
     for (int i = 0; envp[i] != NULL; i++)
         envp_save_elem(&env, envp[i]);
+    envp_remove_elem(&env, "LS_COLORS");
     for (int i = 0; i < env.count; i++)
-        printf("%s=%s\n", env.data[i].tag, env.data[i].value);
+    {
+        if (env.data[i].tag != NULL)
+            printf("%s=%s\n", env.data[i].tag, env.data[i].value);
+    }
 }

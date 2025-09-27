@@ -118,18 +118,11 @@ static t_ast	*ast_make_redir_node(t_token_type type)
 	return (n);
 }
 
-static t_ast	*ast_make_leaf_node(const char *text, size_t len)
-{
-	return ast_make_leaf_typed(AST_WORD, text, len);
-}
-
 static t_ast	*parse_command_line(t_parser *p)
 {
 	int		term;
 	t_ast	*list_node;
 
-	if (!p)
-		return (NULL);
 	list_node = parse_list(p);
 	if (!list_node)
 		return (NULL);
@@ -271,7 +264,6 @@ static inline int	is_trailing_redir_ahead(const t_parser *p)
 
 static t_ast_list	*parse_command_redirs(t_parser *p)
 {
-	// Parse zero or more trailing redirections using list helpers only
 	t_ast_list	*redirs;
 	t_ast		*redir_node;
 
@@ -305,7 +297,7 @@ static t_ast *parse_redir(t_parser *p)
 	if (tk && tk->type == TOK_WORD)
 	{
 		ts_advance(&p->ts);
-		redir->as.redir.target = ast_make_leaf_node(tk->lexeme, tk->len);
+		redir->as.redir.target = ast_make_leaf_typed(AST_WORD,tk->lexeme, tk->len);
 	}
 	else
 		redir->as.redir.target = NULL;
@@ -356,7 +348,7 @@ static t_ast		*parse_simple_command(t_parser *p)
 		if (peek->type == TOK_WORD)
 		{
 			ts_advance(&p->ts);
-			node = ast_make_leaf_node(peek->lexeme, peek->len);
+			node = ast_make_leaf_typed(AST_WORD,peek->lexeme, peek->len);
 			if (!node || !ast_list_push(&words, node))
 				break;
 		}
@@ -381,7 +373,7 @@ t_ast	*parse(const t_token *tokens, size_t count)
 	t_parser	p;
 
 	memset(&p, 0, sizeof(p));
-	p.ts.data = (t_token *)tokens; // read-only use
+	p.ts.data = (t_token *)tokens;
 	p.ts.count = count;
 	p.ts.capacity = count;
 	p.ts.position = 0;
