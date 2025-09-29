@@ -4,12 +4,10 @@
 #include <stddef.h>
 #include "lexer.h"
 
-// Forward declarations
 struct s_ast;
 struct s_redir;
 struct s_word;
 
-// Node type enumeration representing high-level grammar constructs.
 typedef enum e_ast_type {
     AST_COMMAND_LINE,
     AST_LIST,

@@ -139,7 +139,7 @@ int main(int argc, char **argv)
     if (argc > 1)
         input = argv[1];
     else
-        input = "a=\"pila\" echo 'hello' && ls | wc -l && (ls)";
+        input = "a=\"pila\" echo 'hello' < out && ls | wc -l && (ls)";
 
     // Lex
     t_lexer lx;

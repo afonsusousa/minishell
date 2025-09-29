@@ -12,6 +12,7 @@
 
 #include "parser.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -226,26 +227,6 @@ static t_ast	*parse_grouping(t_parser *p)
 	return (grp);
 }
 
-static t_ast	*parse_command(t_parser *p)
-{
-	 t_ast			*core;
-	 t_ast_list		*trailing_redirs;
-	 t_ast			*cmd;
-
-	if (ts_check(&p->ts, TOK_LPAREN))
-		core = parse_grouping(p);
-	else
-		core = parse_simple_command(p);
-	if (!core)
-		return (NULL);
-	trailing_redirs = parse_command_redirs(p);
-	cmd = ast_make_command_node(core);
-	if (!cmd)
-		return (NULL);
-	cmd->as.command.redirs = trailing_redirs;
-	return (cmd);
-}
-
 static inline int	is_redir_token_type(t_token_type t)
 {
 	return (t == TOK_REDIR_IN
@@ -260,6 +241,31 @@ static inline int	is_trailing_redir_ahead(const t_parser *p)
 
 	tk = ts_peek(&((t_parser *)p)->ts);
 	return (tk != NULL && is_redir_token_type(tk->type));
+}
+
+// TODO: check redirs with simple command;
+static t_ast	*parse_command(t_parser *p)
+{
+	 t_ast			*core;
+	 t_ast_list		*trailing_redirs;
+	 t_ast			*cmd;
+
+	if (ts_check(&p->ts, TOK_LPAREN))
+		core = parse_grouping(p);
+	else if (ts_check(&p->ts, TOK_WORD)
+			|| ts_check(&p->ts, TOK_ASSIGNMENT_WORD)
+			|| is_trailing_redir_ahead(p))
+		core = parse_simple_command(p);
+	else
+		return (NULL);
+	if (!core)
+		return (NULL);
+	trailing_redirs = parse_command_redirs(p);
+	cmd = ast_make_command_node(core);
+	if (!cmd)
+		return (NULL);
+	cmd->as.command.redirs = trailing_redirs;
+	return (cmd);
 }
 
 static t_ast_list	*parse_command_redirs(t_parser *p)
@@ -284,13 +290,13 @@ static t_ast_list	*parse_command_redirs(t_parser *p)
 static t_ast *parse_redir(t_parser *p)
 {
 	t_ast		*redir;
-	const t_token *op;
 	const t_token *tk;
 
-	op = ts_advance(&p->ts);
-	if (!op || !is_redir_token_type(op->type))
+	tk = ts_peek(&p->ts);
+	if (!tk || !is_redir_token_type(tk->type))
 		return (NULL);
-	redir = ast_make_redir_node(op->type);
+	ts_advance(&p->ts);
+	redir = ast_make_redir_node(tk->type);
 	if (!redir)
 		return (NULL);
 	tk = ts_peek(&p->ts);
@@ -300,7 +306,7 @@ static t_ast *parse_redir(t_parser *p)
 		redir->as.redir.target = ast_make_leaf_typed(AST_WORD,tk->lexeme, tk->len);
 	}
 	else
-		redir->as.redir.target = NULL;
+		return (ast_free(redir), NULL);
 	return (redir);
 }
 

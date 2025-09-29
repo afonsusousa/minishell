@@ -67,17 +67,17 @@ bool    envp_elem_set(t_envp    *env, char *str)
     return (elem_replace_str(&env->vars[env->count++], str), true);
 }
 
-t_envp_elem *envp_get_elem(const t_envp *env, const char *elem)
+t_envp_elem *envp_get_elem(const t_envp *env, const char *str)
 {
     size_t i;
     size_t len;
 
     i = 0;
-    len = key_len(elem);
+    len = key_len(str);
     while (env->capacity && i < env->count)
     {
         if (env->vars[i].tag_len == len &&
-            strncmp(env->vars[i].str, elem, len) == 0)
+            strncmp(env->vars[i].str, str, len) == 0)
             return (&env->vars[i]);
         i++;
     }
