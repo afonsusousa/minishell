@@ -2,6 +2,7 @@
 // Created by afonsusousa on 9/27/25.
 //
 
+#include <ctype.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,7 +15,7 @@ size_t  key_len(const char *str)
     size_t len;
 
     len = 0;
-    while (str[len] != '=' && str[len])
+    while (str[len] != '=' && str[len] && !isspace(str[len]))
         len++;
     return (len);
 }

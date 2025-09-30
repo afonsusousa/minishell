@@ -186,6 +186,6 @@ int main(int argc, char **argv, char **envp)
     t_envp env = {0};
     for (int i = 0; envp[i] != NULL; i++)
         envp_elem_set(&env, envp[i]);
-    printf ("%s\n", expanded_str(&env, "$USERNAME"));
+    printf ("%s\n", expanded_str(&env, "$USERNAME $ $ $ $USERNAME"));
     return 0;
 }
