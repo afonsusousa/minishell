@@ -6,6 +6,8 @@
 #define MINISHELL_MINISHELL_H
 #include <stddef.h>
 
+#include "../lib/libft/libft.h"
+
 typedef struct s_envp_elem
 {
    char     *str;

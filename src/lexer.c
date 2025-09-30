@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include <stddef.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -101,15 +100,13 @@ static bool			is_assigment(t_token *t)
 
     i = 0;
     first = true;
-    if (t->type != TOK_WORD)
-        return (false);
     while (i < t->len)
     {
         if (first && t->lexeme[i] == '=')
         {
             if (i && i + 1 < t->len
-            && (!is_space(t->lexeme[i - 1])
-            || !is_space(t->lexeme[i + 1])))
+                && ((!is_space(t->lexeme[i - 1]) || t->lexeme[i - 1] == '+')
+                || !is_space(t->lexeme[i + 1])))
                 return (true);
             first = !first;
         }

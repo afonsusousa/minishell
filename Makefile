@@ -1,7 +1,9 @@
 CC := gcc
 CFLAGS := -Wall -Wextra -Werror -g
-INCLUDES := -Iincludes
+INCLUDES := -Iincludes -Ilib/libft
 SRC_DIR := src
+LIBFT_DIR := lib/libft
+LIBFT := $(LIBFT_DIR)/libft.a
 
 SRCS := \
 	$(SRC_DIR)/main.c \
@@ -19,17 +21,22 @@ NAME := minishell_demo
 
 all: $(NAME)
 
-$(NAME): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS)
+$(NAME): $(LIBFT) $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) -L$(LIBFT_DIR) -lft
+
+$(LIBFT):
+	$(MAKE) -C $(LIBFT_DIR)
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
 	rm -f $(OBJS)
+	$(MAKE) -C $(LIBFT_DIR) clean
 
 fclean: clean
 	rm -f $(NAME)
+	$(MAKE) -C $(LIBFT_DIR) fclean
 
 re: fclean all
 

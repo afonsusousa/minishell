@@ -185,7 +185,12 @@ int main(int argc, char **argv, char **envp)
 
     t_envp env = {0};
     for (int i = 0; envp[i] != NULL; i++)
-        envp_elem_set(&env, envp[i]);
+        envp_elem_append(&env, ft_strdup(envp[i]));
+    printf("%s\n", envp_get_elem_value(&env, "USERNAME"));
+    envp_elem_append(&env, ft_strdup("USERNAME+=ISSO"));
+    envp_elem_append(&env, ft_strdup("test+=ISTO"));
+    printf("%s\n", envp_get_elem_value(&env, "USERNAME"));
+    printf("%s\n", envp_get_elem_value(&env, "test"));
     printf ("%s\n", expanded_str(&env, "$USERNAME $ $ $ $USERNAME"));
-    return 0;
+    return (0);
 }

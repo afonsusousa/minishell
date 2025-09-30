@@ -67,22 +67,19 @@ char *expanded_str(t_envp *env, char *str)
 {
     size_t  in = 0;
     size_t  out = 0;
-    size_t  size;
     size_t  written;
     char    *expanded;
 
-    size = needed_space(env, str);
-    expanded = calloc(size + 1, sizeof(char));
+    expanded = calloc(needed_space(env, str) + 1, sizeof(char));
     if (!expanded)
         return NULL;
-
     while (str[in])
     {
         written = check_copy(env, expanded + out, str + in);
         if (written > 0)
         {
             out += written;
-            in += 1 + key_len(str + in + 1); // skip '$' and its name
+            in += 1 + key_len(str + in + 1);
             continue;
         }
         expanded[out++] = str[in++];

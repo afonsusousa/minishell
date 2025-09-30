@@ -15,7 +15,10 @@ size_t  key_len(const char *str)
     size_t len;
 
     len = 0;
-    while (str[len] != '=' && str[len] && !isspace(str[len]))
+    while (str[len] != '='
+            && str[len] != '+'
+            && str[len]
+            && !isspace(str[len]))
         len++;
     return (len);
 }
@@ -41,11 +44,36 @@ bool    envp_reserve(t_envp *env, size_t needed)
     return (true);
 }
 
+char    *sanitize_assignment(char *str)
+{
+    size_t  i;
+    size_t  size;
+    char    *ret;
+
+    i = 0;
+    while (str[i])
+    {
+        if (str[i] == '+' && str[i + 1] && str[i + 1] == '=')
+            break;
+        i++;
+    }
+    if (!str[i])
+        return (str);
+    size = ft_strlen(str);
+    ret = calloc(size + 1, sizeof(char));
+    if (!ret)
+        return (NULL);
+    ft_strlcpy(ret, str, i + 1);
+    ft_strlcpy(ret + i, str + i + 1, size - i);
+    free(str);
+    return (ret);
+}
+
 void    elem_replace_str(t_envp_elem *elem, char *str)
 {
     if (elem->str)
         free(elem->str);
-    elem->str = str;
+    elem->str = sanitize_assignment(str);
     elem->tag_len = key_len(elem->str);
 }
 
@@ -127,4 +155,22 @@ void    envp_remove_elem(t_envp *env, char *str)
         }
         i++;
     }
+}
+
+void envp_elem_append(t_envp *env, char *str)
+{
+    t_envp_elem *target;
+    char        *join;
+
+    target = envp_get_elem(env, str);
+    if (!target)
+    {
+        (envp_elem_set(env, str));
+        return ;
+    }
+    join = ft_strjoin(target->str, str + target->tag_len + 1);
+    if (!join)
+        return ;
+    free(target->str);
+    target->str = join;
 }
