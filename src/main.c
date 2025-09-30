@@ -6,6 +6,8 @@
 #include "../includes/tokens.h"
 #include "../includes/parser.h"
 #include "../includes/ast.h"
+#include "../includes/envp.h"
+#include "../includes/subst.h"
 
 static const char *tok_name(t_token_type t)
 {
@@ -133,7 +135,7 @@ static void print_ast(const t_ast *n, int d)
     }
 }
 
-int main(int argc, char **argv)
+int main(int argc, char **argv, char **envp)
 {
     const char *input = NULL;
     if (argc > 1)
@@ -180,5 +182,10 @@ int main(int argc, char **argv)
     // Cleanup
     ast_free(root);
     token_stream_free(&ts);
+
+    t_envp env = {0};
+    for (int i = 0; envp[i] != NULL; i++)
+        envp_elem_set(&env, envp[i]);
+    printf ("%s\n", expanded_str(&env, "$USERNAME"));
     return 0;
 }

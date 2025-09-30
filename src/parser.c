@@ -376,9 +376,8 @@ static t_ast		*parse_simple_command(t_parser *p)
 
 t_ast	*parse(const t_token *tokens, size_t count)
 {
-	t_parser	p;
+	t_parser	p = {0};
 
-	memset(&p, 0, sizeof(p));
 	p.ts.data = (t_token *)tokens;
 	p.ts.count = count;
 	p.ts.capacity = count;

@@ -10,7 +10,9 @@ SRCS := \
 	$(SRC_DIR)/ast.c \
 	$(SRC_DIR)/ast_free.c \
 	$(SRC_DIR)/ast_list.c \
-	$(SRC_DIR)/parser.c
+	$(SRC_DIR)/parser.c \
+	$(SRC_DIR)/envp.c \
+	$(SRC_DIR)/subst.c
 
 OBJS := $(SRCS:.c=.o)
 NAME := minishell_demo

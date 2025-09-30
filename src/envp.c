@@ -84,6 +84,16 @@ t_envp_elem *envp_get_elem(const t_envp *env, const char *str)
     return NULL;
 }
 
+char    *envp_get_elem_value(const t_envp *env, const char *str)
+{
+    t_envp_elem *elem;
+
+    elem = envp_get_elem(env, str);
+    if (!elem)
+        return (NULL);
+    return (elem->str + elem->tag_len + 1);
+}
+
 void elem_free(t_envp_elem *elem)
 {
     if (!elem)
@@ -115,24 +125,5 @@ void    envp_remove_elem(t_envp *env, char *str)
             env->count--;
         }
         i++;
-    }
-}
-
-int main(int argc, char **argv, char **envp)
-{
-    (void) argc;
-    (void) argv;
-
-    t_envp env = {0};
-
-    for (int i = 0; envp[i] != NULL; i++)
-        envp_elem_set(&env, strdup(envp[i]));
-    envp_remove_elem(&env, "LS_COLORS");
-    envp_elem_set(&env, strdup("STUPIDITY="));
-    envp_elem_set(&env, strdup("STUPIDITY=123"));
-    for (int i = 0; i < env.count; i++)
-    {
-        if (env.vars[i].str != NULL)
-            printf("%s\n", env.vars[i].str);
     }
 }
