@@ -63,6 +63,29 @@ size_t  check_copy(t_envp *env, char *dest, char *src_elem)
     return (i);
 }
 
+bool    match_widlcard(char *exp, char *str)
+{
+    size_t i;
+    size_t  str_pos;
+    size_t  exp_len;
+
+    i = 0;
+    exp_len = 0;
+    str_pos = 0;
+    while (segments[i] != NULL && str[str_pos])
+    {
+        exp_len = ft_strlen(segments[i]);
+        if (ft_strncmp(segments[i], &str[str_pos], ft_strlen(segments[i])) == 0)
+        {
+            str_pos += exp_len;
+            i++;
+            continue ;
+        }
+        str_pos++;
+    }
+    return (segments[i] == NULL && str[str_pos] == '\0');
+}
+
 char *expanded_str(t_envp *env, char *str)
 {
     size_t  in = 0;
