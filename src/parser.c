@@ -16,26 +16,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-typedef struct s_parser
-{
-	 t_token_stream	ts;
-}t_parser;
-
-static t_ast	*parse_command_line(t_parser *p);
-static t_ast	*parse_list(t_parser *p);
-static t_ast	*parse_or_list(t_parser *p);
-static t_ast	*parse_and_list(t_parser *p);
-static t_ast	*parse_pipeline(t_parser *p);
-static t_ast		*parse_redir(t_parser *p);
-static t_ast_list	*parse_command_redirs(t_parser *p);
-static t_ast		*parse_simple_command(t_parser *p);
-static t_ast		*parse_command(t_parser *p);
-static t_ast		*parse_grouping(t_parser *p);
-static t_ast_list	*parse_assignments(t_parser *p);
-
-// Typed leaf helper
-static t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text, size_t len)
+// Typed leaf helper - TODO: wildcard expansion HERE
+t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text, size_t len)
 {
 	t_ast	*n;
 	char	*s;
@@ -56,7 +38,7 @@ static t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text, size_t len)
 	return (n);
 }
 
-static t_ast	*ast_make_binary_node(t_ast_type type, t_ast *left, t_ast *right)
+t_ast	*ast_make_binary_node(t_ast_type type, t_ast *left, t_ast *right)
 {
 	t_ast	*n;
 
@@ -68,7 +50,7 @@ static t_ast	*ast_make_binary_node(t_ast_type type, t_ast *left, t_ast *right)
 	return (n);
 }
 
-static t_ast	*ast_make_command_line_node(t_ast *list, int terminator)
+t_ast	*ast_make_command_line_node(t_ast *list, int terminator)
 {
 	t_ast	*n;
 
@@ -80,7 +62,7 @@ static t_ast	*ast_make_command_line_node(t_ast *list, int terminator)
 	return (n);
 }
 
-static t_ast	*ast_make_pipeline_node(t_ast *first_cmd)
+t_ast	*ast_make_pipeline_node(t_ast *first_cmd)
 {
 	t_ast	*n;
 
@@ -96,7 +78,7 @@ static t_ast	*ast_make_pipeline_node(t_ast *first_cmd)
 	return (n);
 }
 
-static t_ast	*ast_make_command_node(t_ast *core)
+t_ast	*ast_make_command_node(t_ast *core)
 {
 	 t_ast	*n;
 
@@ -108,7 +90,7 @@ static t_ast	*ast_make_command_node(t_ast *core)
 	return (n);
 }
 
-static t_ast	*ast_make_redir_node(t_token_type type)
+t_ast	*ast_make_redir_node(t_token_type type)
 {
 	t_ast *n;
 
@@ -119,7 +101,7 @@ static t_ast	*ast_make_redir_node(t_token_type type)
 	return (n);
 }
 
-static t_ast	*parse_command_line(t_parser *p)
+t_ast	*parse_command_line(t_parser *p)
 {
 	int		term;
 	t_ast	*list_node;
@@ -135,12 +117,12 @@ static t_ast	*parse_command_line(t_parser *p)
 	return (ast_make_command_line_node(list_node, term));
 }
 
-static t_ast	*parse_list(t_parser *p)
+t_ast	*parse_list(t_parser *p)
 {
 	return (parse_or_list(p));
 }
 
-static t_ast	*parse_or_list(t_parser *p)
+t_ast	*parse_or_list(t_parser *p)
 {
 	t_ast	*lhs;
 	t_ast	*rhs;
@@ -160,7 +142,7 @@ static t_ast	*parse_or_list(t_parser *p)
 	return (lhs);
 }
 
-static t_ast	*parse_and_list(t_parser *p)
+t_ast	*parse_and_list(t_parser *p)
 {
 	t_ast	*lhs;
 	t_ast	*rhs;
@@ -180,7 +162,7 @@ static t_ast	*parse_and_list(t_parser *p)
 	return (lhs);
 }
 
-static t_ast	*parse_pipeline(t_parser *p)
+t_ast	*parse_pipeline(t_parser *p)
 {
 	t_ast	*cmd;
 	t_ast	*pipeline;
@@ -202,7 +184,7 @@ static t_ast	*parse_pipeline(t_parser *p)
 	return (pipeline);
 }
 
-static t_ast	*parse_grouping(t_parser *p)
+t_ast	*parse_grouping(t_parser *p)
 {
 	t_ast	*list;
 	t_ast	*grp;
@@ -244,7 +226,7 @@ static inline int	is_trailing_redir_ahead(const t_parser *p)
 }
 
 // TODO: check redirs with simple command;
-static t_ast	*parse_command(t_parser *p)
+t_ast	*parse_command(t_parser *p)
 {
 	 t_ast			*core;
 	 t_ast_list		*trailing_redirs;
@@ -268,7 +250,7 @@ static t_ast	*parse_command(t_parser *p)
 	return (cmd);
 }
 
-static t_ast_list	*parse_command_redirs(t_parser *p)
+t_ast_list	*parse_command_redirs(t_parser *p)
 {
 	t_ast_list	*redirs;
 	t_ast		*redir_node;
@@ -287,7 +269,8 @@ static t_ast_list	*parse_command_redirs(t_parser *p)
 	return (redirs);
 }
 
-static t_ast *parse_redir(t_parser *p)
+//TODO: heredoc accepts * wildcard
+t_ast *parse_redir(t_parser *p)
 {
 	t_ast		*redir;
 	const t_token *tk;
@@ -310,7 +293,7 @@ static t_ast *parse_redir(t_parser *p)
 	return (redir);
 }
 
-static t_ast_list	*parse_assignments(t_parser *p)
+t_ast_list	*parse_assignments(t_parser *p)
 {
 	t_ast_list	*assignments;
 	const t_token	*tk;
@@ -332,7 +315,7 @@ static t_ast_list	*parse_assignments(t_parser *p)
 	return (assignments);
 }
 
-static t_ast		*parse_simple_command(t_parser *p)
+t_ast		*parse_simple_command(t_parser *p)
 {
 	t_ast		*simple_cmd;
 	t_ast_list	*words;

@@ -8,5 +8,6 @@ size_t	needed_space(t_envp *env, char *str);
 size_t	check_copy(t_envp *env, char *dest, char *src_elem);
 char	*expanded_str(t_envp *env, char *str);
 void    envp_elem_append(t_envp *env, char *str);
+bool    match_wildcard(char *exp, char *str);
 #endif
 

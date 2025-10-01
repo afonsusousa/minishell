@@ -20,23 +20,41 @@
 #include "../includes/minishell.h"
 #include "../includes/envp.h"
 
+size_t    handle_escape(const char *str, bool *escaped)
+{
+    size_t  count;
+
+    count = 0;
+    while (*str == '\\')
+        count++;
+    if (count % 2)
+    {
+        *escaped = true;
+        return (count);
+    }
+    *escaped = false;
+    return (count);
+}
+
 size_t needed_space(t_envp *env, char *str)
 {
     size_t    i;
     size_t    total_length;
+    bool     escaped;
     char     *value;
 
-    i = 0;
+    i = handle_escape(str, &escaped);
     total_length = 0;
     value = NULL;
     while (str[i])
     {
-        if (str[i++] == '$')
+        i += handle_escape(&str[i], &escaped);
+        if (!escaped && str[i++] == '$')
             value = envp_get_elem_value(env, str + i);
         if (value != NULL)
         {
             total_length += strlen(value);
-            while (!isspace((unsigned char)str[i]) && str[i])
+            while (str[i] && !isspace((unsigned char)str[i]))
                 i++;
             value = NULL;
         }
@@ -63,34 +81,12 @@ size_t  check_copy(t_envp *env, char *dest, char *src_elem)
     return (i);
 }
 
-bool    match_widlcard(char *exp, char *str)
-{
-    size_t i;
-    size_t  str_pos;
-    size_t  exp_len;
-
-    i = 0;
-    exp_len = 0;
-    str_pos = 0;
-    while (segments[i] != NULL && str[str_pos])
-    {
-        exp_len = ft_strlen(segments[i]);
-        if (ft_strncmp(segments[i], &str[str_pos], ft_strlen(segments[i])) == 0)
-        {
-            str_pos += exp_len;
-            i++;
-            continue ;
-        }
-        str_pos++;
-    }
-    return (segments[i] == NULL && str[str_pos] == '\0');
-}
-
 char *expanded_str(t_envp *env, char *str)
 {
     size_t  in = 0;
     size_t  out = 0;
     size_t  written;
+    bool    escaped;
     char    *expanded;
 
     expanded = calloc(needed_space(env, str) + 1, sizeof(char));
@@ -98,15 +94,50 @@ char *expanded_str(t_envp *env, char *str)
         return NULL;
     while (str[in])
     {
-        written = check_copy(env, expanded + out, str + in);
-        if (written > 0)
+        in += handle_escape(&str[in], &escaped);
+        if (!escaped && str[in] == '$')
         {
-            out += written;
-            in += 1 + key_len(str + in + 1);
-            continue;
+            written = check_copy(env, expanded + out, str + in);
+            if (written > 0)
+            {
+                out += written;
+                in += 1 + key_len(str + in + 1);
+                continue;
+            }
         }
         expanded[out++] = str[in++];
     }
     expanded[out] = '\0';
     return (expanded);
+}
+
+bool    match_wildcard(char *exp, char *str)
+{
+    char *loc[2];
+
+    loc[0] = NULL;
+    loc[1] = NULL;
+    while (*str)
+    {
+        if (*exp == '*')
+        {
+            loc[0] = str;
+            loc[1] = ++exp;
+            if (*exp == '\0')
+                return (true);
+            continue ;
+        }
+        if (*str != *exp)
+        {
+            if (!loc[0])
+                return (false);
+            str = ++(loc[0]);
+            exp = loc[1];
+        }
+        exp++;
+        str++;
+    }
+    while (*exp == '*')
+        exp++;
+    return (*exp == '\0');
 }

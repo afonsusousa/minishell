@@ -141,7 +141,7 @@ int main(int argc, char **argv, char **envp)
     if (argc > 1)
         input = argv[1];
     else
-        input = "a=\"pila\" echo 'hello' < out && ls | wc -l && (ls)";
+        input = "a=\"pila\" echo \\$ 'hello' < out && ls | wc -l && (ls)";
 
     // Lex
     t_lexer lx;
@@ -192,5 +192,6 @@ int main(int argc, char **argv, char **envp)
     printf("%s\n", envp_get_elem_value(&env, "USERNAME"));
     printf("%s\n", envp_get_elem_value(&env, "test"));
     printf ("%s\n", expanded_str(&env, "$USERNAME $ $ $ $USERNAME"));
+    printf("%d\n",  match_wildcard("a*n*o", "afonso"));
     return (0);
 }
