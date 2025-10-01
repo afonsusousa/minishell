@@ -15,6 +15,8 @@ size_t  key_len(const char *str)
     size_t len;
 
     len = 0;
+    if (!str)
+        return (0);
     while (str[len] != '='
             && str[len] != '+'
             && str[len]
@@ -134,7 +136,7 @@ void elem_free(t_envp_elem *elem)
     }
 }
 
-void    envp_remove_elem(t_envp *env, char *str)
+void    envp_remove_elem(t_envp *env, const char *str)
 {
     size_t i;
     size_t len;

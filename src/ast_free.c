@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include "ast.h"
 
-static void	free_pipeline(t_ast *node)
+static void	free_pipeline(const t_ast *node)
 {
 	t_ast_list	*c;
 
@@ -26,7 +26,7 @@ static void	free_pipeline(t_ast *node)
 	ast_list_free(node->as.pipeline.commands);
 }
 
-static void	free_command(t_ast *node)
+static void	free_command(const t_ast *node)
 {
 	t_ast_list	*r;
 
@@ -40,7 +40,7 @@ static void	free_command(t_ast *node)
 	ast_list_free(node->as.command.redirs);
 }
 
-static void	free_simple_command_lists(t_ast_list *lst)
+static void	free_simple_command_lists(const t_ast_list *lst)
 {
 	while (lst != NULL)
 	{
@@ -49,7 +49,7 @@ static void	free_simple_command_lists(t_ast_list *lst)
 	}
 }
 
-static void	free_simple_command(t_ast *node)
+static void	free_simple_command(const t_ast *node)
 {
 	free_simple_command_lists(node->as.simple_command.assignments);
 	ast_list_free(node->as.simple_command.assignments);

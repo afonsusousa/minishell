@@ -16,7 +16,6 @@
 #include <string.h>
 #include "../includes/lexer.h"
 
-
 void lexer_read_char(t_lexer *lexer)
 {
     if (lexer->read_position >= lexer->input_len)
@@ -27,7 +26,7 @@ void lexer_read_char(t_lexer *lexer)
     lexer->read_position++;
 }
 
-char	lexer_peek_char(t_lexer *lexer)
+char	lexer_peek_char(const t_lexer *lexer)
 {
     if (lexer->read_position >= lexer->input_len)
         return ('\0');
@@ -93,7 +92,7 @@ static int	handle_quotes(t_lexer *lx, int *sq, int *dq)
     return (0);
 }
 
-static bool			is_assigment(t_token *t)
+static bool			is_assigment(const t_token *t)
 {
     size_t i;
     bool    first;
@@ -108,7 +107,7 @@ static bool			is_assigment(t_token *t)
                 && ((!is_space(t->lexeme[i - 1]) || t->lexeme[i - 1] == '+')
                 || !is_space(t->lexeme[i + 1])))
                 return (true);
-            first = !first;
+            first = false;
         }
         i++;
     }
@@ -147,7 +146,7 @@ void lexer_skip_space(t_lexer *lexer)
         lexer_read_char(lexer);
 }
 
-bool token_strcmp(t_token *token, const char *str)
+bool token_strcmp(const t_token *token, const char *str)
 {
     size_t i;
 

@@ -13,7 +13,6 @@
 // Created by afonsusousa on 9/29/25.
 //
 
-#include <ctype.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,7 +35,7 @@ size_t    handle_escape(const char *str, bool *escaped)
     return (count);
 }
 
-size_t needed_space(t_envp *env, char *str)
+size_t needed_space(const t_envp *env, const char *str)
 {
     size_t    i;
     size_t    total_length;
@@ -64,7 +63,7 @@ size_t needed_space(t_envp *env, char *str)
     return (total_length);
 }
 
-size_t  check_copy(t_envp *env, char *dest, char *src_elem)
+size_t  check_copy(const t_envp *env, char *dest, const char *src_elem)
 {
     size_t i;
     char *value;
@@ -81,7 +80,7 @@ size_t  check_copy(t_envp *env, char *dest, char *src_elem)
     return (i);
 }
 
-char *expanded_str(t_envp *env, char *str)
+char *expanded_str(const t_envp *env, const char *str)
 {
     size_t  in = 0;
     size_t  out = 0;

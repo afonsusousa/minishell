@@ -25,14 +25,14 @@ static t_ast_list	*ast_list_new(t_ast *n)
 	return (ln);
 }
 
-t_ast_list	*ast_list_push(t_ast_list **head, t_ast *ast_node)
+t_ast_list	*ast_list_push(t_ast_list **head, t_ast *node)
 {
 	t_ast_list	*new_list_node;
 	t_ast_list	*current;
 
-	if (head == NULL || ast_node == NULL)
+	if (head == NULL || node == NULL)
 		return NULL;
-	new_list_node = ast_list_new(ast_node);
+	new_list_node = ast_list_new(node);
 	if (new_list_node == NULL)
 		return NULL;
 	if (*head == NULL)

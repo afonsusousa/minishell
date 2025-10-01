@@ -45,10 +45,10 @@ typedef struct s_lexer
 
 // Lexer API
 void lexer_read_char(t_lexer *lexer);
-char lexer_peek_char(t_lexer *lexer);
+char lexer_peek_char(const t_lexer *lexer);
 void lexer_read_word(t_lexer *lexer, t_token *token);
 void lexer_skip_space(t_lexer *lexer);
-bool token_strcmp(t_token *token, const char *str);
+bool token_strcmp(const t_token *token, const char *str);
 t_token *token_new(const t_token_type type);
 bool lexer_next_token_dmeta(t_lexer *lexer, t_token **token);
 bool lexer_next_token_smeta(const t_lexer *lexer, t_token **token);

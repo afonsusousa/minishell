@@ -357,7 +357,7 @@ t_ast		*parse_simple_command(t_parser *p)
 	return (simple_cmd);
 }
 
-t_ast	*parse(const t_token *tokens, size_t count)
+t_ast	*parse(const t_token *tokens, const size_t count)
 {
 	t_parser	p = {0};
 

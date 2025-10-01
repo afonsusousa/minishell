@@ -13,7 +13,7 @@
 #include <stdlib.h>
 #include "ast.h"
 
-t_ast	*ast_new(t_ast_type type)
+t_ast	*ast_new(const t_ast_type type)
 {
 	t_ast	*n;
 
