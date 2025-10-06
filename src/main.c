@@ -13,6 +13,7 @@ static const char *tok_name(t_token_type t)
 {
     switch (t) {
         case TOK_WORD: return "WORD";
+        case TOK_QWORD: return "QWORD";
         case TOK_ASSIGNMENT_WORD: return "ASSIGN";
         case TOK_PIPE: return "PIPE";
         case TOK_AND_IF: return "AND_IF";
@@ -50,7 +51,7 @@ static const char *redir_kind_name(t_token_type k)
 
 static void print_word_leaf(const t_ast *n)
 {
-    printf("\"%.*s\"", (int)n->as.leaf.len, n->as.leaf.text);
+    printf("\"%.*s\" [%s]", (int)n->as.leaf.len, n->as.leaf.text, n->as.leaf.quoted ? "QUOTED" : "LITERAL");
 }
 
 static void print_ast(const t_ast *n, int d)
@@ -141,7 +142,7 @@ int main(int argc, char **argv, char **envp)
     if (argc > 1)
         input = argv[1];
     else
-        input = "a=\"pila\" echo \\$ 'hello' < out && ls | wc -l && (ls)";
+        input = "a=\"pila\" echo \\$ < *.bnf && ls | wc -l && (ls)";
 
     // Lex
     t_lexer lx;
@@ -192,6 +193,6 @@ int main(int argc, char **argv, char **envp)
     printf("%s\n", envp_get_elem_value(&env, "USERNAME"));
     printf("%s\n", envp_get_elem_value(&env, "test"));
     printf ("%s\n", expanded_str(&env, "$USERNAME $ $ $ $USERNAME"));
-    printf("%d\n",  match_wildcard("a*n*o", "afonso"));
+    printf("%s\n", expand_cwd_wildcards("*"));
     return (0);
 }

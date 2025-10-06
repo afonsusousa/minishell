@@ -6,6 +6,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 #include "../includes/minishell.h"
 #include "../includes/envp.h"
 
@@ -14,6 +15,7 @@
 //
 
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "../includes/minishell.h"
@@ -110,33 +112,75 @@ char *expanded_str(const t_envp *env, const char *str)
     return (expanded);
 }
 
-bool    match_wildcard(char *exp, char *str)
+bool match_wildcard(char *exp, char *str)
 {
-    char *loc[2];
+    char *star = NULL;
+    char *ss = NULL;
 
-    loc[0] = NULL;
-    loc[1] = NULL;
-    while (*str)
-    {
+    while (*str) {
         if (*exp == '*')
         {
-            loc[0] = str;
-            loc[1] = ++exp;
-            if (*exp == '\0')
-                return (true);
-            continue ;
+            star = exp++;
+            ss = str;
         }
-        if (*str != *exp)
+        else if (*exp == *str)
         {
-            if (!loc[0])
-                return (false);
-            str = ++(loc[0]);
-            exp = loc[1];
+            exp++;
+            str++;
         }
-        exp++;
-        str++;
+        else if (star) {
+            exp = star + 1;
+            str = ++ss;
+        }
+        else
+            return false;
     }
     while (*exp == '*')
         exp++;
-    return (*exp == '\0');
+    return *exp == '\0';
+}
+
+#include <limits.h>
+#include <unistd.h>
+
+char    *expand_cwd_wildcards(char *wild_string)
+{
+    char cwd[PATH_MAX];
+    DIR *dir;
+    struct dirent *entry;
+    size_t  size;
+    size_t  i;
+    char    *ret;
+
+    size = 0;
+    i = 0;
+    getcwd(cwd, PATH_MAX);
+    dir = opendir(cwd);
+    entry = readdir(dir);
+    while (entry)
+    {
+        if (match_wildcard(wild_string, entry->d_name))
+        {
+            size += ft_strlen(entry->d_name);
+            i++;
+        }
+        entry = readdir(dir);
+    }
+    size += i == 1 ? 0 : i - 1;
+    closedir(dir);
+    ret = calloc(size, sizeof(char));
+    dir = opendir(cwd);
+    entry = readdir(dir);
+    while (entry && i)
+    {
+        if (match_wildcard(wild_string,entry->d_name))
+        {
+            ft_strlcat(ret, entry->d_name, size + 1);
+            ft_strlcat(ret, " ", i != 1 ? size : 0);
+            i--;
+        }
+        entry = readdir(dir);
+    }
+    //closedir(dir);
+    return (ret);
 }

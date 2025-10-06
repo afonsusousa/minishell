@@ -16,8 +16,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Typed leaf helper - TODO: wildcard expansion HERE
-t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text, size_t len)
+t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text, size_t len, bool quoted)
 {
 	t_ast	*n;
 	char	*s;
@@ -35,6 +34,7 @@ t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text, size_t len)
 	s[len] = '\0';
 	n->as.leaf.text = s;
 	n->as.leaf.len = len;
+	n->as.leaf.quoted = quoted;
 	return (n);
 }
 
@@ -235,6 +235,7 @@ t_ast	*parse_command(t_parser *p)
 	if (ts_check(&p->ts, TOK_LPAREN))
 		core = parse_grouping(p);
 	else if (ts_check(&p->ts, TOK_WORD)
+			|| ts_check(&p->ts, TOK_QWORD)
 			|| ts_check(&p->ts, TOK_ASSIGNMENT_WORD)
 			|| is_trailing_redir_ahead(p))
 		core = parse_simple_command(p);
@@ -262,9 +263,7 @@ t_ast_list	*parse_command_redirs(t_parser *p)
 		if (redir_node == NULL)
 			break;
 		if (ast_list_push(&redirs, redir_node) == NULL)
-		{
 			break;
-		}
 	}
 	return (redirs);
 }
@@ -283,10 +282,10 @@ t_ast *parse_redir(t_parser *p)
 	if (!redir)
 		return (NULL);
 	tk = ts_peek(&p->ts);
-	if (tk && tk->type == TOK_WORD)
+	if (tk && ((tk->type == TOK_WORD || tk->type == TOK_QWORD)))
 	{
 		ts_advance(&p->ts);
-		redir->as.redir.target = ast_make_leaf_typed(AST_WORD,tk->lexeme, tk->len);
+		redir->as.redir.target = ast_make_leaf_typed(AST_WORD,tk->lexeme, tk->len, tk->type == TOK_QWORD);
 	}
 	else
 		return (ast_free(redir), NULL);
@@ -306,7 +305,7 @@ t_ast_list	*parse_assignments(t_parser *p)
 		if (!tk || tk->type != TOK_ASSIGNMENT_WORD)
 			break;
 		ts_advance(&p->ts);
-		node = ast_make_leaf_typed(AST_ASSIGNMENT, tk->lexeme, tk->len);
+		node = ast_make_leaf_typed(AST_ASSIGNMENT, tk->lexeme, tk->len, tk->type == TOK_QWORD);
 		if (!node)
 			break;
 		if (!ast_list_push(&assignments, node))
@@ -333,13 +332,13 @@ t_ast		*parse_simple_command(t_parser *p)
 	{
 		peek = ts_peek(&p->ts);
 		if (!peek)
-			break;
-		if (peek->type == TOK_WORD)
+			break ;
+		if (peek->type == TOK_WORD || peek->type == TOK_QWORD)
 		{
 			ts_advance(&p->ts);
-			node = ast_make_leaf_typed(AST_WORD,peek->lexeme, peek->len);
+			node = ast_make_leaf_typed(AST_WORD,peek->lexeme, peek->len, peek->type == TOK_QWORD);
 			if (!node || !ast_list_push(&words, node))
-				break;
+				break ;
 		}
 		else if (is_trailing_redir_ahead(p))
 		{
@@ -347,10 +346,10 @@ t_ast		*parse_simple_command(t_parser *p)
 			if (!node)
 				return (NULL);
 			if (!ast_list_push(&redirs, node))
-				break;
+				break ;
 		}
 		else
-			break;
+			break ;
 	}
 	simple_cmd->as.simple_command.words = words;
 	simple_cmd->as.simple_command.redirs = redirs;

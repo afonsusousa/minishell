@@ -135,7 +135,7 @@ void	lexer_read_word(t_lexer *lexer, t_token *token)
             break ;
         lexer_read_char(lexer);
     }
-    token->type = TOK_WORD;
+    token->type = is_quoted ? TOK_QWORD : TOK_WORD;
     token->lexeme = lexer->input + start + is_quoted;
     token->len = lexer->position - start - (is_quoted * 2);
 }
@@ -203,8 +203,6 @@ bool    lexer_next_token_smeta(const t_lexer *lexer, t_token **token)
         *token = token_new(TOK_LPAREN);
     else if (lexer->ch == ')')
         *token = token_new(TOK_RPAREN);
-    else if (lexer->ch == '*')
-        *token = token_new(TOK_STAR);
     else
         return (false);
     return (true);

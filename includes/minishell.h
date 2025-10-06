@@ -25,5 +25,6 @@ typedef struct s_minishell
 {
    t_envp *env;
    t_envp *tmp_env;
+   int      last_status;
 } t_minishell;
 #endif //MINISHELL_MINISHELL_H

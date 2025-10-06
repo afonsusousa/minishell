@@ -13,6 +13,7 @@ t_envp_elem	*envp_get_elem(const t_envp *env, const char *str);
 char		*envp_get_elem_value(const t_envp *env, const char *str);
 void		elem_free(t_envp_elem *elem);
 void		envp_remove_elem(t_envp *env, const char *str);
+void		envp_elem_append(t_envp *env, char *str);
 
 #endif
 
