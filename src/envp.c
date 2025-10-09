@@ -10,6 +10,8 @@
 
 #include "../includes/minishell.h"
 
+//TODO: SANITIZE the fucking quotes...
+
 size_t  key_len(const char *str)
 {
     size_t len;
@@ -60,14 +62,13 @@ char    *sanitize_assignment(char *str)
         i++;
     }
     if (!str[i])
-        return (str);
+        return (ft_strdup(str));
     size = ft_strlen(str);
     ret = calloc(size + 1, sizeof(char));
     if (!ret)
         return (NULL);
     ft_strlcpy(ret, str, i + 1);
     ft_strlcpy(ret + i, str + i + 1, size - i);
-    free(str);
     return (ret);
 }
 
@@ -163,14 +164,15 @@ void envp_elem_append(t_envp *env, char *str)
 {
     t_envp_elem *target;
     char        *join;
-
+    char        *to_join;
     target = envp_get_elem(env, str);
-    if (!target)
+    if (!target || str[key_len(str)] == '=')
     {
         (envp_elem_set(env, str));
         return ;
     }
-    join = ft_strjoin(target->str, str + target->tag_len + 1);
+    to_join = sanitize_assignment(str);
+    join = ft_strjoin(target->str, to_join + target->tag_len + 1);
     if (!join)
         return ;
     free(target->str);

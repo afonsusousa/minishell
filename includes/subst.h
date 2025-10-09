@@ -7,8 +7,8 @@
 size_t	needed_space(const t_envp *env, const char *str);
 size_t	check_copy(const t_envp *env, char *dest, const char *src_elem);
 char	*expanded_str(const t_envp *env, const char *str);
-void    envp_elem_append(t_envp *env, char *str);
-bool    match_wildcard(char *exp, char *str);
-char    *expand_cwd_wildcards(char *wild_string);
+void    envp_elem_append(t_envp *env, const char *str);
+bool    match_wildcard(const char *exp, const char *str);
+char    *expand_cwd_wildcards(const char *wild_string);
 #endif
 

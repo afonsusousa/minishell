@@ -15,10 +15,13 @@
 #include <sys/wait.h>
 #include <errno.h>
 #include <stdio.h>
+#include <fcntl.h>
 
 #include "../includes/executor.h"
+#include <string.h>
 #include "../includes/ast.h"
 #include "../includes/envp.h"
+#include "../includes/subst.h"
 
 static int	exec_node(t_minishell *sh, t_ast *node);
 static int	exec_redirs(t_minishell *sh, t_ast_list *r);
@@ -66,14 +69,14 @@ void	free_argv(char **argv)
 	free(argv);
 }
 
-static char **envp_to_array(const t_envp *env)
+static char **envp_to_array(const t_envp *env, const t_envp *local_env)
 {
 	char	**arr;
 	size_t	i;
 
 	if (!env || !env->count)
 		return (NULL);
-	arr = (char **)calloc(env->count + 1, sizeof(char *));
+	arr = (char **)calloc(env->count + local_env->count + 1, sizeof(char *));
 	if (!arr)
 		return (NULL);
 	i = 0;
@@ -82,59 +85,80 @@ static char **envp_to_array(const t_envp *env)
 		arr[i] = env->vars[i].str;
 		i++;
 	}
+	while (i < local_env->count)
+	{
+		arr[i] = local_env->vars[i - env->count].str;
+		i++;
+	}
 	arr[i] = NULL;
 	return (arr);
 }
 
-static int  run_external(char **argv, const t_envp *env)
+static int  execve_wrapper(char **argv, const t_envp *env, const t_envp *local_env)
 {
-	pid_t	pid;
-	int		status;
 	char	**env_arr;
 
 	if (!argv || !argv[0])
 		return (0);
-	pid = fork();
-	if (pid < 0)
-		return (errno);
-	if (pid == 0)
-	{
-		env_arr = envp_to_array(env);
-		execve(argv[0], argv, env_arr);
-		perror("execve");
-		exit(127);
-	}
-	if (waitpid(pid, &status, 0) < 0)
-		return (errno);
-	if (WIFEXITED(status))
-		return (WEXITSTATUS(status));
-	if (WIFSIGNALED(status))
-		return (128 + WTERMSIG(status));
-	return (1);
+	env_arr = envp_to_array(env, local_env);
+	execve(argv[0], argv, env_arr);
+	perror("execve");
+	exit(127);
 }
 
+static int get_redir_fd(t_token_type r)
+{
+	if (r == TOK_REDIR_OUT || r == TOK_REDIR_APPEND)
+		return (STDOUT_FILENO);
+	return (STDIN_FILENO);
+}
 static int exec_redirs(t_minishell *sh, t_ast_list *r)
 {
-	int ret;
+	int	ret;
+	int	fd;
+	char *filename;
 
-	(void)sh;
 	ret = 0;
 	while (r)
 	{
-		//TODO: exec redirs, check now if redir target is wildcard
-		if (ret)
-			return (ret);
+		filename = expanded_str(sh->env, r->node->as.redir.target->as.leaf.text);
+		if (r->node->as.redir.kind == TOK_REDIR_OUT)
+			fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		else if (r->node->as.redir.kind == TOK_REDIR_IN)
+			fd = open(filename, O_RDONLY);
+		else if (r->node->as.redir.kind == TOK_REDIR_APPEND)
+			fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
+		else
+			fd = -1;
+		if (dup2(fd, get_redir_fd(r->node->as.redir.kind)) < 0)
+		{
+			close(fd);
+			free(filename);
+			return (1);
+		}
+		if (fd < 0)
+		{
+			//error
+			return (1);
+		}
+		close(fd);
+		free(filename);
 		r = r->next;
 	}
 	return (0);
 }
 
-static int exec_assignments(t_minishell *sh, t_ast_list *a)
+static int exec_assignments(t_minishell *sh, t_ast_list *a, t_envp *env, bool global)
 {
-	(void) sh;
+	char *text;
+
+	if (global)
+		env = sh->env;
 	while (a)
 	{
-		//TODO: handle assignments
+		text = envp_text_expand_wildcard(a->node->as.leaf.text);
+		envp_elem_append(env, text);
+		free(text);
 		a = a->next;
 	}
 	return (0);
@@ -144,19 +168,34 @@ int	exec_simple_command(t_minishell *sh, t_ast *node)
 {
 	char	**argv;
 	int		status;
+	t_envp  local_env;
 
+	memset(&local_env, 0, sizeof(t_envp));
 	if (!node || node->type != AST_SIMPLE_COMMAND)
 		return (1);
-	if (exec_assignments(sh, node->as.simple_command.assignments))
-		return (1);
+	argv = words_to_argv(node->as.simple_command.words);
 	if (exec_redirs(sh, node->as.simple_command.redirs))
 		return (1);
-	argv = words_to_argv(node->as.simple_command.words);
+	if (exec_assignments(sh, node->as.simple_command.assignments,
+							&local_env, argv == NULL))
+		return (1);
 	if (!argv)
 		return (0);
-	status = run_external(argv, sh->env);
+	status = execve_wrapper(argv, sh->env, &local_env);
 	free_argv(argv);
 	sh->last_status = status;
+	return (status);
+}
+
+//TODO: don't fork if running in pipeline!
+int exec_grouping(t_minishell *sh, t_ast *node)
+{
+	int		status;
+	pid_t	pid;
+
+	pid = fork();
+	exec_redirs(sh, node->as.command.redirs);
+	status = exec_node(sh, node->as.grouping.list);
 	return (status);
 }
 
@@ -170,17 +209,96 @@ int	exec_command(t_minishell *sh, t_ast *node)
 	if (node->as.command.core->type == AST_SIMPLE_COMMAND)
 		status = exec_simple_command(sh, node->as.command.core);
 	else if (node->as.command.core->type == AST_GROUPING)
-		status = exec_node(sh, node->as.grouping.list);
-	else
-		status = exec_node(sh, node->as.command.core);
-	//TODO: trailing redirs in case of grouping
+		status = exec_grouping(sh, node);
 	sh->last_status = status;
 	return (status);
 }
 
-int	exec_pipeline(t_minishell *sh, t_ast *node)
+static inline int wait_pids(const pid_t *pids, const size_t count)
 {
-	//TODO: figure this out from pipex
+	size_t	i;
+	int		status;
+	int		st;
+
+	i = 0;
+	status = 0;
+	while (i < count)
+	{
+		if (waitpid(pids[i], &st, 0) > 0 && i == count - 1)
+		{
+			if (WIFEXITED(st))
+				status = WEXITSTATUS(st);
+			else if (WIFSIGNALED(st))
+				status = 128 + WTERMSIG(st);
+		}
+		i++;
+	}
+	return (status);
+}
+
+//TODO: SINGLE COMMAND NO REDIRS
+int exec_pipeline(t_minishell *sh, const t_ast_list *cmds)
+{
+    int         prev_read = -1;
+    int         pipefd[2];
+    pid_t       pids[256];
+    int         count = 0;
+
+    while (cmds) {
+        if (cmds->next && pipe(pipefd) < 0)
+        {
+            perror("pipe");
+            if (prev_read != -1)
+            	close(prev_read);
+            return (1);
+        }
+    	pids[count] = fork();
+        if (pids[count] < 0) {
+            perror("fork");
+            if (cmds->next)
+            {
+	            close(pipefd[0]);
+            	close(pipefd[1]);
+            }
+            if (prev_read != -1)
+            	close(prev_read);
+            return (1);
+        }
+        if (pids[count] == 0)
+        {
+            if (prev_read != -1)
+            {
+                if (dup2(prev_read, STDIN_FILENO) < 0)
+                    exit(1);
+            }
+            if (cmds->next)
+            {
+                close(pipefd[0]);
+                if (dup2(pipefd[1], STDOUT_FILENO) < 0)
+                    exit(1);
+            }
+            if (prev_read != -1)
+            	close(prev_read);
+            if (!cmds->next)
+            	close(pipefd[1]);
+        	exec_command(sh, cmds->node);
+        }
+        if (prev_read != -1)
+            close(prev_read);
+        if (!cmds->next)
+        {
+            close(pipefd[1]);
+            prev_read = pipefd[0];
+        }
+    	else
+            prev_read = -1;
+    	count++;
+        cmds = cmds->next;
+    }
+    if (prev_read != -1)
+        close(prev_read);
+    sh->last_status = wait_pids(pids, count);
+	return (sh->last_status);
 }
 
 int	exec_binop(t_minishell *sh, t_ast *node)

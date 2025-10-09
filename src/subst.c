@@ -14,10 +14,14 @@
 // Created by afonsusousa on 9/29/25.
 //
 
+#include "../includes/subst.h"
+
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
 #include "../includes/minishell.h"
 #include "../includes/envp.h"
 
@@ -37,6 +41,7 @@ size_t    handle_escape(const char *str, bool *escaped)
     return (count);
 }
 
+//bash stores the wildcard in env, then expands it in the getter
 size_t needed_space(const t_envp *env, const char *str)
 {
     size_t    i;
@@ -51,12 +56,13 @@ size_t needed_space(const t_envp *env, const char *str)
     {
         i += handle_escape(&str[i], &escaped);
         if (!escaped && str[i++] == '$')
-            value = envp_get_elem_value(env, str + i);
+            value = expand_cwd_wildcards( envp_get_elem_value(env, str + i));
         if (value != NULL)
         {
             total_length += strlen(value);
             while (str[i] && !isspace((unsigned char)str[i]))
                 i++;
+            free(value);
             value = NULL;
         }
         else
@@ -73,12 +79,13 @@ size_t  check_copy(const t_envp *env, char *dest, const char *src_elem)
     i = 0;
     if (src_elem[0] != '$')
         return (0);
-    value = envp_get_elem_value(env, src_elem + 1);
+    value = expand_cwd_wildcards(envp_get_elem_value(env, src_elem + 1));
     while (value != NULL && value[i])
     {
         dest[i] = value[i];
         i++;
     }
+    free(value);
     return (i);
 }
 
@@ -112,10 +119,10 @@ char *expanded_str(const t_envp *env, const char *str)
     return (expanded);
 }
 
-bool match_wildcard(char *exp, char *str)
+bool match_wildcard(const char *exp, const char *str)
 {
-    char *star = NULL;
-    char *ss = NULL;
+    const char *star = NULL;
+    const char *ss = NULL;
 
     while (*str) {
         if (*exp == '*')
@@ -140,10 +147,35 @@ bool match_wildcard(char *exp, char *str)
     return *exp == '\0';
 }
 
-#include <limits.h>
-#include <unistd.h>
+bool	is_expandable(char *str)
+{
+    size_t  i;
+    bool	in_single;
+    bool	in_double;
 
-char    *expand_cwd_wildcards(char *wild_string)
+    i = 0;
+    in_single = false;
+    in_double = false;
+    if (!str)
+        return (false);
+    while (str[i])
+    {
+        if (str[i] == '\'' && !in_double)
+            in_single = !in_single;
+        else if (str[i] == '\"' && !in_single)
+            in_double = !in_double;
+        else if (str[i] == '*' && !in_single && !in_double)
+        {
+            if (ft_strchr(str, '='))
+                return (ft_strchr(str, '=') < &str[i]);
+            return (true);
+        }
+        i++;
+    }
+    return (false);
+}
+
+char    *expand_cwd_wildcards(const char *wild_string)
 {
     char cwd[PATH_MAX];
     DIR *dir;
@@ -167,6 +199,8 @@ char    *expand_cwd_wildcards(char *wild_string)
         entry = readdir(dir);
     }
     size += i == 1 ? 0 : i - 1;
+    if (i == 0)
+        return (ft_strdup(wild_string));
     closedir(dir);
     ret = calloc(size, sizeof(char));
     dir = opendir(cwd);

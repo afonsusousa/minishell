@@ -333,7 +333,9 @@ t_ast		*parse_simple_command(t_parser *p)
 		peek = ts_peek(&p->ts);
 		if (!peek)
 			break ;
-		if (peek->type == TOK_WORD || peek->type == TOK_QWORD)
+		if (peek->type == TOK_WORD
+			|| peek->type == TOK_QWORD
+			|| peek->type == TOK_ASSIGNMENT_WORD)
 		{
 			ts_advance(&p->ts);
 			node = ast_make_leaf_typed(AST_WORD,peek->lexeme, peek->len, peek->type == TOK_QWORD);

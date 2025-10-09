@@ -189,10 +189,10 @@ int main(int argc, char **argv, char **envp)
         envp_elem_append(&env, ft_strdup(envp[i]));
     printf("%s\n", envp_get_elem_value(&env, "USERNAME"));
     envp_elem_append(&env, ft_strdup("USERNAME+=ISSO"));
-    envp_elem_append(&env, ft_strdup("test+=ISTO"));
+    envp_elem_append(&env, ft_strdup("test+=*.bnf"));
     printf("%s\n", envp_get_elem_value(&env, "USERNAME"));
     printf("%s\n", envp_get_elem_value(&env, "test"));
-    printf ("%s\n", expanded_str(&env, "$USERNAME $ $ $ $USERNAME"));
+    printf ("%s\n", expanded_str(&env, "$USERNAME $test <-- this shit"));
     printf("%s\n", expand_cwd_wildcards("*"));
     return (0);
 }

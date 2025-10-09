@@ -124,7 +124,7 @@ void	lexer_read_word(t_lexer *lexer, t_token *token)
     start = lexer->position;
     sq = 0;
     dq = 0;
-    is_quoted = lexer->ch == '\'' || lexer->ch == '"';
+    is_quoted = ((lexer->ch == '\'') | ((lexer->ch == '"') << 1));
     while (lexer->ch != '\0')
     {
         if (handle_escape(lexer, sq, dq))
@@ -135,9 +135,9 @@ void	lexer_read_word(t_lexer *lexer, t_token *token)
             break ;
         lexer_read_char(lexer);
     }
-    token->type = is_quoted ? TOK_QWORD : TOK_WORD;
-    token->lexeme = lexer->input + start + is_quoted;
-    token->len = lexer->position - start - (is_quoted * 2);
+    token->type = is_quoted == 1 ? TOK_QWORD : TOK_WORD;
+    token->lexeme = lexer->input + start + (is_quoted != 0);
+    token->len = lexer->position - start - ((is_quoted != 0) * 2);
 }
 
 void lexer_skip_space(t_lexer *lexer)
