@@ -114,6 +114,7 @@ static bool			is_assigment(const t_token *t)
     return (false);
 }
 
+//TODO: better quote handling
 void	lexer_read_word(t_lexer *lexer, t_token *token)
 {
     size_t	start;

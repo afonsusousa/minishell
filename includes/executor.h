@@ -23,13 +23,12 @@ int	exec_ast(t_minishell *ctx, t_ast *node);
 
 int	exec_command_line(t_minishell *ctx, t_ast *node);
 int	exec_binop(t_minishell *ctx, t_ast *node); /* OR / AND */
-int	exec_pipeline(t_minishell *ctx, t_ast *node);
-int	exec_command(t_minishell *ctx, t_ast *node);
-int	exec_simple_command(t_minishell *ctx, t_ast *node);
-int	exec_grouping(t_minishell *ctx, t_ast *node);
+int	exec_pipeline(t_minishell *ctx, const t_ast_list *cmds);
+int	exec_command(t_minishell *ctx, t_ast *node, bool in_fork);
+int	exec_simple_command(t_minishell *ctx, t_ast *node, bool in_fork);
+int	exec_grouping(t_minishell *ctx, t_ast *node, bool in_fork);
 
-char	**words_to_argv(t_ast_list *words);
+char	**words_to_argv(t_minishell *sh, t_ast_list *words);
 void	free_argv(char **argv);
 
 #endif /* MINISHELL_EXECUTOR_H */
-

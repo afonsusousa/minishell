@@ -7,6 +7,7 @@
 #include "../includes/parser.h"
 #include "../includes/ast.h"
 #include "../includes/envp.h"
+#include "../includes/executor.h"
 #include "../includes/subst.h"
 
 static const char *tok_name(t_token_type t)
@@ -142,7 +143,7 @@ int main(int argc, char **argv, char **envp)
     if (argc > 1)
         input = argv[1];
     else
-        input = "a=\"pila\" echo \\$ < *.bnf && ls | wc -l && (ls)";
+        input = "(echo a && echo b) | cat";
 
     // Lex
     t_lexer lx;
@@ -181,18 +182,21 @@ int main(int argc, char **argv, char **envp)
     print_ast(root, 0);
 
     // Cleanup
-    ast_free(root);
-    token_stream_free(&ts);
 
     t_envp env = {0};
     for (int i = 0; envp[i] != NULL; i++)
         envp_elem_append(&env, ft_strdup(envp[i]));
-    printf("%s\n", envp_get_elem_value(&env, "USERNAME"));
-    envp_elem_append(&env, ft_strdup("USERNAME+=ISSO"));
-    envp_elem_append(&env, ft_strdup("test+=*.bnf"));
-    printf("%s\n", envp_get_elem_value(&env, "USERNAME"));
-    printf("%s\n", envp_get_elem_value(&env, "test"));
-    printf ("%s\n", expanded_str(&env, "$USERNAME $test <-- this shit"));
-    printf("%s\n", expand_cwd_wildcards("*"));
+    // printf("%s\n", envp_get_elem_value(&env, "USERNAME"));
+    // envp_elem_append(&env, ft_strdup("USERNAME+=ISSO"));
+    // envp_elem_append(&env, ft_strdup("test+=*.bnf"));
+    // printf("%s\n", envp_get_elem_value(&env, "USERNAME"));
+    // printf("%s\n", envp_get_elem_value(&env, "test"));
+    // printf ("%s\n", expanded_str(&env, "$USERNAME $test <-- this shit"));
+    // printf("%s\n", expand_cwd_wildcards("*"));
+    t_minishell sh;
+    sh.env = &env;
+    exec_ast(&sh, root);
+    ast_free(root);
+    token_stream_free(&ts);
     return (0);
 }

@@ -56,7 +56,7 @@ size_t needed_space(const t_envp *env, const char *str)
     {
         i += handle_escape(&str[i], &escaped);
         if (!escaped && str[i++] == '$')
-            value = expand_cwd_wildcards( envp_get_elem_value(env, str + i));
+            value =  envp_get_elem_value(env, str + i);
         if (value != NULL)
         {
             total_length += strlen(value);
@@ -79,7 +79,7 @@ size_t  check_copy(const t_envp *env, char *dest, const char *src_elem)
     i = 0;
     if (src_elem[0] != '$')
         return (0);
-    value = expand_cwd_wildcards(envp_get_elem_value(env, src_elem + 1));
+    value = envp_get_elem_value(env, src_elem + 1);
     while (value != NULL && value[i])
     {
         dest[i] = value[i];
