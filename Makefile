@@ -15,6 +15,7 @@ SRCS := \
 	$(SRC_DIR)/parser.c \
 	$(SRC_DIR)/envp.c \
 	$(SRC_DIR)/executor.c \
+	$(SRC_DIR)/dispose.c \
 	$(SRC_DIR)/subst.c
 
 OBJS := $(SRCS:.c=.o)

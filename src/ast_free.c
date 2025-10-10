@@ -80,5 +80,10 @@ void	ast_free(t_ast *node)
 		ast_free(node->as.binop.left);
 		ast_free(node->as.binop.right);
 	}
+	else if (node->type == AST_WORD || node->type == AST_ASSIGNMENT)
+	{
+		free((char *)node->as.leaf.text);
+		node->as.leaf.text = NULL;
+	}
 	free(node);
 }

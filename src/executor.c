@@ -108,12 +108,12 @@ static char **envp_to_array(const t_envp *env, const t_envp *local_env)
 	i = 0;
 	while (i < env->count)
 	{
-		arr[i] = env->vars[i].str;
+		arr[i] = ft_strdup(env->vars[i].str);
 		i++;
 	}
 	while (i < local_env->count)
 	{
-		arr[i] = local_env->vars[i - env->count].str;
+		arr[i] = ft_strdup(local_env->vars[i - env->count].str);
 		i++;
 	}
 	arr[i] = NULL;
@@ -182,7 +182,7 @@ char	*find_path(char *cmd, char **envp)
 	return (free_until_null(&split_path), ft_strdup(cmd));
 }
 
-static int  execve_wrapper(char **argv, const t_envp *env, const t_envp *local_env)
+static int  execve_wrapper(t_minishell *sh, char **argv, const t_envp *env, const t_envp *local_env)
 {
 	char	**env_arr;
 
@@ -190,6 +190,7 @@ static int  execve_wrapper(char **argv, const t_envp *env, const t_envp *local_e
 		return (0);
 	env_arr = envp_to_array(env, local_env);
 	argv[0] = find_path(argv[0], env_arr);
+	minishell_free(sh);
 	execve(argv[0], argv, env_arr);
 	perror("execve");
 	exit(127);
@@ -264,9 +265,10 @@ int	exec_simple_command(t_minishell *sh, t_ast *node, bool in_fork)
 							&local_env, argv == NULL))
 		return (1);
 	if (!argv)
-		return (0);
-	status = execve_wrapper(argv, sh->env, &local_env);
+		return (free_envp(&local_env), minishell_free(sh), 0);
+	status = execve_wrapper(sh, argv, sh->env, &local_env);
 	free_argv(argv);
+	free_envp(&local_env);
 	sh->last_status = status;
 	return (status);
 }
@@ -361,6 +363,7 @@ int exec_pipeline(t_minishell *sh, const t_ast_list *cmds)
                 close(pipefd[1]);
             }
         	exec_command(sh, cmds->node, true);
+        	minishell_free(sh);
         	exit(1);
         }
         if (prev_read != -1)

@@ -143,7 +143,7 @@ int main(int argc, char **argv, char **envp)
     if (argc > 1)
         input = argv[1];
     else
-        input = "(echo a && echo b) | cat";
+        input = "< Makefile cat | (head -1 && cat) | wc -c";
 
     // Lex
     t_lexer lx;
@@ -185,7 +185,7 @@ int main(int argc, char **argv, char **envp)
 
     t_envp env = {0};
     for (int i = 0; envp[i] != NULL; i++)
-        envp_elem_append(&env, ft_strdup(envp[i]));
+        envp_elem_append(&env, envp[i]);
     // printf("%s\n", envp_get_elem_value(&env, "USERNAME"));
     // envp_elem_append(&env, ft_strdup("USERNAME+=ISSO"));
     // envp_elem_append(&env, ft_strdup("test+=*.bnf"));
@@ -195,8 +195,9 @@ int main(int argc, char **argv, char **envp)
     // printf("%s\n", expand_cwd_wildcards("*"));
     t_minishell sh;
     sh.env = &env;
+    sh.ast = root;
+    sh.ts = &ts;
     exec_ast(&sh, root);
-    ast_free(root);
-    token_stream_free(&ts);
+    minishell_free(&sh);
     return (0);
 }

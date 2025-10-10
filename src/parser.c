@@ -26,10 +26,7 @@ t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text, size_t len, bool q
 		return (NULL);
 	s = (char *)malloc(len + 1);
 	if (!s)
-	{
-		free(n);
-		return (NULL);
-	}
+		return (free(n), NULL);
 	memcpy(s, text, len);
 	s[len] = '\0';
 	n->as.leaf.text = s;

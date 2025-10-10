@@ -6,25 +6,31 @@
 #define MINISHELL_MINISHELL_H
 #include <stddef.h>
 
+#include "ast.h"
+#include "tokens.h"
 #include "../lib/libft/libft.h"
 
 typedef struct s_envp_elem
 {
    char     *str;
    size_t   tag_len;
-} t_envp_elem;
+} t_var;
 
 typedef struct s_envp
 {
-   t_envp_elem *vars;
+   t_var       *vars;
    size_t      capacity;
    size_t      count;
 } t_envp;
 
 typedef struct s_minishell
 {
-   t_envp *env;
-   t_envp *tmp_env;
-   int      last_status;
+   t_envp         *env;
+   t_ast          *ast;
+   t_token_stream *ts;
+   int            last_status;
 } t_minishell;
+
+void    minishell_free(t_minishell *sh);
+
 #endif //MINISHELL_MINISHELL_H

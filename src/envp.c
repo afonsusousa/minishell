@@ -30,18 +30,18 @@ size_t  key_len(const char *str)
 bool    envp_reserve(t_envp *env, size_t needed)
 {
     size_t      to_reserve;
-    t_envp_elem *new_data;
+    t_var *new_data;
 
     if (env->capacity >= needed)
         return (true);
     to_reserve = env->capacity ? env->capacity : 64;
     while (to_reserve < needed)
         to_reserve <<= 1;
-    new_data = (t_envp_elem *)calloc(to_reserve, sizeof(t_envp_elem));
+    new_data = (t_var *)calloc(to_reserve, sizeof(t_var));
     if (!new_data)
         return (false);
     if (env->vars && env->count)
-        memcpy(new_data, env->vars, env->count * sizeof(t_envp_elem));
+        memcpy(new_data, env->vars, env->count * sizeof(t_var));
     free(env->vars);
     env->vars = new_data;
     env->capacity = to_reserve;
@@ -72,7 +72,7 @@ char    *sanitize_assignment(char *str)
     return (ret);
 }
 
-void    elem_replace_str(t_envp_elem *elem, char *str)
+void    elem_replace_str(t_var *elem, char *str)
 {
     if (elem->str)
         free(elem->str);
@@ -99,7 +99,7 @@ bool    envp_elem_set(t_envp    *env, char *str)
     return (elem_replace_str(&env->vars[env->count++], str), true);
 }
 
-t_envp_elem *envp_get_elem(const t_envp *env, const char *str)
+t_var *envp_get_elem(const t_envp *env, const char *str)
 {
     size_t i;
     size_t len;
@@ -118,7 +118,7 @@ t_envp_elem *envp_get_elem(const t_envp *env, const char *str)
 
 char    *envp_get_elem_value(const t_envp *env, const char *str)
 {
-    t_envp_elem *elem;
+    t_var *elem;
 
     elem = envp_get_elem(env, str);
     if (!elem)
@@ -126,7 +126,7 @@ char    *envp_get_elem_value(const t_envp *env, const char *str)
     return (elem->str + elem->tag_len + 1);
 }
 
-void elem_free(t_envp_elem *elem)
+void elem_free(t_var *elem)
 {
     if (!elem)
         return ;
@@ -153,7 +153,7 @@ void    envp_remove_elem(t_envp *env, const char *str)
             if (i < env->count - 1)
                 memmove(&env->vars[i],
                         &env->vars[i + 1],
-                        (env->count - i - 1) * sizeof(t_envp_elem));
+                        (env->count - i - 1) * sizeof(t_var));
             env->count--;
         }
         i++;
@@ -162,7 +162,7 @@ void    envp_remove_elem(t_envp *env, const char *str)
 
 void envp_elem_append(t_envp *env, char *str)
 {
-    t_envp_elem *target;
+    t_var *target;
     char        *join;
     char        *to_join;
     target = envp_get_elem(env, str);
@@ -177,4 +177,14 @@ void envp_elem_append(t_envp *env, char *str)
         return ;
     free(target->str);
     target->str = join;
+}
+
+void    free_envp(t_envp *env)
+{
+    size_t i;
+
+    i = 0;
+    while (i < env->count)
+        free(env->vars[i++].str);
+    free(env->vars);
 }
