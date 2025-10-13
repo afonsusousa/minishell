@@ -56,7 +56,7 @@ size_t needed_space(const t_envp *env, const char *str)
     {
         i += handle_escape(&str[i], &escaped);
         if (!escaped && str[i++] == '$')
-            value =  envp_get_elem_value(env, str + i);
+            value =  envp_get_var_value(env, str + i);
         if (value != NULL)
         {
             total_length += strlen(value);
@@ -79,7 +79,7 @@ size_t  check_copy(const t_envp *env, char *dest, const char *src_elem)
     i = 0;
     if (src_elem[0] != '$')
         return (0);
-    value = envp_get_elem_value(env, src_elem + 1);
+    value = envp_get_var_value(env, src_elem + 1);
     while (value != NULL && value[i])
     {
         dest[i] = value[i];
@@ -135,7 +135,8 @@ bool match_wildcard(const char *exp, const char *str)
             exp++;
             str++;
         }
-        else if (star) {
+        else if (star)
+        {
             exp = star + 1;
             str = ++ss;
         }
@@ -175,9 +176,74 @@ bool	is_expandable(char *str)
     return (false);
 }
 
+char    *ft_strndup(const char *str, size_t size)
+{
+    char	*t;
+    char	*r;
+
+    if (!str)
+        return (NULL);
+    t = (char *)malloc(size + 1);
+    if (!t)
+        return (NULL);
+    r = t;
+    while ((size_t)(t - r) < size && *str)
+        *t++ = *str++;
+    *t = 0;
+    return (r);
+}
+//TODO: split wild_string into directory and wildcard
+
+//WARNING THIS WILL TAKE A LOT MORE WORK: ./*PATH*/*.C <-- everything will need to be expanded
+
+char    **get_matches(char *cwd, char **wildstr, )
+{
+    char **ret = NULL;
+    char *next_call;
+    char path[PATH_MAX];
+    DIR *dir;
+    struct dirent *entry;
+    dir = opendir(cwd);
+    entry = readdir(dir);
+
+    strcpy(path, cwd);
+    strlcat(path, "/", ft_strlen(path) + 2);
+    if (!wildstr)
+        return ();
+    while (entry)
+    {
+        if (match_wildcard(*wildstr, entry->d_name))
+        {
+            next_call = ft_strjoin(path, entry->d_name);
+            if (opendir(next_call))
+                ret = ft_strjoinjoin(ret, get_matches(next_call, wildstr + 1));
+            else if (access(next_call))
+            {
+                ret = ft_calloc(2 , sizeof(char *));
+                ret[0] = next_call;
+            }
+        }
+        entry = readdir(dir);
+    }
+    return (ret);
+}
+
+char    *get_those_dirs(char *wild_string)
+{
+    size_t  i;
+    char **dirs_to_retrieve;
+    char path[PATH_MAX];
+
+    i = 0;
+    dirs_to_retrieve = ft_split(wild_string, '/');
+    while (dirs_to_retrieve != NULL)
+    {
+       if (ft_strncmp(dirs_to_retrieve[0], ".", 1) == 0)
+           continue;
+    }
+}
 char    *expand_cwd_wildcards(const char *wild_string)
 {
-    char cwd[PATH_MAX];
     DIR *dir;
     struct dirent *entry;
     size_t  size;
@@ -202,7 +268,7 @@ char    *expand_cwd_wildcards(const char *wild_string)
     if (i == 0)
         return (ft_strdup(wild_string));
     closedir(dir);
-    ret = calloc(size, sizeof(char));
+    ret = calloc(size + 1, sizeof(char));
     dir = opendir(cwd);
     entry = readdir(dir);
     while (entry && i)
