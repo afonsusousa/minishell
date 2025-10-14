@@ -161,33 +161,24 @@ int main(int argc, char **argv, char **envp)
         token_stream_free(&ts);
         return 1;
     }
-
     t_ast *root = parse(ts.data, ts.count);
     if (!root) {
         fprintf(stderr, "parse failed\n");
         token_stream_free(&ts);
         return 2;
     }
-
     // printf("\nAST:\n");
     // print_ast(root, 0);
-
     t_envp env = {0};
     for (int i = 0; envp[i] != NULL; i++)
         envp_var_append(&env, envp[i]);
-    // printf("%s\n", envp_get_elem_value(&env, "USERNAME"));
-    // envp_elem_append(&env, ft_strdup("USERNAME+=ISSO"));
-    // envp_elem_append(&env, ft_strdup("test+=*.bnf"));
-    // printf("%s\n", envp_get_elem_value(&env, "USERNAME"));
-    // printf("%s\n", envp_get_elem_value(&env, "test"));
-    // printf ("%s\n", expanded_str(&env, "$USERNAME $test <-- this shit"));
-    // printf("%s\n", expand_cwd_wildcards("*"));
-    char **to_match;
-    to_match = ft_split("*/*/*/*.c", '/');
-    char **lessgoo;
-    lessgoo = get_matches("/home/afonsusousa", to_match);
-    for (;*lessgoo; lessgoo++)
-        printf("%s\n", *lessgoo);
+    // char **to_match;
+    // to_match = ft_split("*/*/*/*.c", '/');
+    // char **lessgoo;
+    // lessgoo = get_matches("/home/afonsusousa", to_match);
+    // for (;*lessgoo; lessgoo++)
+    //     printf("%s\n", *lessgoo);
+
     t_minishell sh;
     sh.env = &env;
     sh.ast = root;

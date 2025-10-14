@@ -162,7 +162,7 @@ void    envp_remove_var(t_envp *env, const char *str)
 
 t_var *envp_var_append(t_envp *env, char *str)
 {
-    t_var *target;
+    t_var   	*target;
     char        *join;
     char        *to_join;
     target = envp_get_var(env, str);
