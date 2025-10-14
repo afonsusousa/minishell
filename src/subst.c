@@ -195,55 +195,75 @@ char    *ft_strndup(const char *str, size_t size)
 //TODO: split wild_string into directory and wildcard
 
 //WARNING THIS WILL TAKE A LOT MORE WORK: ./*PATH*/*.C <-- everything will need to be expanded
+char **strjoinjoin(char **a, char **b) {
+    size_t len_a = 0, len_b = 0, i = 0, j = 0;
+    char **result;
 
-char    **get_matches(char *cwd, char **wildstr, )
+    if (a)
+        while (a[len_a]) len_a++;
+    if (b)
+        while (b[len_b]) len_b++;
+
+    result = malloc(sizeof(char *) * (len_a + len_b + 1));
+    if (!result) return NULL;
+
+    for (i = 0; i < len_a && a; i++)
+        result[i] = a[i];
+    for (j = 0; j < len_b && b; j++)
+        result[i + j] = b[j];
+    result[len_a + len_b] = NULL;
+    return result;
+}
+
+char **get_double_from_str(char *str)
 {
-    char **ret = NULL;
-    char *next_call;
-    char path[PATH_MAX];
-    DIR *dir;
-    struct dirent *entry;
+    char **ret;
+
+    ret = ft_calloc(2, sizeof(char *));
+    if (!ret)
+        return (NULL);
+    ret[0] = ft_strdup(str);
+    return ret;
+}
+
+//WALLAÇOOOOO CARA DE PAU E PAU DE AÇO MEU ORGULHO
+char    **get_matches(char *cwd, char **wildstr)
+{
+    char            **ret;
+    char            *next_call;
+    char            path[PATH_MAX];
+    DIR         	*dir;
+    struct dirent   *entry;
+
+    ret = NULL;
     dir = opendir(cwd);
     entry = readdir(dir);
-
+    if (!wildstr || !*wildstr)
+    {
+        if (access(cwd, F_OK) == 0)
+            return (get_double_from_str(cwd));
+        return NULL;
+    }
     strcpy(path, cwd);
-    strlcat(path, "/", ft_strlen(path) + 2);
-    if (!wildstr)
-        return ();
+    ft_strlcat(path, "/", ft_strlen(path) + 2);
     while (entry)
     {
-        if (match_wildcard(*wildstr, entry->d_name))
+        if ((entry->d_name[0] != '.' || (*wildstr)[0] == '.') && match_wildcard(*wildstr, entry->d_name))
         {
             next_call = ft_strjoin(path, entry->d_name);
             if (opendir(next_call))
-                ret = ft_strjoinjoin(ret, get_matches(next_call, wildstr + 1));
-            else if (access(next_call))
-            {
-                ret = ft_calloc(2 , sizeof(char *));
-                ret[0] = next_call;
-            }
+                ret = strjoinjoin(ret, get_matches(next_call, wildstr + 1));
+            else if (access(next_call, F_OK) == 0 && !wildstr[1])
+                ret = strjoinjoin(ret, get_double_from_str(next_call));
         }
         entry = readdir(dir);
     }
     return (ret);
 }
 
-char    *get_those_dirs(char *wild_string)
-{
-    size_t  i;
-    char **dirs_to_retrieve;
-    char path[PATH_MAX];
-
-    i = 0;
-    dirs_to_retrieve = ft_split(wild_string, '/');
-    while (dirs_to_retrieve != NULL)
-    {
-       if (ft_strncmp(dirs_to_retrieve[0], ".", 1) == 0)
-           continue;
-    }
-}
 char    *expand_cwd_wildcards(const char *wild_string)
 {
+    char cwd[PATH_MAX];
     DIR *dir;
     struct dirent *entry;
     size_t  size;

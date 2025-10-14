@@ -19,7 +19,7 @@ SRCS := \
 	$(SRC_DIR)/subst.c
 
 OBJS := $(SRCS:.c=.o)
-NAME := minishell_demo
+NAME := minishell
 
 all: $(NAME)
 

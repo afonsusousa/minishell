@@ -30,7 +30,6 @@ t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text, size_t len, bool q
 	memcpy(s, text, len);
 	s[len] = '\0';
 	n->as.leaf.text = s;
-	n->as.leaf.len = len;
 	n->as.leaf.quoted = quoted;
 	return (n);
 }

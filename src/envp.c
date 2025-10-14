@@ -72,7 +72,7 @@ char    *sanitize_assignment(char *str)
     return (ret);
 }
 
-void    elem_replace_str(t_var *elem, char *str)
+void    var_replace_str(t_var *elem, char *str)
 {
     if (elem->str)
         free(elem->str);
@@ -80,7 +80,7 @@ void    elem_replace_str(t_var *elem, char *str)
     elem->tag_len = key_len(elem->str);
 }
 
-bool    envp_elem_set(t_envp    *env, char *str)
+t_var    *envp_var_set(t_envp    *env, char *str)
 {
     size_t i;
     size_t len;
@@ -91,15 +91,15 @@ bool    envp_elem_set(t_envp    *env, char *str)
     {
         if (env->vars[i].tag_len == len &&
             strncmp(env->vars[i].str, str, len) == 0)
-            return (elem_replace_str(&env->vars[i], str), true);
+            return (var_replace_str(&env->vars[i], str), &env->vars[i]);
         i++;
     }
     if (!envp_reserve(env, env->count + 1))
-        return (false);
-    return (elem_replace_str(&env->vars[env->count++], str), true);
+        return (NULL);
+    return (var_replace_str(&env->vars[env->count], str), &env->vars[env->count++]);
 }
 
-t_var *envp_get_elem(const t_envp *env, const char *str)
+t_var *envp_get_var(const t_envp *env, const char *str)
 {
     size_t i;
     size_t len;
@@ -116,17 +116,17 @@ t_var *envp_get_elem(const t_envp *env, const char *str)
     return NULL;
 }
 
-char    *envp_get_elem_value(const t_envp *env, const char *str)
+char    *envp_get_var_value(const t_envp *env, const char *str)
 {
     t_var *elem;
 
-    elem = envp_get_elem(env, str);
+    elem = envp_get_var(env, str);
     if (!elem)
         return (NULL);
     return (elem->str + elem->tag_len + 1);
 }
 
-void elem_free(t_var *elem)
+void free_var(t_var *elem)
 {
     if (!elem)
         return ;
@@ -137,7 +137,7 @@ void elem_free(t_var *elem)
     }
 }
 
-void    envp_remove_elem(t_envp *env, const char *str)
+void    envp_remove_var(t_envp *env, const char *str)
 {
     size_t i;
     size_t len;
@@ -149,7 +149,7 @@ void    envp_remove_elem(t_envp *env, const char *str)
         if (env->vars[i].tag_len == len &&
             strncmp(env->vars[i].str, str, len) == 0)
         {
-            elem_free(&env->vars[i]);
+            free_var(&env->vars[i]);
             if (i < env->count - 1)
                 memmove(&env->vars[i],
                         &env->vars[i + 1],
@@ -160,23 +160,21 @@ void    envp_remove_elem(t_envp *env, const char *str)
     }
 }
 
-void envp_elem_append(t_envp *env, char *str)
+t_var *envp_var_append(t_envp *env, char *str)
 {
     t_var *target;
     char        *join;
     char        *to_join;
-    target = envp_get_elem(env, str);
+    target = envp_get_var(env, str);
     if (!target || str[key_len(str)] == '=')
-    {
-        (envp_elem_set(env, str));
-        return ;
-    }
+        return (envp_var_set(env, str));
     to_join = sanitize_assignment(str);
     join = ft_strjoin(target->str, to_join + target->tag_len + 1);
     if (!join)
-        return ;
+        return NULL;
     free(target->str);
     target->str = join;
+    return (target);
 }
 
 void    free_envp(t_envp *env)

@@ -58,7 +58,6 @@ typedef struct s_ast {
 
         struct {                // AST_ASSIGNMENT / AST_WORD / HEREDOC delimiter or filename
             const char *text;
-            size_t      len;
             bool        quoted;
         } leaf;
 

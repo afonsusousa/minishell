@@ -209,7 +209,7 @@ static int exec_redirs(t_minishell *sh, t_ast_list *r)
 
 	while (r)
 	{
-		filename = expanded_str(sh->env, r->node->as.redir.target->as.leaf.text);
+		filename = expand_cwd_wildcards(expanded_str(sh->env, r->node->as.redir.target->as.leaf.text));
 		if (r->node->as.redir.kind == TOK_REDIR_OUT)
 			fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		else if (r->node->as.redir.kind == TOK_REDIR_IN)
@@ -242,7 +242,8 @@ static int exec_assignments(t_minishell *sh, t_ast_list *a, t_envp *env, bool gl
 		env = sh->env;
 	while (a)
 	{
-		envp_elem_append(env, a->node->as.leaf.text);
+		if (envp_var_append(env, a->node->as.leaf.text) == NULL)
+			return (1);
 		a = a->next;
 	}
 	return (0);
@@ -322,6 +323,7 @@ static inline int wait_pids(const pid_t *pids, const size_t count)
 //TODO: buitlins will not fork
 int exec_pipeline(t_minishell *sh, const t_ast_list *cmds)
 {
+	int			status;
     int         prev_read = -1;
     int         pipefd[2];
     pid_t       pids[256];
@@ -362,9 +364,9 @@ int exec_pipeline(t_minishell *sh, const t_ast_list *cmds)
                     exit(1);
                 close(pipefd[1]);
             }
-        	exec_command(sh, cmds->node, true);
+        	status = exec_command(sh, cmds->node, true);
         	minishell_free(sh);
-        	exit(1);
+        	exit(status);
         }
         if (prev_read != -1)
             close(prev_read);
@@ -377,9 +379,10 @@ int exec_pipeline(t_minishell *sh, const t_ast_list *cmds)
         cmds = cmds->next;
     }
     if (prev_read != -1)
-        close(prev_read);
-    sh->last_status = wait_pids(pids, count);
-	return (sh->last_status);
+	    close(prev_read);
+	status = wait_pids(pids, count);
+    sh->last_status = status;
+	return (status);
 }
 
 int	exec_binop(t_minishell *sh, t_ast *node)
