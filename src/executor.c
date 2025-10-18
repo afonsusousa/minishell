@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   executor.c                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: executor <student@42>                      +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/10/07 00:00:00 by executor          #+#    #+#             */
-/*   Updated: 2025/10/07 00:00:00 by executor         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
@@ -26,7 +14,7 @@
 static int exec_node(t_minishell* sh, t_ast* node);
 static int exec_redirs(t_minishell* sh, t_ast_list* r);
 
-int count_words(char* str, char sep)
+int count_words(const char* str, const char sep)
 {
     int count;
     bool in_word;
@@ -206,7 +194,7 @@ static int exec_redirs(t_minishell* sh, t_ast_list* r)
 {
     int fd;
     char* filename;
-
+    memset(&sh->heredoc, 0, sizeof(t_heredoc));
     while (r)
     {
         filename = expand_cwd_wildcards(expanded_str(sh->env, r->node->as.redir.target->as.leaf.text));
@@ -217,7 +205,7 @@ static int exec_redirs(t_minishell* sh, t_ast_list* r)
         else if (r->node->as.redir.kind == TOK_REDIR_APPEND)
             fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
         else if (r->node->as.redir.kind == TOK_HEREDOC)
-            fd = heredoc_fd(r->node->as.redir.target->as.leaf.text);
+            fd = heredoc_fd(sh, r->node->as.redir.target->as.leaf.text);
         else
             fd = -1;
         if (dup2(fd, get_redir_fd(r->node->as.redir.kind)) < 0)
@@ -268,7 +256,7 @@ int exec_simple_command(t_minishell* sh, t_ast* node, bool in_fork)
                          &local_env, argv == NULL))
         return (1);
     if (!argv)
-        return (free_envp(&local_env), minishell_free(sh), 0);
+        return (0);
     status = execve_wrapper(sh, argv, sh->env, &local_env);
     free_argv(argv);
     free_envp(&local_env);
@@ -300,7 +288,7 @@ int exec_command(t_minishell* sh, t_ast* node, bool in_fork)
     return (status);
 }
 
-static inline int wait_pids(const pid_t* pids, const size_t count)
+static inline int wait_pids(const t_pipeline *pipeline)
 {
     size_t i;
     int status;
@@ -308,9 +296,9 @@ static inline int wait_pids(const pid_t* pids, const size_t count)
 
     i = 0;
     status = 0;
-    while (i < count)
+    while (i < pipeline->count)
     {
-        if (waitpid(pids[i], &st, 0) > 0 && i == count - 1)
+        if (waitpid(pipeline->pids[i], &st, 0) > 0 && i == pipeline->count - 1)
         {
             if (WIFEXITED(st))
                 status = WEXITSTATUS(st);
@@ -326,65 +314,65 @@ static inline int wait_pids(const pid_t* pids, const size_t count)
 int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
 {
     int status;
-    int prev_read = -1;
-    int pipefd[2];
-    pid_t pids[256];
-    int count = 0;
+    t_pipeline *pipeline;
 
+    pipeline = &sh->pipeline;
+    memset(pipeline, 0, sizeof(t_pipeline));
+    pipeline->prev_read = -1;
     while (cmds)
     {
-        if (cmds->next && pipe(pipefd) < 0)
+        if (cmds->next && pipe(pipeline->pipefd) < 0)
         {
             perror("pipe");
-            if (prev_read != -1)
-                close(prev_read);
+            if (pipeline->prev_read != -1)
+                close(pipeline->prev_read);
             return (1);
         }
-        pids[count] = fork();
-        if (pids[count] < 0)
+        pipeline->pids[pipeline->count] = fork();
+        if (pipeline->pids[pipeline->count] < 0)
         {
             perror("fork");
             if (cmds->next)
             {
-                close(pipefd[0]);
-                close(pipefd[1]);
+                close(pipeline->pipefd[0]);
+                close(pipeline->pipefd[1]);
             }
-            if (prev_read != -1)
-                close(prev_read);
+            if (pipeline->prev_read != -1)
+                close(pipeline->prev_read);
             return (1);
         }
-        if (pids[count] == 0)
+        if (pipeline->pids[pipeline->count] == 0)
         {
-            if (prev_read != -1)
+            if (pipeline->prev_read != -1)
             {
-                if (dup2(prev_read, STDIN_FILENO) < 0)
+                if (dup2(pipeline->prev_read, STDIN_FILENO) < 0)
                     exit(1);
-                close(prev_read);
+                close(pipeline->prev_read);
             }
             if (cmds->next)
             {
-                close(pipefd[0]);
-                if (dup2(pipefd[1], STDOUT_FILENO) < 0)
+                close(pipeline->pipefd[0]);
+                if (dup2(pipeline->pipefd[1], STDOUT_FILENO) < 0)
                     exit(1);
-                close(pipefd[1]);
+                close(pipeline->pipefd[1]);
             }
             status = exec_command(sh, cmds->node, true);
             minishell_free(sh);
             exit(status);
         }
-        if (prev_read != -1)
-            close(prev_read);
+        if (pipeline->prev_read != -1)
+            close(pipeline->prev_read);
         if (cmds->next)
         {
-            close(pipefd[1]);
-            prev_read = pipefd[0];
+            close(pipeline->pipefd[1]);
+            pipeline->prev_read = pipeline->pipefd[0];
         }
-        count++;
+        pipeline->count++;
         cmds = cmds->next;
     }
-    if (prev_read != -1)
-        close(prev_read);
-    status = wait_pids(pids, count);
+    if (pipeline->prev_read != -1)
+        close(pipeline->prev_read);
+    status = wait_pids(pipeline);
     sh->last_status = status;
     return (status);
 }
@@ -437,11 +425,11 @@ static int exec_node(t_minishell* sh, t_ast* node)
     return (0);
 }
 
-int exec_ast(t_minishell* sh, t_ast* root)
+int exec_ast(t_minishell* sh)
 {
     int status;
 
-    status = exec_node(sh, root);
+    status = exec_node(sh, sh->ast);
     sh->last_status = status;
     return (status);
 }

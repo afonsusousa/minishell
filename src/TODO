@@ -1,0 +1,11 @@
+TODO:
+
+- builtins (don't fork)
+- proper expansion (using our function) -> expand($UBSITUTE)
+- exit code expansion and number expansion $? $3
+- history
+- signals (don't forget heredoc and pids)
+- QUOTES IN THE ENVIRONMENT
+- KEEP WORDS QUOTED
+- REWRITE ENVIRONMENT -> linked list
+-

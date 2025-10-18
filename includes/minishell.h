@@ -8,6 +8,8 @@
 
 #include "ast.h"
 #include "tokens.h"
+#include "pipeline.h"
+#include "heredoc.h"
 #include "../lib/libft/libft.h"
 
 typedef struct s_envp_elem
@@ -26,8 +28,11 @@ typedef struct s_envp
 typedef struct s_minishell
 {
    t_envp         *env;
-   t_ast          *ast;
+   char           *line;
    t_token_stream *ts;
+   t_ast          *ast;
+   t_pipeline     pipeline;
+   t_heredoc      heredoc;
    int            last_status;
 } t_minishell;
 

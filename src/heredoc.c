@@ -7,18 +7,18 @@
 #include <unistd.h>
 #include <readline/readline.h>
 #include "../includes/subst.h"
-#include <readline/history.h>
 #include <sys/wait.h>
 
-int heredoc_fd(const char *delimiter)
+//TODO: will need to keep track of pids to then kill in case of Ctrl-C
+int heredoc_fd(t_minishell *sh, const char *delimiter)
 {
-    pid_t   pid;
     char	*line;
     int     fd[2];
 
     pipe(fd);
-    pid = fork();
-    if (pid == 0)
+    sh->heredoc.pids[sh->heredoc.count] = fork();
+    // delimiter can be expandable
+    if (sh->heredoc.pids[sh->heredoc.count] == 0)
     {
         close(fd[0]);
         line = readline("heredoc>");
@@ -26,11 +26,12 @@ int heredoc_fd(const char *delimiter)
         {
             write(fd[1], line, ft_strlen(line));
             write(fd[1], "\n", 1);
+            free(line);
             line = readline("heredoc>");
         }
         exit (0);
     }
-    waitpid(pid, NULL, 0);
+    waitpid(sh->heredoc.pids[sh->heredoc.count++], NULL, 0);
     close(fd[1]);
     return (fd[0]);
 }

@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <readline/readline.h>
 
 #include "../includes/lexer.h"
 #include "../includes/tokens.h"
@@ -137,53 +139,63 @@
 //     }
 // }
 
+void    init_lexer(t_lexer *lx, char *input)
+{
+    lx->input = input;
+    lx->input_len = strlen(input);
+    lx->position = 0;
+    lx->read_position = 0;
+    lx->ch = '\0';
+    lexer_read_char(lx);
+}
+
 char    **get_matches(char *cwd, char **wildstr);
+
+int     exec_line(t_minishell *sh)
+{
+    t_lexer lx;
+    init_lexer(&lx, sh->line);
+    token_stream_init(sh, 0);
+    token_stream_fill(sh->ts, &lx);
+    sh->ast = parse(sh->ts->data, sh->ts->count);
+    exec_ast(sh);
+    return (sh->last_status);
+}
+
+//may return something else
+int     rl_loop(t_minishell *sh)
+{
+    sh->line = readline("minishell> ");
+    while (sh->line != NULL)
+    {
+        exec_line(sh);
+        free(sh->line);
+        token_stream_free(sh->ts);
+        ast_free(sh->ast);
+        sh->line = readline("minishell> ");
+    }
+    minishell_free(sh);
+    return (true);
+}
 
 int main(int argc, char **argv, char **envp)
 {
-    const char *input = NULL;
-    if (argc > 1)
-        input = argv[1];
-    else
-        return (-1);
-    // Lex
-    t_lexer lx;
-    lx.input = input;
-    lx.input_len = strlen(input);
-    lx.position = 0;
-    lx.read_position = 0;
-    lx.ch = '\0';
-    lexer_read_char(&lx); // prime first char
+    t_minishell sh;
     t_token_stream ts;
-    token_stream_init(&ts, 0);
-    if (!token_stream_fill(&ts, &lx)) {
-        fprintf(stderr, "lexing failed (OOM?)\n");
-        token_stream_free(&ts);
-        return 1;
-    }
-    t_ast *root = parse(ts.data, ts.count);
-    if (!root) {
-        fprintf(stderr, "parse failed\n");
-        token_stream_free(&ts);
-        return 2;
-    }
-    // printf("\nAST:\n");
-    // print_ast(root, 0);
+    printf("%d\n", getpid());
+    memset(&sh, 0, sizeof(t_minishell)); // ts -> NULL
+    sh.ts = &ts;
     t_envp env = {0};
     for (int i = 0; envp[i] != NULL; i++)
         envp_var_append(&env, envp[i]);
-    // char **to_match;
-    // to_match = ft_split("*/*/*/*.c", '/');
-    // char **lessgoo;
-    // lessgoo = get_matches("/home/afonsusousa", to_match);
-    // for (;*lessgoo; lessgoo++)
-    //     printf("%s\n", *lessgoo);
-
-    t_minishell sh;
     sh.env = &env;
-    sh.ast = root;
-    sh.ts = &ts;
-    exec_ast(&sh, root);
-    minishell_free(&sh);
+    if (argc > 1)
+    {
+        sh.line = argv[1]; // simplified
+        exec_line(&sh);
+        minishell_free(&sh);
+        return sh.last_status;
+    }
+    rl_loop(&sh);
     return (sh.last_status);
 }

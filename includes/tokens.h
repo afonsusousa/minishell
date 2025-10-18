@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include "lexer.h" // for t_token and token types
 
+typedef struct s_minishell t_minishell;
 typedef struct s_token_stream
 {
     t_token  *data;
@@ -75,7 +76,7 @@ static inline int ts_match(t_token_stream *ts, t_token_type type)
 int ts_expect(t_token_stream *ts, t_token_type type, const char *what, char *errbuf, size_t errcap);
 
 // Builder API (implemented in src/token_stream.c)
-void token_stream_init(t_token_stream *ts, size_t capacity);
+void token_stream_init(t_minishell *sh, size_t capacity);
 void token_stream_free(t_token_stream *ts);
 bool token_stream_reserve(t_token_stream *ts, size_t needed);
 bool token_stream_push(t_token_stream *ts, const t_token *token);

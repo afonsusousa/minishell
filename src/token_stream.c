@@ -9,25 +9,27 @@
 
 #include "../includes/lexer.h"
 #include "../includes/tokens.h"
+#include "../includes/minishell.h"
 
-void token_stream_init(t_token_stream *ts, size_t capacity)
+void token_stream_init(t_minishell *sh, size_t capacity)
 {
     if (capacity == 0)
         capacity = 32;
-    ts->data = (t_token *)calloc(capacity, sizeof(t_token));
-    if (ts->data)
-        ts->capacity = capacity;
+    sh->ts->data = (t_token *)calloc(capacity, sizeof(t_token));
+    if (sh->ts->data)
+        sh->ts->capacity = capacity;
     else
-        ts->capacity = 0;
-    ts->count = 0;
-    ts->position = 0;
-    ts->read_position = 0;
-    ts->tk = NULL;
+        sh->ts->capacity = 0;
+    sh->ts->count = 0;
+    sh->ts->position = 0;
+    sh->ts->read_position = 0;
+    sh->ts->tk = NULL;
 }
 
 void token_stream_free(t_token_stream *ts)
 {
-    free(ts->data);
+    if (ts->data)
+        free(ts->data);
     memset(ts, 0, sizeof(t_token_stream));
 }
 

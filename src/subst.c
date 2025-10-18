@@ -9,21 +9,10 @@
 #include <dirent.h>
 #include "../includes/minishell.h"
 #include "../includes/envp.h"
-
-//
-// Created by afonsusousa on 9/29/25.
-//
-
 #include "../includes/subst.h"
 
-#include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
-
-#include "../includes/minishell.h"
-#include "../includes/envp.h"
 
 size_t    handle_escape(const char *str, bool *escaped)
 {
@@ -203,14 +192,17 @@ char **strjoinjoin(char **a, char **b) {
         while (a[len_a]) len_a++;
     if (b)
         while (b[len_b]) len_b++;
-
     result = malloc(sizeof(char *) * (len_a + len_b + 1));
-    if (!result) return NULL;
-
+    if (!result)
+        return NULL;
     for (i = 0; i < len_a && a; i++)
         result[i] = a[i];
+    if (a)
+        free(a);
     for (j = 0; j < len_b && b; j++)
         result[i + j] = b[j];
+    if (b)
+        free(b);
     result[len_a + len_b] = NULL;
     return result;
 }
@@ -232,12 +224,12 @@ char    **get_matches(char *cwd, char **wildstr)
     char            **ret;
     char            *next_call;
     char            path[PATH_MAX];
-    DIR         	*dir;
+    DIR         	*dir[2];
     struct dirent   *entry;
 
     ret = NULL;
-    dir = opendir(cwd);
-    entry = readdir(dir);
+    dir[0] = opendir(cwd);
+    entry = readdir(dir[0]);
     if (!wildstr || !*wildstr)
     {
         if (access(cwd, F_OK) == 0)
@@ -251,13 +243,19 @@ char    **get_matches(char *cwd, char **wildstr)
         if ((entry->d_name[0] != '.' || (*wildstr)[0] == '.') && match_wildcard(*wildstr, entry->d_name))
         {
             next_call = ft_strjoin(path, entry->d_name);
-            if (opendir(next_call))
+            dir[1] = opendir(next_call);
+            if (dir[1])
+            {
                 ret = strjoinjoin(ret, get_matches(next_call, wildstr + 1));
+                closedir(dir[1]);
+            }
             else if (access(next_call, F_OK) == 0 && !wildstr[1])
                 ret = strjoinjoin(ret, get_double_from_str(next_call));
+            free(next_call);
         }
-        entry = readdir(dir);
+        entry = readdir(dir[0]);
     }
+    closedir(dir[0]);
     return (ret);
 }
 

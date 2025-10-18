@@ -19,10 +19,10 @@
 # include "minishell.h"
 # include "envp.h"
 
-int	exec_ast(t_minishell *ctx, t_ast *node);
+int	exec_ast(t_minishell *sh);
 
-int	exec_command_line(t_minishell *ctx, t_ast *node);
-int	exec_binop(t_minishell *ctx, t_ast *node); /* OR / AND */
+int	exec_command_line(t_minishell *sh, t_ast *node);
+int	exec_binop(t_minishell *sh, t_ast *node); /* OR / AND */
 int	exec_pipeline(t_minishell *ctx, const t_ast_list *cmds);
 int	exec_command(t_minishell *ctx, t_ast *node, bool in_fork);
 int	exec_simple_command(t_minishell *ctx, t_ast *node, bool in_fork);

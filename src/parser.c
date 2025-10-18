@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   parser.c                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: afonsusousa <student@42>                   +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/09/25 00:00:00 by afonsusousa       #+#    #+#             */
-/*   Updated: 2025/09/25 00:00:00 by afonsusousa      ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "parser.h"
 
 #include <stdio.h>
@@ -264,7 +252,6 @@ t_ast_list	*parse_command_redirs(t_parser *p)
 	return (redirs);
 }
 
-//TODO: heredoc accepts * wildcard
 t_ast *parse_redir(t_parser *p)
 {
 	t_ast		*redir;

@@ -9,6 +9,6 @@ size_t	check_copy(const t_envp *env, char *dest, const char *src_elem);
 char	*expanded_str(const t_envp *env, const char *str);
 bool    match_wildcard(const char *exp, const char *str);
 char    *expand_cwd_wildcards(const char *wild_string);
-int     heredoc_fd(const char *delimiter);
+int     heredoc_fd(t_minishell *sh, const char *delimiter);
 #endif
 
