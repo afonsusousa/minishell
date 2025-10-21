@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -Wall -Wextra -Werror -g -lreadline
+CFLAGS := -Wall -Wextra -Werror -g -lreadline -lncurses
 INCLUDES := -Iincludes -Ilib/libft
 SRC_DIR := src
 LIBFT_DIR := lib/libft

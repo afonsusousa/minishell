@@ -16,6 +16,25 @@
 #include <string.h>
 #include "../includes/lexer.h"
 
+#include "libft.h"
+
+char    *ft_strndup(const char *str, size_t size)
+{
+    char	*t;
+    char	*r;
+
+    if (!str)
+        return (NULL);
+    t = (char *)malloc(size + 1);
+    if (!t)
+        return (NULL);
+    r = t;
+    while ((size_t)(t - r) < size && *str)
+        *t++ = *str++;
+    *t = 0;
+    return (r);
+}
+
 void lexer_read_char(t_lexer *lexer)
 {
     if (lexer->read_position >= lexer->input_len)
@@ -92,26 +111,28 @@ static int	handle_quotes(t_lexer *lx, int *sq, int *dq)
     return (0);
 }
 
-static bool			is_assigment(const t_token *t)
+static t_token_type			evaluate_assign(const t_token *t)
 {
     size_t i;
+    size_t len;
     bool    first;
 
     i = 0;
     first = true;
-    while (i < t->len)
+    len = ft_strlen(t->lexeme);
+    while (i < len)
     {
         if (first && t->lexeme[i] == '=')
         {
-            if (i && i + 1 < t->len
+            if (i && i + 1 < len
                 && ((!is_space(t->lexeme[i - 1]) || t->lexeme[i - 1] == '+')
                 || !is_space(t->lexeme[i + 1])))
-                return (true);
+                return (TOK_ASSIGNMENT_WORD + t->lexeme[i - 1] == '+');
             first = false;
         }
         i++;
     }
-    return (false);
+    return (TOK_WORD);
 }
 
 //TODO: better quote handling
@@ -137,26 +158,14 @@ void	lexer_read_word(t_lexer *lexer, t_token *token)
         lexer_read_char(lexer);
     }
     token->type = is_quoted == 1 ? TOK_QWORD : TOK_WORD;
-    token->lexeme = lexer->input + start + (is_quoted != 0);
-    token->len = lexer->position - start - ((is_quoted != 0) * 2);
+    token->lexeme = ft_strndup(lexer->input + start + (is_quoted != 0),
+                    lexer->position - start - ((is_quoted != 0) * 2)) ;
 }
 
 void lexer_skip_space(t_lexer *lexer)
 {
     while (is_space(lexer->ch))
         lexer_read_char(lexer);
-}
-
-bool token_strcmp(const t_token *token, const char *str)
-{
-    size_t i;
-
-    i = 0;
-    while (token->lexeme[i] == str[i] &&  i < token->len)
-        i++;
-    if (i == token->len)
-        return (true);
-    return (token->lexeme[i] - str[i]);
 }
 
 t_token   *token_new(const t_token_type type)
@@ -226,8 +235,7 @@ t_token *lexer_next_token(t_lexer *lexer)
         if (token == NULL)
             return (NULL);
         lexer_read_word(lexer, token);
-        if (is_assigment(token))
-            token->type = TOK_ASSIGNMENT_WORD;
+        token->type = evaluate_assign(token);
     }
     return (token);
 }

@@ -48,7 +48,7 @@ bool    envp_reserve(t_envp *env, size_t needed)
     return (true);
 }
 
-char    *sanitize_assignment(char *str)
+static char    *sanitize_assignment(char *str)
 {
     size_t  i;
     size_t  size;

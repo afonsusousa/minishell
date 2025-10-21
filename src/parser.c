@@ -4,11 +4,15 @@
 #include <stdlib.h>
 #include <string.h>
 
-t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text, size_t len, bool quoted)
+#include "libft.h"
+
+t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text, bool quoted)
 {
 	t_ast	*n;
 	char	*s;
+	size_t	len;
 
+	len = ft_strlen(text);
 	n = ast_new(type);
 	if (!n)
 		return (NULL);
@@ -19,6 +23,44 @@ t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text, size_t len, bool q
 	s[len] = '\0';
 	n->as.leaf.text = s;
 	n->as.leaf.quoted = quoted;
+	return (n);
+}
+char    *sanitize_assignment(const char *str)
+{
+    size_t  i;
+    size_t  size;
+    char    *ret;
+
+    i = 0;
+    while (str[i])
+    {
+        if (str[i] == '+' && str[i + 1] && str[i + 1] == '=')
+            break;
+        i++;
+    }
+    if (!str[i])
+        return (ft_strdup(str));
+    size = ft_strlen(str);
+    ret = calloc(size + 1, sizeof(char));
+    if (!ret)
+        return (NULL);
+    ft_strlcpy(ret, str, i + 1);
+    ft_strlcpy(ret + i, str + i + 1, size - i);
+    return (ret);
+}
+
+t_ast	*ast_make_leaf_assign(const t_token *tk)
+{
+	t_ast	*n;
+
+	if (tk->type == TOK_ASSIGNMENT_WORD)
+		n = ast_new(AST_ASSIGNMENT);
+	else
+		n = ast_new(AST_APPEND_WORD);
+	if (!n)
+		return (NULL);
+	n->as.leaf.text = sanitize_assignment(tk->lexeme);
+	n->as.leaf.quoted = false;
 	return (n);
 }
 
@@ -221,6 +263,7 @@ t_ast	*parse_command(t_parser *p)
 	else if (ts_check(&p->ts, TOK_WORD)
 			|| ts_check(&p->ts, TOK_QWORD)
 			|| ts_check(&p->ts, TOK_ASSIGNMENT_WORD)
+			|| ts_check(&p->ts, TOK_APPEND_WORD)
 			|| is_trailing_redir_ahead(p))
 		core = parse_simple_command(p);
 	else
@@ -268,7 +311,7 @@ t_ast *parse_redir(t_parser *p)
 	if (tk && ((tk->type == TOK_WORD || tk->type == TOK_QWORD)))
 	{
 		ts_advance(&p->ts);
-		redir->as.redir.target = ast_make_leaf_typed(AST_WORD,tk->lexeme, tk->len, tk->type == TOK_QWORD);
+		redir->as.redir.target = ast_make_leaf_typed(AST_WORD,tk->lexeme, tk->type == TOK_QWORD);
 	}
 	else
 		return (ast_free(redir), NULL);
@@ -285,10 +328,10 @@ t_ast_list	*parse_assignments(t_parser *p)
 	while (1)
 	{
 		tk = ts_peek(&p->ts);
-		if (!tk || tk->type != TOK_ASSIGNMENT_WORD)
+		if (!tk || (tk->type != TOK_ASSIGNMENT_WORD && tk->type != TOK_APPEND_WORD))
 			break;
 		ts_advance(&p->ts);
-		node = ast_make_leaf_typed(AST_ASSIGNMENT, tk->lexeme, tk->len, tk->type == TOK_QWORD);
+		node = ast_make_leaf_assign((const t_token *)tk);
 		if (!node)
 			break;
 		if (!ast_list_push(&assignments, node))
@@ -318,10 +361,11 @@ t_ast		*parse_simple_command(t_parser *p)
 			break ;
 		if (peek->type == TOK_WORD
 			|| peek->type == TOK_QWORD
-			|| peek->type == TOK_ASSIGNMENT_WORD)
+			|| peek->type == TOK_ASSIGNMENT_WORD
+			|| peek->type == TOK_APPEND_WORD)
 		{
 			ts_advance(&p->ts);
-			node = ast_make_leaf_typed(AST_WORD,peek->lexeme, peek->len, peek->type == TOK_QWORD);
+			node = ast_make_leaf_typed(AST_WORD,peek->lexeme, peek->type == TOK_QWORD);
 			if (!node || !ast_list_push(&words, node))
 				break ;
 		}

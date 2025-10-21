@@ -1,40 +1,83 @@
 //
 // Created by afonsusousa on 10/17/25.
 //
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
 
 #include "../../includes/executor.h"
 #include "../../includes/minishell.h"
 
-int exec_pipeline(t_minishell *sh, t_ast_list *cmds)
-{
-    int fd[2];
-    pid_t pid;
-    int status;
-    int previous_read;
 
-    previous_read = -1;
+int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
+{
+    int status;
+    t_pipeline *pipeline;
+
+    pipeline = &sh->pipeline;
+    memset(pipeline, 0, sizeof(t_pipeline));
+    pipeline->prev_read = -1;
+    if (!cmds->next)
+    {
+        if (!cmds->node->as.simple_command.words)
+            return (exec_simple_command(sh, cmds->node, false));
+    }
     while (cmds)
     {
-        pipe(fd);
-        pid = fork();
-        if (pid == 0)
+        if (cmds->next && pipe(pipeline->pipefd) < 0)
         {
-            if (previous_read != -1)
+            perror("pipe");
+            if (pipeline->prev_read != -1)
+                close(pipeline->prev_read);
+            return (1);
+        }
+        pipeline->pids[pipeline->count] = fork();
+        if (pipeline->pids[pipeline->count] < 0)
+        {
+            perror("fork");
+            if (cmds->next)
             {
-                close(fd[1]);
-                dup2(previous_read, STDIN_FILENO);
+                close(pipeline->pipefd[0]);
+                close(pipeline->pipefd[1]);
+            }
+            if (pipeline->prev_read != -1)
+                close(pipeline->prev_read);
+            return (1);
+        }
+        if (pipeline->pids[pipeline->count] == 0)
+        {
+            if (pipeline->prev_read != -1)
+            {
+                if (dup2(pipeline->prev_read, STDIN_FILENO) < 0)
+                    exit(1);
+                close(pipeline->prev_read);
             }
             if (cmds->next)
             {
-                close(fd[0]);
-                dup2(fd[1],STDOUT_FILENO);
+                close(pipeline->pipefd[0]);
+                if (dup2(pipeline->pipefd[1], STDOUT_FILENO) < 0)
+                    exit(1);
+                close(pipeline->pipefd[1]);
             }
-            exec_command(sh, cmds->node, true);
+            status = exec_command(sh, cmds->node, true);
+            minishell_free(sh);
+            exit(status);
         }
-        previous_read = fd[0];
+        if (pipeline->prev_read != -1)
+            close(pipeline->prev_read);
+        if (cmds->next)
+        {
+            close(pipeline->pipefd[1]);
+            pipeline->prev_read = pipeline->pipefd[0];
+        }
+        pipeline->count++;
+        cmds = cmds->next;
     }
-    waitpid(pid, &status, 0);
-    return(status);
+    if (pipeline->prev_read != -1)
+        close(pipeline->prev_read);
+    status = wait_pids(pipeline);
+    sh->last_status = status;
+    return (status);
 }

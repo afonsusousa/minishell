@@ -137,6 +137,7 @@ bool match_wildcard(const char *exp, const char *str)
     return *exp == '\0';
 }
 
+//doing too much, don't check for escapes (subject rules)
 bool	is_expandable(char *str)
 {
     size_t  i;
@@ -165,25 +166,6 @@ bool	is_expandable(char *str)
     return (false);
 }
 
-char    *ft_strndup(const char *str, size_t size)
-{
-    char	*t;
-    char	*r;
-
-    if (!str)
-        return (NULL);
-    t = (char *)malloc(size + 1);
-    if (!t)
-        return (NULL);
-    r = t;
-    while ((size_t)(t - r) < size && *str)
-        *t++ = *str++;
-    *t = 0;
-    return (r);
-}
-//TODO: split wild_string into directory and wildcard
-
-//WARNING THIS WILL TAKE A LOT MORE WORK: ./*PATH*/*.C <-- everything will need to be expanded
 char **strjoinjoin(char **a, char **b) {
     size_t len_a = 0, len_b = 0, i = 0, j = 0;
     char **result;
@@ -218,7 +200,11 @@ char **get_double_from_str(char *str)
     return ret;
 }
 
+//TODO: split wild_string into directory and wildcard
 //WALLAÇOOOOO CARA DE PAU E PAU DE AÇO MEU ORGULHO
+// cwd -> diretorio de origem onde procurar
+//wildstr -> e uma split(padrao, '/')
+// /home/afonsusousa/*/*/* -> cwd = "/home/afonsusousa" && wildstr = ["*","*", "*"]
 char    **get_matches(char *cwd, char **wildstr)
 {
     char            **ret;
@@ -261,44 +247,7 @@ char    **get_matches(char *cwd, char **wildstr)
 
 char    *expand_cwd_wildcards(const char *wild_string)
 {
-    char cwd[PATH_MAX];
-    DIR *dir;
-    struct dirent *entry;
-    size_t  size;
-    size_t  i;
-    char    *ret;
-
-    size = 0;
-    i = 0;
-    getcwd(cwd, PATH_MAX);
-    dir = opendir(cwd);
-    entry = readdir(dir);
-    while (entry)
-    {
-        if (match_wildcard(wild_string, entry->d_name))
-        {
-            size += ft_strlen(entry->d_name);
-            i++;
-        }
-        entry = readdir(dir);
-    }
-    size += i == 1 ? 0 : i - 1;
-    if (i == 0)
-        return (ft_strdup(wild_string));
-    closedir(dir);
-    ret = calloc(size + 1, sizeof(char));
-    dir = opendir(cwd);
-    entry = readdir(dir);
-    while (entry && i)
-    {
-        if (match_wildcard(wild_string,entry->d_name))
-        {
-            ft_strlcat(ret, entry->d_name, size + 1);
-            ft_strlcat(ret, " ", i != 1 ? size : 0);
-            i--;
-        }
-        entry = readdir(dir);
-    }
-    //closedir(dir);
-    return (ret);
+   // only puporse here will be to address get_matches with the right parameters
+    //currenty does nothing
+    return (ft_strdup(wild_string));
 }

@@ -13,6 +13,7 @@ typedef enum e_token_type
     TOK_WORD = 0,
     TOK_QWORD,
     TOK_ASSIGNMENT_WORD,
+    TOK_APPEND_WORD,
     TOK_PIPE,         // |
     TOK_AND_IF,       // &&
     TOK_OR_IF,        // ||
@@ -32,7 +33,6 @@ typedef struct s_token
 {
     t_token_type type;
     const char  *lexeme;
-    size_t       len;
 }   t_token;
 
 typedef struct s_lexer
@@ -49,7 +49,6 @@ void lexer_read_char(t_lexer *lexer);
 char lexer_peek_char(const t_lexer *lexer);
 void lexer_read_word(t_lexer *lexer, t_token *token);
 void lexer_skip_space(t_lexer *lexer);
-bool token_strcmp(const t_token *token, const char *str);
 t_token *token_new(const t_token_type type);
 bool lexer_next_token_dmeta(t_lexer *lexer, t_token **token);
 bool lexer_next_token_smeta(const t_lexer *lexer, t_token **token);

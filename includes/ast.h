@@ -18,6 +18,7 @@ typedef enum e_ast_type {
     AST_SIMPLE_COMMAND,
     AST_GROUPING,
     AST_ASSIGNMENT,
+    AST_APPEND_WORD,
     AST_WORD,
     AST_REDIR,
     AST_HEREDOC

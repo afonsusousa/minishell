@@ -319,6 +319,16 @@ int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
     pipeline = &sh->pipeline;
     memset(pipeline, 0, sizeof(t_pipeline));
     pipeline->prev_read = -1;
+    // expand arguments
+    // exec assignments if no cmd
+    //
+    //
+    if (!cmds->next)
+    {
+        if (cmds->node->as.command.core->type == AST_SIMPLE_COMMAND
+            && !cmds->node->as.command.core->as.simple_command.words)
+            return (exec_simple_command(sh, cmds->node->as.command.core, false));
+    }
     while (cmds)
     {
         if (cmds->next && pipe(pipeline->pipefd) < 0)

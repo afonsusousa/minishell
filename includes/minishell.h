@@ -28,6 +28,7 @@ typedef struct s_envp
 typedef struct s_minishell
 {
    t_envp         *env;
+   t_envp         *ctx;
    char           *line;
    t_token_stream *ts;
    t_ast          *ast;
