@@ -10,7 +10,9 @@ typedef struct s_var  {
     char *name;
     char *value;
     bool    export;
+    size_t  length;
     struct s_var *next;
+    struct s_var *prev;
 } t_var;
 
 typedef struct s_envp
@@ -19,11 +21,12 @@ typedef struct s_envp
     size_t      count;
 } t_envp;
 
+t_var     *envp_set(t_envp *env, const char *var);
+char     *envp_get_value(t_envp env, const char *name);
 t_var   *envp_push(t_envp *env, t_var *node);
 t_var   *envp_get_by_name(t_envp *env, const char *name);
 t_var   *envp_remove(t_envp *env, const char *name);
-t_var   *new_var(t)
-
-t_envp env;
+t_var   *new_var(char *name, char *value, bool export);
+void    envp_clean(t_envp *env);
 
 #endif //MINISHELL_ENVP_CLEAN_H
