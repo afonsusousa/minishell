@@ -1,20 +1,32 @@
-#ifndef MINISHELL_ENVP_H
-# define MINISHELL_ENVP_H
+//
+// Created by wlucas-f on 10/21/25.
+//
 
-# include <stddef.h>
-# include <stdbool.h>
-# include "minishell.h"
+#ifndef MINISHELL_ENVP_CLEAN_H
+#define MINISHELL_ENVP_CLEAN_H
+#include <stdbool.h>
+#include <stddef.h>
+typedef struct s_var  {
+    char *name;
+    char *value;
+    bool    export;
+    size_t  len;
+    struct s_var *next;
+    struct s_var *prev;
+} t_var;
 
-size_t		key_len(const char *str);
-bool		envp_reserve(t_envp *env, size_t needed);
-void		var_replace_str(t_var *elem, char *str);
-t_var		*envp_var_set(t_envp *env, char *str);
-t_var	    *envp_get_var(const t_envp *env, const char *str);
-char		*envp_get_var_value(const t_envp *env, const char *str);
-void		free_var(t_var *elem);
-void		envp_remove_var(t_envp *env, const char *str);
-t_var		*envp_var_append(t_envp *env, const char *str);
-void        free_envp(t_envp *env);
+typedef struct s_envp
+{
+    t_var  *head;
+    size_t      count;
+} t_envp;
 
-#endif
+t_var     *envp_set(t_envp *env, const char *var);
+char     *envp_get_value(t_envp env, const char *name);
+t_var   *envp_push(t_envp *env, t_var *node);
+t_var   *envp_get_by_name(t_envp *env, const char *name);
+t_var   *envp_remove(t_envp *env, const char *name);
+t_var   *new_var(char *assign, bool export);
+void    envp_clean(t_envp *env);
 
+#endif //MINISHELL_ENVP_CLEAN_H

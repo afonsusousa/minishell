@@ -11,101 +11,33 @@
 #include "../includes/envp.h"
 #include "../includes/subst.h"
 
+#include <math.h>
+
+#include "../includes/utils.h"
+
 #include <stdio.h>
 #include <unistd.h>
 
-size_t    handle_escape(const char *str, bool *escaped)
+
+char *expanded_str(const t_envp *env, const char *str, bool in_quotes)
 {
-    size_t  count;
-
-    count = 0;
-    while (*str == '\\')
-        count++;
-    if (count % 2)
+    if (!str)
+        return (ft_strdup(""));
+    if (in_quotes && *str == '\'')
     {
-        *escaped = true;
-        return (count);
+        char *next = ft_strchr(str + 1, '\'');
+        return (ft_strjoin(ft_strndup(str + 1, next - str),
+            expanded_str(env, next + 1, false)));
     }
-    *escaped = false;
-    return (count);
-}
-
-//bash stores the wildcard in env, then expands it in the getter
-size_t needed_space(const t_envp *env, const char *str)
-{
-    size_t    i;
-    size_t    total_length;
-    bool     escaped;
-    char     *value;
-
-    i = handle_escape(str, &escaped);
-    total_length = 0;
-    value = NULL;
-    while (str[i])
+    if (in_quotes && *str == '"')
     {
-        i += handle_escape(&str[i], &escaped);
-        if (!escaped && str[i++] == '$')
-            value =  envp_get_var_value(env, str + i);
-        if (value != NULL)
-        {
-            total_length += strlen(value);
-            while (str[i] && !isspace((unsigned char)str[i]))
-                i++;
-            free(value);
-            value = NULL;
-        }
-        else
-            total_length++;
+        char *next = ft_strchr(str + 1, '"');
+        return (ft_strjoin(expanded_str(env, str + 1, true), expanded_str(next + 1)));
     }
-    return (total_length);
-}
+    if ()
+        //expand variable name
 
-size_t  check_copy(const t_envp *env, char *dest, const char *src_elem)
-{
-    size_t i;
-    char *value;
-
-    i = 0;
-    if (src_elem[0] != '$')
-        return (0);
-    value = envp_get_var_value(env, src_elem + 1);
-    while (value != NULL && value[i])
-    {
-        dest[i] = value[i];
-        i++;
-    }
-    free(value);
-    return (i);
-}
-
-char *expanded_str(const t_envp *env, const char *str)
-{
-    size_t  in = 0;
-    size_t  out = 0;
-    size_t  written;
-    bool    escaped;
-    char    *expanded;
-
-    expanded = calloc(needed_space(env, str) + 1, sizeof(char));
-    if (!expanded)
-        return NULL;
-    while (str[in])
-    {
-        in += handle_escape(&str[in], &escaped);
-        if (!escaped && str[in] == '$')
-        {
-            written = check_copy(env, expanded + out, str + in);
-            if (written > 0)
-            {
-                out += written;
-                in += 1 + key_len(str + in + 1);
-                continue;
-            }
-        }
-        expanded[out++] = str[in++];
-    }
-    expanded[out] = '\0';
-    return (expanded);
+    return (, expanded_str(strchr(quotetype))))
 }
 
 bool match_wildcard(const char *exp, const char *str)
@@ -135,29 +67,6 @@ bool match_wildcard(const char *exp, const char *str)
     while (*exp == '*')
         exp++;
     return *exp == '\0';
-}
-
-char **strjoinjoin(char **a, char **b) {
-    size_t len_a = 0, len_b = 0, i = 0, j = 0;
-    char **result;
-
-    if (a)
-        while (a[len_a]) len_a++;
-    if (b)
-        while (b[len_b]) len_b++;
-    result = malloc(sizeof(char *) * (len_a + len_b + 1));
-    if (!result)
-        return NULL;
-    for (i = 0; i < len_a && a; i++)
-        result[i] = a[i];
-    if (a)
-        free(a);
-    for (j = 0; j < len_b && b; j++)
-        result[i + j] = b[j];
-    if (b)
-        free(b);
-    result[len_a + len_b] = NULL;
-    return result;
 }
 
 char **get_double_from_str(char *str)
