@@ -1,0 +1,15 @@
+
+expression ::=
+
+single_quoted ::= '\' non_exp single_quoted_tail
+
+single_quoted_tail ::= '\' expression
+
+
+expandable_expression ::= double_quoted double_quoted_tail
+                        | var
+                        | word
+                        ;
+double_quoted ::=  
+
+expression

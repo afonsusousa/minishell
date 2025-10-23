@@ -6,7 +6,8 @@
 
 #include "libft.h"
 
-t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text, bool quoted)
+//TODO: substitutions here
+t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text)
 {
 	t_ast	*n;
 	char	*s;
@@ -22,7 +23,6 @@ t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text, bool quoted)
 	memcpy(s, text, len);
 	s[len] = '\0';
 	n->as.leaf.text = s;
-	n->as.leaf.quoted = quoted;
 	return (n);
 }
 char    *sanitize_assignment(const char *str)
@@ -261,7 +261,6 @@ t_ast	*parse_command(t_parser *p)
 	if (ts_check(&p->ts, TOK_LPAREN))
 		core = parse_grouping(p);
 	else if (ts_check(&p->ts, TOK_WORD)
-			|| ts_check(&p->ts, TOK_QWORD)
 			|| ts_check(&p->ts, TOK_ASSIGNMENT_WORD)
 			|| ts_check(&p->ts, TOK_APPEND_WORD)
 			|| is_trailing_redir_ahead(p))
@@ -308,10 +307,11 @@ t_ast *parse_redir(t_parser *p)
 	if (!redir)
 		return (NULL);
 	tk = ts_peek(&p->ts);
-	if (tk && ((tk->type == TOK_WORD || tk->type == TOK_QWORD)))
+	//subst here
+	if (tk && ((tk->type == TOK_WORD)))
 	{
 		ts_advance(&p->ts);
-		redir->as.redir.target = ast_make_leaf_typed(AST_WORD,tk->lexeme, tk->type == TOK_QWORD);
+		redir->as.redir.target = ast_make_leaf_typed(AST_WORD,tk->lexeme);
 	}
 	else
 		return (ast_free(redir), NULL);
@@ -360,12 +360,11 @@ t_ast		*parse_simple_command(t_parser *p)
 		if (!peek)
 			break ;
 		if (peek->type == TOK_WORD
-			|| peek->type == TOK_QWORD
 			|| peek->type == TOK_ASSIGNMENT_WORD
 			|| peek->type == TOK_APPEND_WORD)
 		{
 			ts_advance(&p->ts);
-			node = ast_make_leaf_typed(AST_WORD,peek->lexeme, peek->type == TOK_QWORD);
+			node = ast_make_leaf_typed(AST_WORD,peek->lexeme); //subst here
 			if (!node || !ast_list_push(&words, node))
 				break ;
 		}

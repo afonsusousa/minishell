@@ -15,25 +15,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "../includes/lexer.h"
+#include "../includes/utils.h"
 
 #include "libft.h"
-
-char    *ft_strndup(const char *str, size_t size)
-{
-    char	*t;
-    char	*r;
-
-    if (!str)
-        return (NULL);
-    t = (char *)malloc(size + 1);
-    if (!t)
-        return (NULL);
-    r = t;
-    while ((size_t)(t - r) < size && *str)
-        *t++ = *str++;
-    *t = 0;
-    return (r);
-}
 
 void lexer_read_char(t_lexer *lexer)
 {
@@ -68,31 +52,31 @@ static int	is_break(char c)
     return (c == '\0' || is_space(c) || is_meta(c));
 }
 
-static int	handle_escape(t_lexer *lx, int in_squote, int in_dquote)
-{
-    char next;
-
-    if (lx->ch != '\\')
-        return (0);
-    if (in_squote)
-        return (0);
-    next = lexer_peek_char(lx);
-    if (in_dquote)
-    {
-        if (next == '$' || next == '`' || next == '"' || next == '\\' || next == '\n')
-        {
-            lexer_read_char(lx);
-            if (lx->ch != '\0')
-                lexer_read_char(lx);
-            return (1);
-        }
-        return (0);
-    }
-    lexer_read_char(lx);
-    if (lx->ch != '\0')
-        lexer_read_char(lx);
-    return (1);
-}
+// static int	handle_escape(t_lexer *lx, int in_squote, int in_dquote)
+// {
+//     char next;
+//
+//     if (lx->ch != '\\')
+//         return (0);
+//     if (in_squote)
+//         return (0);
+//     next = lexer_peek_char(lx);
+//     if (in_dquote)
+//     {
+//         if (next == '$' || next == '`' || next == '"' || next == '\\' || next == '\n')
+//         {
+//             lexer_read_char(lx);
+//             if (lx->ch != '\0')
+//                 lexer_read_char(lx);
+//             return (1);
+//         }
+//         return (0);
+//     }
+//     lexer_read_char(lx);
+//     if (lx->ch != '\0')
+//         lexer_read_char(lx);
+//     return (1);
+// }
 
 static int	handle_quotes(t_lexer *lx, int *sq, int *dq)
 {
@@ -109,6 +93,14 @@ static int	handle_quotes(t_lexer *lx, int *sq, int *dq)
         return (1);
     }
     return (0);
+}
+
+bool is_valid(char c)
+{
+    return ((c >= 'a' && c <= 'z')
+        || (c >= 'A' && c <= 'Z')
+        || (c >= '0' && c <= '9')
+        || c == '_');
 }
 
 static t_token_type			evaluate_assign(const t_token *t)
@@ -130,9 +122,11 @@ static t_token_type			evaluate_assign(const t_token *t)
                 return (t->lexeme[i - 1] == '+' ? TOK_APPEND_WORD : TOK_ASSIGNMENT_WORD);
             first = false;
         }
+        if (!is_valid(t->lexeme[i]))
+            return (t->type);
         i++;
     }
-    return (TOK_WORD);
+    return (t->type);
 }
 
 //TODO: better quote handling
@@ -141,25 +135,21 @@ void	lexer_read_word(t_lexer *lexer, t_token *token)
     size_t	start;
     int		sq;
     int		dq;
-    int     is_quoted;
 
     start = lexer->position;
     sq = 0;
     dq = 0;
-    is_quoted = ((lexer->ch == '\'') | ((lexer->ch == '"') << 1));
     while (lexer->ch != '\0')
     {
-        if (handle_escape(lexer, sq, dq))
-            continue ;
         if (handle_quotes(lexer, &sq, &dq))
             continue ;
         if (!sq && !dq && is_break(lexer->ch))
             break ;
         lexer_read_char(lexer);
     }
-    token->type = is_quoted == 1 ? TOK_QWORD : TOK_WORD;
-    token->lexeme = ft_strndup(lexer->input + start + (is_quoted != 0),
-                    lexer->position - start - ((is_quoted != 0) * 2)) ;
+    token->type = TOK_WORD;
+    token->lexeme = ft_strndup(lexer->input + start,
+                    lexer->position - start);
 }
 
 void lexer_skip_space(t_lexer *lexer)

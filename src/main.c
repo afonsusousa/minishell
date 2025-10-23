@@ -187,7 +187,7 @@ int main(int argc, char **argv, char **envp)
     sh.ts = &ts;
     t_envp env = {0};
     for (int i = 0; envp[i] != NULL; i++)
-        envp_var_append(&env, envp[i]);
+        envp_append_var(&env, envp[i], true);
     sh.env = &env;
     if (argc > 1)
     {

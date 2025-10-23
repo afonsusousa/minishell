@@ -9,6 +9,8 @@
 #include "../includes/subst.h"
 #include <sys/wait.h>
 
+#include "minishell.h"
+
 //TODO: will need to keep track of pids to then kill in case of Ctrl-C
 int heredoc_fd(t_minishell *sh, const char *delimiter)
 {

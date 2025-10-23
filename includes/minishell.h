@@ -10,20 +10,8 @@
 #include "tokens.h"
 #include "pipeline.h"
 #include "heredoc.h"
+#include "envp.h"
 #include "../lib/libft/libft.h"
-
-typedef struct s_envp_elem
-{
-   char     *str;
-   size_t   tag_len;
-} t_var;
-
-typedef struct s_envp
-{
-   t_var       *vars;
-   size_t      capacity;
-   size_t      count;
-} t_envp;
 
 typedef struct s_minishell
 {

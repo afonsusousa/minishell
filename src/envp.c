@@ -3,59 +3,45 @@
 //
 
 #include <stddef.h>
-#include "../includes/envp_clean.h"
-
-#include <stdlib.h>
-
 #include "../includes/envp.h"
+#include <stdlib.h>
+#include "utils.h"
 #include "../lib/libft/libft.h"
 
-char    *ft_strndup(const char *str, size_t size)
+size_t key_len(const char *str)
 {
-    char	*t;
-    char	*r;
+    size_t klen;
 
-    if (!str)
-        return (NULL);
-    t = (char *)malloc(size + 1);
-    if (!t)
-        return (NULL);
-    r = t;
-    while ((size_t)(t - r) < size && *str)
-        *t++ = *str++;
-    *t = 0;
-    return (r);
+    klen = 0;
+    while (str[klen] && str[klen] != '=')
+        klen++;
+    return (klen);
 }
 
-char    *name_from_assign(char *assign)
+char    *name_from_assign(const char *assign)
 {
     if (!ft_strchr(assign, '='))
         return (ft_strdup(assign));
     return (ft_strndup(assign, key_len((assign))));
 }
 
-char    *value_from_assign(char *assign)
+char    *value_from_assign(const char *assign)
 {
     if (!ft_strchr(assign, '='))
        return (NULL);
     return (ft_strdup(assign + key_len(assign) + 1));
 }
 
-t_var   *new_var(char *assign, bool export)
+t_var   *new_var(const char *assign, bool export)
 {
     t_var *var;
-    char *name;
-    char *value;
-
-    if (!name)
-        return NULL;
     var = ft_calloc(sizeof(t_var), 1);
     if (!var)
        return NULL;
     var->name = name_from_assign(assign);
     var->value = value_from_assign(assign);
     var->export = export;
-    var->len = ft_strlen(name);
+    var->len = ft_strlen(var->name);
     return (var);
 }
 
@@ -74,20 +60,11 @@ t_var   *envp_push(t_envp *env, t_var *node)
       iter = iter->next;
     iter->next = node;
     node->prev = iter;
+    env->count++;
     return (node);
 }
 
-size_t key_len(const char *str)
-{
-    size_t klen;
-
-    klen = 0;
-    while (str[klen] && str[klen] != '=')
-        klen++;
-    return (klen);
-}
-
-t_var   *envp_getvar(t_envp *env, const char *name)
+t_var   *envp_getvar(const t_envp *env, const char *name)
 {
     t_var *iter;
     size_t klen;
@@ -97,9 +74,9 @@ t_var   *envp_getvar(t_envp *env, const char *name)
     iter = env->head;
     while (iter)
     {
-        if (klen > iter->length && ft_strncmp(iter->name, name, klen) == 0)
+        if (klen > iter->len && ft_strncmp(iter->name, name, klen) == 0)
             return (iter);
-        if (ft_strncmp(iter->name, name, iter->length) == 0)
+        if (ft_strncmp(iter->name, name, iter->len) == 0)
             return (iter);
         iter = iter->next;
     }
@@ -114,7 +91,7 @@ t_var     *envp_setvar(t_envp *env, const char *var, bool export)
     if (!env || !var)
         return NULL;
     klen = key_len(var);
-    new = envp_get_by_name(env, var);
+    new = envp_getvar(env, var);
     if (new && ft_strchr(var, '='))
     {
         free(new->value);
@@ -126,13 +103,13 @@ t_var     *envp_setvar(t_envp *env, const char *var, bool export)
     return (new);
 }
 
-char     *envp_getvar_value(t_envp *env, const char *name)
+char     *envp_getvar_value(const t_envp *env, const char *name)
 {
     t_var *var;
 
     if (!env || !name)
         return NULL;
-    var = envp_get_by_name(env, name);
+    var = envp_getvar(env, name);
     if (!var)
         return NULL;
     return (var->value);
@@ -142,7 +119,7 @@ bool   envp_unsetvar(t_envp *env, const char *name)
 {
     t_var *var;
 
-    var = envp_get_by_name(env, name);
+    var = envp_getvar(env, name);
     if (!var)
         return (false);
     if (!var->prev)
@@ -161,7 +138,7 @@ bool   envp_unsetvar(t_envp *env, const char *name)
     return (free(var), true);
 }
 
-void    envp_clean(t_envp *env)
+void    free_envp(t_envp *env)
 {
     t_var *iter;
     t_var *tmp;
@@ -193,4 +170,21 @@ t_var *envp_append_var(t_envp *env, const char *append, bool export)
     return (var);
 }
 
-char    **get_envp_array()
+char    **get_envp_array(const t_envp *env)
+{
+    char **ret;
+    char **pos;
+    t_var *var;
+
+    ret = ft_calloc(env->count,sizeof(char *));
+    if (!ret)
+        return NULL;
+    pos = ret;
+    var = env->head;
+    while (var && (size_t)(pos - ret) < env->count)
+    {
+        *pos++ = strjoin_three(var->name, "=", var->value);
+        var = var->next;
+    }
+    return (ret);
+}

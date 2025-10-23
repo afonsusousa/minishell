@@ -10,31 +10,10 @@
 #include "../includes/ast.h"
 #include "../includes/envp.h"
 #include "../includes/subst.h"
+#include "../includes/utils.h"
 
 static int exec_node(t_minishell* sh, t_ast* node);
 static int exec_redirs(t_minishell* sh, t_ast_list* r);
-
-int count_words(const char* str, const char sep)
-{
-    int count;
-    bool in_word;
-
-    count = 0;
-    in_word = false;
-    while (*str)
-    {
-        if (!in_word && *str != sep)
-        {
-            in_word = true;
-            count++;
-        }
-        else if (*str == sep)
-            in_word = false;
-        str++;
-    }
-    return (count);
-}
-
 static size_t words_count(t_minishell* sh, t_ast_list* w)
 {
     size_t c;
@@ -83,66 +62,6 @@ void free_argv(char** argv)
     free(argv);
 }
 
-static char** envp_to_array(const t_envp* env, const t_envp* local_env)
-{
-    char** arr;
-    size_t i;
-
-    if (!env || !env->count)
-        return (NULL);
-    arr = (char**)calloc(env->count + local_env->count + 1, sizeof(char*));
-    if (!arr)
-        return (NULL);
-    i = 0;
-    while (i < env->count)
-    {
-        arr[i] = ft_strdup(env->vars[i].str);
-        i++;
-    }
-    while (i < local_env->count)
-    {
-        arr[i] = ft_strdup(local_env->vars[i - env->count].str);
-        i++;
-    }
-    arr[i] = NULL;
-    return (arr);
-}
-
-void free_until_null(char*** str_v)
-{
-    size_t i;
-
-    i = 0;
-    if (!*str_v)
-        return;
-    while ((*str_v)[i])
-        free((*str_v)[i++]);
-    free(*str_v);
-    *str_v = NULL;
-}
-
-
-char* strjoin_three(char* s1, char* s2, char* s3)
-{
-    int i;
-    char* ret;
-
-    i = 0;
-    ret = malloc(ft_strlen(s1) + ft_strlen(s2) + ft_strlen(s3) + 1);
-    if (!ret)
-        return (NULL);
-    if (!s1 || !s2 || !s3)
-        return (NULL);
-    while (*s1)
-        ret[i++] = *s1++;
-    while (*s2)
-        ret[i++] = *s2++;
-    while (*s3)
-        ret[i++] = *s3++;
-    ret[i] = 0;
-    return (ret);
-}
-
 char* find_path(char* cmd, char** envp)
 {
     size_t i;
@@ -175,7 +94,8 @@ static int execve_wrapper(t_minishell* sh, char** argv, const t_envp* env, const
 
     if (!argv || !argv[0])
         return (0);
-    env_arr = envp_to_array(env, local_env);
+    env_arr = get_envp_array(env);
+    env_arr = strjoinjoin(env_arr, get_envp_array(local_env));
     argv[0] = find_path(argv[0], env_arr);
     minishell_free(sh);
     execve(argv[0], argv, env_arr);
@@ -232,7 +152,7 @@ static int exec_assignments(t_minishell* sh, t_ast_list* a, t_envp* env, bool gl
         env = sh->env;
     while (a)
     {
-        if (envp_var_append(env, a->node->as.leaf.text) == NULL)
+        if (envp_append_var(env, a->node->as.leaf.text, false) == NULL)
             return (1);
         a = a->next;
     }

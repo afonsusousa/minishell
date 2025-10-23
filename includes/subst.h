@@ -1,6 +1,7 @@
 #ifndef MINISHELL_SUBST_H
 # define MINISHELL_SUBST_H
 
+# include "minishell.h"
 # include <stddef.h>
 # include "envp.h"
 

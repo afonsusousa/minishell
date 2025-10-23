@@ -18,26 +18,9 @@
 #include <stdio.h>
 #include <unistd.h>
 
-
 char *expanded_str(const t_envp *env, const char *str, bool in_quotes)
 {
-    if (!str)
-        return (ft_strdup(""));
-    if (in_quotes && *str == '\'')
-    {
-        char *next = ft_strchr(str + 1, '\'');
-        return (ft_strjoin(ft_strndup(str + 1, next - str),
-            expanded_str(env, next + 1, false)));
-    }
-    if (in_quotes && *str == '"')
-    {
-        char *next = ft_strchr(str + 1, '"');
-        return (ft_strjoin(expanded_str(env, str + 1, true), expanded_str(next + 1)));
-    }
-    if ()
-        //expand variable name
 
-    return (, expanded_str(strchr(quotetype))))
 }
 
 bool match_wildcard(const char *exp, const char *str)
