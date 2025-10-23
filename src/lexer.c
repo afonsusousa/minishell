@@ -127,7 +127,7 @@ static t_token_type			evaluate_assign(const t_token *t)
             if (i && i + 1 < len
                 && ((!is_space(t->lexeme[i - 1]) || t->lexeme[i - 1] == '+')
                 || !is_space(t->lexeme[i + 1])))
-                return (TOK_ASSIGNMENT_WORD + t->lexeme[i - 1] == '+');
+                return (t->lexeme[i - 1] == '+' ? TOK_APPEND_WORD : TOK_ASSIGNMENT_WORD);
             first = false;
         }
         i++;

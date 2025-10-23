@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 
+#include "../includes/envp.h"
 #include "../lib/libft/libft.h"
 
 char    *ft_strndup(const char *str, size_t size)
@@ -26,26 +27,46 @@ char    *ft_strndup(const char *str, size_t size)
     return (r);
 }
 
-t_var   *new_var(char *name, char *value, bool export)
+char    *name_from_assign(char *assign)
 {
+    if (!ft_strchr(assign, '='))
+        return (ft_strdup(assign));
+    return (ft_strndup(assign, key_len((assign))));
+}
+
+char    *value_from_assign(char *assign)
+{
+    if (!ft_strchr(assign, '='))
+       return (ft_strdup(assign));
+    return (ft_strdup(assign + key_len(assign) + 1));
+}
+
+t_var   *new_var(char *assign, bool export)
+{
+    t_var *var;
+    char *name;
+    char *value;
+
     if (!name)
         return NULL;
-    t_var *var;
     var = ft_calloc(sizeof(t_var), 1);
     if (!var)
        return NULL;
-    var->name = name;
-    var->value = value;
+    var->name = name_from_assign(assign);
+    if (ft_strchr(assign, '='))
+        var->value = value_from_assign(assign);
+    else
+        var->value = NULL;
     var->export = export;
-    var->length = ft_strlen(name);
+    var->len = ft_strlen(name);
     return (var);
 }
 
 t_var   *envp_push(t_envp *env, t_var *node)
 {
+    t_var *iter;
    if (!env || !node)
        return NULL;
-    t_var *iter;
     iter = env->head;
     if (!env->head)
     {
@@ -69,7 +90,7 @@ size_t key_len(const char *str)
     return (klen);
 }
 
-t_var   *envp_get_by_name(t_envp *env, const char *name)
+t_var   *envp_getvar(t_envp *env, const char *name)
 {
     t_var *iter;
     size_t klen;
@@ -88,7 +109,7 @@ t_var   *envp_get_by_name(t_envp *env, const char *name)
     return NULL;
 }
 
-t_var     *envp_set(t_envp *env, const char *var, bool export)
+t_var     *envp_setvar(t_envp *env, const char *var, bool export)
 {
     t_var *new;
     size_t  klen;
@@ -103,12 +124,12 @@ t_var     *envp_set(t_envp *env, const char *var, bool export)
         new->value = ft_strdup(var + klen);
         return (new);
     }
-    new = new_var(ft_strndup(var, klen), ft_strdup(var + klen + 1), export);
+    new = new_var(var, export);
     envp_push(env, new);
     return (new);
 }
 
-char     *envp_get_value(t_envp *env, const char *name)
+char     *envp_getvar_value(t_envp *env, const char *name)
 {
     t_var *var;
 
@@ -120,13 +141,13 @@ char     *envp_get_value(t_envp *env, const char *name)
     return (var->value);
 }
 
-bool   envp_unset(t_envp *env, const char *name)
+bool   envp_unsetvar(t_envp *env, const char *name)
 {
     t_var *var;
 
     var = envp_get_by_name(env, name);
     if (!var)
-        return false;
+        return (false);
     if (!var->prev)
     {
         var->next->prev = NULL;
@@ -152,10 +173,22 @@ void    envp_clean(t_envp *env)
     tmp = NULL;
     while (iter)
     {
-       free(iter->value);
-       free(iter->name);
+        free(iter->value);
+        free(iter->name);
         tmp = iter->next;
-       free(iter);
+        free(iter);
         iter = tmp;
     }
+    env->head = NULL;
+}
+
+t_var *envp_append_var(t_envp *env, const char *append, bool export)
+{
+    t_var	*var;
+    char    *joined;
+
+    var = envp_getvar(env, append);
+    if (!var)
+        return (envp_setvar(env, append, export));
+
 }

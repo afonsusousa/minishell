@@ -137,35 +137,6 @@ bool match_wildcard(const char *exp, const char *str)
     return *exp == '\0';
 }
 
-//doing too much, don't check for escapes (subject rules)
-bool	is_expandable(char *str)
-{
-    size_t  i;
-    bool	in_single;
-    bool	in_double;
-
-    i = 0;
-    in_single = false;
-    in_double = false;
-    if (!str)
-        return (false);
-    while (str[i])
-    {
-        if (str[i] == '\'' && !in_double)
-            in_single = !in_single;
-        else if (str[i] == '\"' && !in_single)
-            in_double = !in_double;
-        else if (str[i] == '*' && !in_single && !in_double)
-        {
-            if (ft_strchr(str, '='))
-                return (ft_strchr(str, '=') < &str[i]);
-            return (true);
-        }
-        i++;
-    }
-    return (false);
-}
-
 char **strjoinjoin(char **a, char **b) {
     size_t len_a = 0, len_b = 0, i = 0, j = 0;
     char **result;
