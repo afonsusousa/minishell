@@ -4,6 +4,8 @@
 
 #include <stddef.h>
 #include "../includes/envp.h"
+
+#include <ctype.h>
 #include <stdlib.h>
 #include "utils.h"
 #include "../lib/libft/libft.h"
@@ -13,7 +15,7 @@ size_t key_len(const char *str)
     size_t klen;
 
     klen = 0;
-    while (str[klen] && str[klen] != '=')
+    while (str[klen] && str[klen] != '=' && !isspace(str[klen]))
         klen++;
     return (klen);
 }

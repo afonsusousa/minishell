@@ -10,5 +10,6 @@ void free_until_null(char*** str_v);
 char* strjoin_three(char* s1, char* s2, char* s3);
 char **strjoinjoin(char **a, char **b);
 char    *ft_strndup(const char *str, size_t size);
+char    *ft_strnjoin(const char *s1, const char *s2, size_t scnd);
 
 #endif //MINISHELL_UTILS_H

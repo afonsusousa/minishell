@@ -88,6 +88,20 @@ char **strjoinjoin(char **a, char **b)
     return result;
 }
 
+char    *ft_strnjoin(const char *s1, const char *s2, size_t scnd)
+{
+    char *ret;
+
+    ret = ft_calloc(ft_strlen(s1) + scnd + 1, sizeof(char));
+    if (!ret)
+        return (NULL);
+    while (s1 && *s1)
+        *ret++ = *s1++;
+    while (s2 && *s2 && scnd--)
+        *ret++ = *s2++;
+    *ret = 0;
+    return (ret);
+}
 char    *ft_strndup(const char *str, size_t size)
 {
     char	*t;
