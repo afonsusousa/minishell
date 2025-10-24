@@ -33,6 +33,8 @@ int   handle_quotes(bool *sq, bool *dq, char c)
     return (0);
 }
 
+//deal with memory
+
 char *expanded_str(const t_envp *env, const char *str, bool follow_dq)
 {
     bool sq;
@@ -151,6 +153,7 @@ char    **get_matches(char *cwd, char **wildstr)
     ft_strlcat(path, "/", ft_strlen(path) + 2);
     while (entry)
     {
+        //TODO: figure out hidden files
         if ((entry->d_name[0] != '.' || (*wildstr)[0] == '.') && match_wildcard(*wildstr, entry->d_name))
         {
             next_call = ft_strjoin(path, entry->d_name);
@@ -174,5 +177,6 @@ char    *expand_cwd_wildcards(const char *wild_string)
 {
    // only puporse here will be to address get_matches with the right parameters
     //currenty does nothing
+
     return (ft_strdup(wild_string));
 }

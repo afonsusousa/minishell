@@ -6,7 +6,6 @@
 
 #include "libft.h"
 
-//TODO: substitutions here
 t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text)
 {
 	t_ast	*n;
