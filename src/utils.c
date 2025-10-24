@@ -91,8 +91,10 @@ char **strjoinjoin(char **a, char **b)
 char    *ft_strnjoin(const char *s1, const char *s2, size_t scnd)
 {
     char *ret;
+    char *og;
 
     ret = ft_calloc(ft_strlen(s1) + scnd + 1, sizeof(char));
+    og = ret;
     if (!ret)
         return (NULL);
     while (s1 && *s1)
@@ -100,7 +102,7 @@ char    *ft_strnjoin(const char *s1, const char *s2, size_t scnd)
     while (s2 && *s2 && scnd--)
         *ret++ = *s2++;
     *ret = 0;
-    return (ret);
+    return (og);
 }
 char    *ft_strndup(const char *str, size_t size)
 {
@@ -118,3 +120,12 @@ char    *ft_strndup(const char *str, size_t size)
     *t = 0;
     return (r);
 }
+
+bool is_valid(char c)
+{
+    return ((c >= 'a' && c <= 'z')
+        || (c >= 'A' && c <= 'Z')
+        || (c >= '0' && c <= '9')
+        || c == '_');
+}
+

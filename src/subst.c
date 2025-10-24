@@ -20,12 +20,12 @@
 
 int   handle_quotes(bool *sq, bool *dq, char c)
 {
-    if (!dq && c == '\'')
+    if (!*dq && c == '\'')
     {
         *sq = !*sq;
         return (1);
     }
-    if (!sq && c == '"')
+    if (!*sq && c == '"')
     {
         *dq = !*dq;
         return (1);
@@ -33,61 +33,56 @@ int   handle_quotes(bool *sq, bool *dq, char c)
     return (0);
 }
 
-char *expanded_segment(const t_envp *env, const char *str, size_t n, bool freedom)
-{
-    size_t  i;
-    size_t  j;
-    char *ret;
-    char *value;
-
-    i = 0;
-    j = 0;
-    ret = "";
-    value = NULL;
-    while (str[i] && (freedom || str[i] = ))
-    {
-        if (str[i] == '$')
-        {
-            value = envp_getvar_value(env, str + 1);
-            ret = ft_strjoin(ret, value);
-            j += ft_strlen(value);
-        }
-        else
-            ret = ft_strjoin()
-        i++;
-    }
-}
-char *expanded_str(const t_envp *env, const char *str)
+char *expanded_str(const t_envp *env, const char *str, bool follow_dq)
 {
     bool sq;
     bool dq;
     char *ret;
     char *next;
+    char *value;
 
     sq = false;
     dq = false;
+    ret = "";
     while (*str)
     {
         next = NULL;
-        if (handle_quotes(&sq, &dq, *str))
-            continue ;
+        if (handle_quotes(&sq, &dq, *str) && !follow_dq)
+        {
+            str++;
+            continue;
+        };
         if (sq)
             next = ft_strchr(str, '\'');
         else if (dq)
             next = ft_strchr(str, '"');
-        if (next)
+        if (next && !follow_dq)
         {
             if (sq)
                 ret = ft_strnjoin(ret, str, next - str);
             if (dq)
-                ret = ft_strjoin(ret, expanded_segment(env, str, next - str, true));
+                ret = ft_strjoin(ret, expanded_str(env, str, true));
             str += next - str + 1;
             continue ;
         }
         if (*str == '$')
-            ret = ft_strjoin(ret, envp_getvar_value(env, str + 1));
-
+        {
+            value = envp_getvar_value(env, str + 1);
+            if (value)
+            {
+                ret = ft_strjoin(ret, value);
+                str++;
+            }
+            while (is_valid(*str))
+                str++;
+        }
+        if (follow_dq && *str != '"')
+            ret = ft_strnjoin(ret, str, 1);
+        else
+            return (ret);
+        str++;
     }
+    return (ret);
 }
 
 bool match_wildcard(const char *exp, const char *str)

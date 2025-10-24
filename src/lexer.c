@@ -95,14 +95,6 @@ static int	handle_quotes(t_lexer *lx, int *sq, int *dq)
     return (0);
 }
 
-bool is_valid(char c)
-{
-    return ((c >= 'a' && c <= 'z')
-        || (c >= 'A' && c <= 'Z')
-        || (c >= '0' && c <= '9')
-        || c == '_');
-}
-
 static t_token_type			evaluate_assign(const t_token *t)
 {
     size_t i;

@@ -15,7 +15,7 @@ size_t key_len(const char *str)
     size_t klen;
 
     klen = 0;
-    while (str[klen] && str[klen] != '=' && !isspace(str[klen]))
+    while (is_valid(str[klen]))
         klen++;
     return (klen);
 }

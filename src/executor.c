@@ -17,12 +17,13 @@ static int exec_redirs(t_minishell* sh, t_ast_list* r);
 static size_t words_count(t_minishell* sh, t_ast_list* w)
 {
     size_t c;
+    (void) sh;
 
     c = 0;
     while (w)
     {
         if (w->node && w->node->type == AST_WORD)
-            c += count_words(expanded_str(sh->env, w->node->as.leaf.text), ' ');
+            c += count_words(w->node->as.leaf.text, ' ');
         w = w->next;
     }
     return (c);
@@ -47,7 +48,7 @@ char** words_to_argv(t_minishell* sh, t_ast_list* words)
     {
         if (words->node && words->node->type == AST_WORD)
         {
-            split = ft_split(expand_cwd_wildcards(expanded_str(sh->env, words->node->as.leaf.text)), ' ');
+            split = ft_split(words->node->as.leaf.text, ' ');
             while (split && *split)
                 argv[i++] = *split++;
         }
@@ -117,7 +118,7 @@ static int exec_redirs(t_minishell* sh, t_ast_list* r)
     memset(&sh->heredoc, 0, sizeof(t_heredoc));
     while (r)
     {
-        filename = expand_cwd_wildcards(expanded_str(sh->env, r->node->as.redir.target->as.leaf.text));
+        filename = (char *) r->node->as.redir.target->as.leaf.text;
         if (r->node->as.redir.kind == TOK_REDIR_OUT)
             fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
         else if (r->node->as.redir.kind == TOK_REDIR_IN)
