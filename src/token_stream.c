@@ -85,11 +85,3 @@ bool token_stream_fill(t_token_stream *ts, t_lexer *lexer)
     return (true);
 }
 
-int ts_expect(t_token_stream *ts, t_token_type type, const char *what, char *errbuf, size_t errcap)
-{
-    if (ts_match(ts, type))
-        return 1;
-    if (errbuf && errcap)
-        snprintf(errbuf, errcap, "expected %s, got token type %d", what ? what : "token", (int)ts_peek(ts)->type);
-    return 0;
-}

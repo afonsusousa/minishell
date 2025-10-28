@@ -80,7 +80,7 @@ char *expanded_str(const t_envp *env, const char *str, bool follow_dq)
         }
         if (follow_dq && *str != '"')
             ret = ft_strnjoin(ret, str, 1);
-        else
+        else if (!*str)
             return (ret);
         str++;
     }
