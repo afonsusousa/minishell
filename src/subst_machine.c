@@ -39,7 +39,6 @@ void sm_trasition(t_quote_machine *sm, t_state new)
 {
     sm->prev = sm->curr;
     sm->curr = new;
-    sm_advance(sm);
 }
 
 void sm_retrocede(t_quote_machine *sm)
@@ -70,6 +69,8 @@ char *expanded(const t_envp *env, const char *str)
 
     i = 0;
     sm.str = str;
+    sm.ch = *str;
+    sm.str_pos = 0;
     sm.curr = DEFAULT;
     sm.prev = DEFAULT;
     sm.str_len = ft_strlen(str);
@@ -80,31 +81,34 @@ char *expanded(const t_envp *env, const char *str)
         {
             if (sm.ch == '\'')
                sm_trasition(&sm, IN_SQ);
-            if (sm.ch == '"')
+            else if (sm.ch == '"')
                 sm_trasition(&sm, IN_DQ);
-            if (sm.ch == '$')
+            else if (sm.ch == '$')
                 sm_trasition(&sm, IN_VAR);
-            buffer[i++] = sm.ch;
+            else
+                buffer[i++] = sm.ch;
         }
         else if (sm.curr == IN_DQ)
         {
             if (sm.ch == '$')
                 sm_trasition(&sm, IN_VAR);
-            if (sm.ch == '"')
+            else if (sm.ch == '"')
                 sm_trasition(&sm, DEFAULT);
-            buffer[i++] = sm.ch;
+            else
+                buffer[i++] = sm.ch;
         }
         else if (sm.curr == IN_SQ)
         {
             if (sm.ch == '\'')
                 sm_trasition(&sm, DEFAULT);
-            buffer[i++] = sm.ch;
+            else
+                buffer[i++] = sm.ch;
         }
         else if (sm.curr == IN_VAR)
         {
             if (!is_valid(sm.ch))
             {
-                while (!isspace(sm.ch))
+                while (!isspace(sm.ch) && sm.ch)
                 {
                     buffer[i++] = sm.ch;
                     sm_advance(&sm);
@@ -114,6 +118,8 @@ char *expanded(const t_envp *env, const char *str)
             }
             var = envp_getvar_value(env, sm_getstr(&sm));
             ft_strlcat(buffer, var, ft_strlen(buffer) + ft_strlen(var) + 1);
+            while (is_valid(sm.ch) && sm.ch != '$')
+                sm_advance(&sm);
             sm_laststate(&sm);
         }
         sm_advance(&sm);

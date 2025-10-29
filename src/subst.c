@@ -69,7 +69,7 @@ char *expanded_str(const t_envp *env, const char *str, bool follow_dq)
         }
         if (*str == '$')
         {
-            value = envp_getvar_value(env, str + 1);
+            value = (char *)envp_getvar_value(env, str + 1);
             if (value)
             {
                 ret = ft_strjoin(ret, value);
