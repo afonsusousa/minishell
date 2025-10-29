@@ -168,7 +168,7 @@ int     rl_loop(t_minishell *sh)
     sh->line = readline("minishell> ");
     while (sh->line != NULL)
     {
-        printf("%s\n", expanded_str(sh->env, sh->line, false));
+        printf("%s\n", expanded(sh->env, sh->line));
         exec_line(sh);
         free(sh->line);
         token_stream_free(sh->ts);

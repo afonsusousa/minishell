@@ -105,7 +105,7 @@ t_var     *envp_setvar(t_envp *env, const char *var, bool export)
     return (new);
 }
 
-char     *envp_getvar_value(const t_envp *env, const char *name)
+const char     *envp_getvar_value(const t_envp *env, const char *name)
 {
     t_var *var;
 
@@ -114,7 +114,7 @@ char     *envp_getvar_value(const t_envp *env, const char *name)
     var = envp_getvar(env, name);
     if (!var)
         return NULL;
-    return (var->value);
+    return ((const char *)var->value);
 }
 
 bool   envp_unsetvar(t_envp *env, const char *name)

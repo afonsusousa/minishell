@@ -18,6 +18,7 @@ SRCS := \
 	$(SRC_DIR)/executor.c \
 	$(SRC_DIR)/dispose.c \
 	$(SRC_DIR)/heredoc.c \
+	$(SRC_DIR)/subst_machine.c \
 	$(SRC_DIR)/subst.c
 
 OBJS := $(SRCS:.c=.o)

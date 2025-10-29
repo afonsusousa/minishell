@@ -31,7 +31,7 @@ t_var *envp_getvar(const t_envp *env, const char *name);
 
 t_var *envp_setvar(t_envp *env, const char *var, bool export);
 
-char *envp_getvar_value(const t_envp *env, const char *name);
+const char *envp_getvar_value(const t_envp *env, const char *name);
 
 bool envp_unsetvar(t_envp *env, const char *name);
 
