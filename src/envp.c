@@ -7,7 +7,7 @@
 
 #include <ctype.h>
 #include <stdlib.h>
-#include "utils.h"
+#include "../includes/utils.h"
 #include "../lib/libft/libft.h"
 
 size_t key_len(const char *str)
@@ -185,7 +185,8 @@ char    **get_envp_array(const t_envp *env)
     var = env->head;
     while (var && (size_t)(pos - ret) < env->count)
     {
-        *pos++ = strjoin_three(var->name, "=", var->value);
+        if (var->export)
+            *pos++ = strjoin_three(var->name, "=", var->value);
         var = var->next;
     }
     return (ret);

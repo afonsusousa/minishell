@@ -63,6 +63,7 @@ void free_argv(char** argv)
     free(argv);
 }
 
+//TODO: local access (./)
 char* find_path(char* cmd, char** envp)
 {
     size_t i;
@@ -89,14 +90,14 @@ char* find_path(char* cmd, char** envp)
     return (free_until_null(&split_path), ft_strdup(cmd));
 }
 
-static int execve_wrapper(t_minishell* sh, char** argv, const t_envp* env, const t_envp* local_env)
+static int execve_wrapper(t_minishell* sh, char** argv)
 {
     char** env_arr;
 
     if (!argv || !argv[0])
         return (0);
-    env_arr = get_envp_array(env);
-    env_arr = strjoinjoin(env_arr, get_envp_array(local_env));
+    env_arr = get_envp_array(sh->env);
+    env_arr = strjoinjoin(env_arr, get_envp_array(sh->ctx));
     argv[0] = find_path(argv[0], env_arr);
     minishell_free(sh);
     execve(argv[0], argv, env_arr);
@@ -147,8 +148,11 @@ static int exec_redirs(t_minishell* sh, t_ast_list* r)
     return (0);
 }
 
-static int exec_assignments(t_minishell* sh, t_ast_list* a, t_envp* env, bool global)
+static int exec_assignments(t_minishell* sh, t_ast_list* a, bool global)
 {
+    t_envp *env;
+
+    env = sh->ctx;
     if (global)
         env = sh->env;
     while (a)
@@ -167,18 +171,17 @@ int exec_simple_command(t_minishell* sh, t_ast* node, bool in_fork)
     t_envp local_env;
     (void)in_fork;
 
-    memset(&local_env, 0, sizeof(t_envp));
+    memset(&sh->ctx, 0, sizeof(t_envp));
     if (!node || node->type != AST_SIMPLE_COMMAND)
         return (1);
     argv = words_to_argv(sh, node->as.simple_command.words);
     if (exec_redirs(sh, node->as.simple_command.redirs))
         return (1);
-    if (exec_assignments(sh, node->as.simple_command.assignments,
-                         &local_env, argv == NULL))
+    if (exec_assignments(sh, node->as.simple_command.assignments, argv == NULL))
         return (1);
     if (!argv)
         return (0);
-    status = execve_wrapper(sh, argv, sh->env, &local_env);
+    status = execve_wrapper(sh, argv);
     free_argv(argv);
     free_envp(&local_env);
     sh->last_status = status;
@@ -249,6 +252,8 @@ int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
         if (cmds->node->as.command.core->type == AST_SIMPLE_COMMAND
             && !cmds->node->as.command.core->as.simple_command.words)
             return (exec_simple_command(sh, cmds->node->as.command.core, false));
+        else if (is_builtin(cmds))
+            //...................;
     }
     while (cmds)
     {

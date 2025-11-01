@@ -18,74 +18,74 @@
 #include <stdio.h>
 #include <unistd.h>
 
-int   handle_quotes(bool *sq, bool *dq, char c)
-{
-    if (!*dq && c == '\'')
-    {
-        *sq = !*sq;
-        return (1);
-    }
-    if (!*sq && c == '"')
-    {
-        *dq = !*dq;
-        return (1);
-    }
-    return (0);
-}
-
-//deal with memory
-
-char *expanded_str(const t_envp *env, const char *str, bool follow_dq)
-{
-    bool sq;
-    bool dq;
-    char *ret;
-    char *next;
-    char *value;
-
-    sq = false;
-    dq = false;
-    ret = "";
-    while (*str)
-    {
-        next = NULL;
-        if (handle_quotes(&sq, &dq, *str) && !follow_dq)
-        {
-            str++;
-            continue;
-        };
-        if (sq)
-            next = ft_strchr(str, '\'');
-        else if (dq)
-            next = ft_strchr(str, '"');
-        if (next && !follow_dq)
-        {
-            if (sq)
-                ret = ft_strnjoin(ret, str, next - str);
-            if (dq)
-                ret = ft_strjoin(ret, expanded_str(env, str, true));
-            str += next - str + 1;
-            continue ;
-        }
-        if (*str == '$')
-        {
-            value = (char *)envp_getvar_value(env, str + 1);
-            if (value)
-            {
-                ret = ft_strjoin(ret, value);
-                str++;
-            }
-            while (is_valid(*str))
-                str++;
-        }
-        if (follow_dq && *str != '"')
-            ret = ft_strnjoin(ret, str, 1);
-        else if (!*str)
-            return (ret);
-        str++;
-    }
-    return (ret);
-}
+// int   handle_quotes(bool *sq, bool *dq, char c)
+// {
+//     if (!*dq && c == '\'')
+//     {
+//         *sq = !*sq;
+//         return (1);
+//     }
+//     if (!*sq && c == '"')
+//     {
+//         *dq = !*dq;
+//         return (1);
+//     }
+//     return (0);
+// }
+//
+// //deal with memory
+//
+// char *expanded_str(const t_envp *env, const char *str, bool follow_dq)
+// {
+//     bool sq;
+//     bool dq;
+//     char *ret;
+//     char *next;
+//     char *value;
+//
+//     sq = false;
+//     dq = false;
+//     ret = "";
+//     while (*str)
+//     {
+//         next = NULL;
+//         if (handle_quotes(&sq, &dq, *str) && !follow_dq)
+//         {
+//             str++;
+//             continue;
+//         };
+//         if (sq)
+//             next = ft_strchr(str, '\'');
+//         else if (dq)
+//             next = ft_strchr(str, '"');
+//         if (next && !follow_dq)
+//         {
+//             if (sq)
+//                 ret = ft_strnjoin(ret, str, next - str);
+//             if (dq)
+//                 ret = ft_strjoin(ret, expanded_str(env, str, true));
+//             str += next - str + 1;
+//             continue ;
+//         }
+//         if (*str == '$')
+//         {
+//             value = (char *)envp_getvar_value(env, str + 1);
+//             if (value)
+//             {
+//                 ret = ft_strjoin(ret, value);
+//                 str++;
+//             }
+//             while (is_valid(*str))
+//                 str++;
+//         }
+//         if (follow_dq && *str != '"')
+//             ret = ft_strnjoin(ret, str, 1);
+//         else if (!*str)
+//             return (ret);
+//         str++;
+//     }
+//     return (ret);
+// }
 
 bool match_wildcard(const char *exp, const char *str)
 {
