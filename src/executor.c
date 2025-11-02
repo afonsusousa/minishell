@@ -13,7 +13,7 @@
 #include "../includes/utils.h"
 
 static int exec_node(t_minishell* sh, t_ast* node);
-static int exec_redirs(t_minishell* sh, t_ast_list* r);
+static int exec_redirs(t_minishell* sh, t_ast_list* r, bool duplicate);
 static size_t words_count(t_minishell* sh, t_ast_list* w)
 {
     size_t c;
@@ -112,7 +112,7 @@ static int get_redir_fd(t_token_type r)
     return (STDIN_FILENO);
 }
 
-static int exec_redirs(t_minishell* sh, t_ast_list* r)
+static int exec_redirs(t_minishell* sh, t_ast_list* r, bool duplicate)
 {
     int fd;
     char* filename;
@@ -130,7 +130,7 @@ static int exec_redirs(t_minishell* sh, t_ast_list* r)
             fd = heredoc_fd(sh, r->node->as.redir.target->as.leaf.text);
         else
             fd = -1;
-        if (dup2(fd, get_redir_fd(r->node->as.redir.kind)) < 0)
+        if (duplicate && dup2(fd, get_redir_fd(r->node->as.redir.kind)) < 0)
         {
             close(fd);
             free(filename);
@@ -157,7 +157,7 @@ static int exec_assignments(t_minishell* sh, t_ast_list* a, bool global)
         env = sh->env;
     while (a)
     {
-        if (envp_append_var(env, a->node->as.leaf.text, false) == NULL)
+        if (envp_append_var(env, a->node->as.leaf.text, !global) == NULL)
             return (1);
         a = a->next;
     }
@@ -175,7 +175,7 @@ int exec_simple_command(t_minishell* sh, t_ast* node, bool in_fork)
     if (!node || node->type != AST_SIMPLE_COMMAND)
         return (1);
     argv = words_to_argv(sh, node->as.simple_command.words);
-    if (exec_redirs(sh, node->as.simple_command.redirs))
+    if (exec_redirs(sh, node->as.simple_command.redirs, in_fork))
         return (1);
     if (exec_assignments(sh, node->as.simple_command.assignments, argv == NULL))
         return (1);
@@ -191,8 +191,7 @@ int exec_simple_command(t_minishell* sh, t_ast* node, bool in_fork)
 int exec_grouping(t_minishell* sh, t_ast* node, bool in_fork)
 {
     int status;
-    (void)in_fork;
-    exec_redirs(sh, node->as.command.redirs);
+    exec_redirs(sh, node->as.command.redirs, in_fork);
     status = exec_node(sh, node->as.grouping.list);
     return (status);
 }
@@ -233,6 +232,36 @@ static inline int wait_pids(const t_pipeline *pipeline)
     }
     return (status);
 }
+size_t ft_max(size_t a, size_t b)
+{
+   if (a > b)
+       return a;
+    return b;
+}
+
+int ft_strcmp(const char *s1, const char *s2)
+{
+    while (*s1++ && *s2++)
+        if (*s1 != *s2)
+            return (*s1 - *s2);
+    return (*s1 - *s2);
+}
+
+bool is_builtin (t_ast *cmd)
+{
+    const char *word;
+
+    if (!cmd)
+        return (false);
+    word = cmd->as.simple_command.words->node->as.leaf.text;
+    return (ft_strcmp("export", word)
+        || ft_strcmp("unset", word)
+        || ft_strcmp("cd", word)
+        || ft_strcmp("echo", word)
+        || ft_strcmp("env", word)
+        || ft_strcmp("pwd", word)
+        || ft_strcmp("exit", word));
+}
 
 //TODO: buitlins will not fork
 int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
@@ -250,11 +279,10 @@ int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
     if (!cmds->next)
     {
         if (cmds->node->as.command.core->type == AST_SIMPLE_COMMAND
-            && !cmds->node->as.command.core->as.simple_command.words)
+            && (!cmds->node->as.command.core->as.simple_command.words || is_builtin(cmds->node)))
             return (exec_simple_command(sh, cmds->node->as.command.core, false));
-        else if (is_builtin(cmds))
-            //...................;
     }
+
     while (cmds)
     {
         if (cmds->next && pipe(pipeline->pipefd) < 0)

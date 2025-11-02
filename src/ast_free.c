@@ -44,7 +44,8 @@ static void	free_simple_command_lists(const t_ast_list *lst)
 {
 	while (lst != NULL)
 	{
-		ast_free(lst->node);
+		if (lst->node)
+			ast_free(lst->node);
 		lst = lst->next;
 	}
 }
@@ -82,8 +83,11 @@ void	ast_free(t_ast *node)
 	}
 	else if (node->type == AST_WORD || node->type == AST_ASSIGNMENT)
 	{
-		free((char *)node->as.leaf.text);
-		node->as.leaf.text = NULL;
+		if (node->as.leaf.text)
+		{
+			free((char *)node->as.leaf.text);
+			node->as.leaf.text = NULL;
+		}
 	}
 	free(node);
 }
