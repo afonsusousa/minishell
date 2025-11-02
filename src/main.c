@@ -173,6 +173,7 @@ int     rl_loop(t_minishell *sh)
         free(sh->line);
         token_stream_free(sh->ts);
         ast_free(sh->ast);
+        sh->ast = NULL;
         sh->line = readline("minishell> ");
     }
     minishell_free(sh);

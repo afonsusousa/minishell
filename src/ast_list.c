@@ -54,6 +54,8 @@ void	ast_list_free(t_ast_list *lst)
 	while (lst != NULL)
 	{
 		n = lst->next;
+	    ast_free(lst->node);
+	    lst->node = NULL;
 		free(lst);
 		lst = n;
 	}

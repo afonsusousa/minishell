@@ -9,21 +9,19 @@
 t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text)
 {
 	t_ast	*n;
-	char	*s;
-	size_t	len;
 
-	len = ft_strlen(text);
 	n = ast_new(type);
 	if (!n)
 		return (NULL);
-	s = (char *)malloc(len + 1);
-	if (!s)
-		return (free(n), NULL);
-	memcpy(s, text, len);
-	s[len] = '\0';
-	n->as.leaf.text = s;
+	n->as.leaf.text = ft_strdup(text);
+    if (!n->as.leaf.text)
+    {
+        free(n);
+        return (NULL);
+    }
 	return (n);
 }
+
 char    *sanitize_assignment(const char *str)
 {
     size_t  i;

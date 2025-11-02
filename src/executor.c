@@ -133,7 +133,6 @@ static int exec_redirs(t_minishell* sh, t_ast_list* r, bool duplicate)
         if (duplicate && dup2(fd, get_redir_fd(r->node->as.redir.kind)) < 0)
         {
             close(fd);
-            free(filename);
             return (1);
         }
         if (fd < 0)
@@ -142,7 +141,6 @@ static int exec_redirs(t_minishell* sh, t_ast_list* r, bool duplicate)
             return (1);
         }
         close(fd);
-        free(filename);
         r = r->next;
     }
     return (0);
@@ -251,9 +249,11 @@ bool is_builtin (t_ast *cmd)
 {
     const char *word;
 
-    if (!cmd)
+    if (!cmd || !cmd->as.simple_command.words)
         return (false);
     word = cmd->as.simple_command.words->node->as.leaf.text;
+    if (!word)
+        return (false);
     return (ft_strcmp("export", word) == 0
         || ft_strcmp("unset", word) == 0
         || ft_strcmp("cd", word) == 0
