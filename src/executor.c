@@ -254,13 +254,14 @@ bool is_builtin (t_ast *cmd)
     if (!cmd)
         return (false);
     word = cmd->as.simple_command.words->node->as.leaf.text;
-    return (ft_strcmp("export", word)
-        || ft_strcmp("unset", word)
-        || ft_strcmp("cd", word)
-        || ft_strcmp("echo", word)
-        || ft_strcmp("env", word)
-        || ft_strcmp("pwd", word)
-        || ft_strcmp("exit", word));
+    return (ft_strcmp("export", word) == 0
+        || ft_strcmp("unset", word) == 0
+        || ft_strcmp("cd", word) == 0
+        || ft_strcmp("echo", word) == 0
+        || ft_strcmp("env", word) == 0
+        || ft_strcmp("pwd", word) == 0
+        || ft_strcmp("exit", word) == 0
+        );
 }
 
 //TODO: buitlins will not fork
@@ -279,10 +280,9 @@ int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
     if (!cmds->next)
     {
         if (cmds->node->as.command.core->type == AST_SIMPLE_COMMAND
-            && (!cmds->node->as.command.core->as.simple_command.words || is_builtin(cmds->node)))
+            && (!cmds->node->as.command.core->as.simple_command.words || is_builtin(cmds->node->as.command.core)))
             return (exec_simple_command(sh, cmds->node->as.command.core, false));
     }
-
     while (cmds)
     {
         if (cmds->next && pipe(pipeline->pipefd) < 0)

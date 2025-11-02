@@ -178,7 +178,9 @@ char    **get_envp_array(const t_envp *env)
     char **pos;
     t_var *var;
 
-    ret = ft_calloc(env->count,sizeof(char *));
+    if (!env)
+        return (NULL);
+    ret = ft_calloc(env->count + 1,sizeof(char *));
     if (!ret)
         return NULL;
     pos = ret;
