@@ -114,7 +114,7 @@ static t_token_type			evaluate_assign(const t_token *t)
                 return (t->lexeme[i - 1] == '+' ? TOK_APPEND_WORD : TOK_ASSIGNMENT_WORD);
             first = false;
         }
-        if (!is_valid(t->lexeme[i]))
+        if (!is_valid(t->lexeme[i]) && t->lexeme[i] != '+')
             return (t->type);
         i++;
     }

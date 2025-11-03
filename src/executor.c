@@ -14,6 +14,7 @@
 
 static int exec_node(t_minishell* sh, t_ast* node);
 static int exec_redirs(t_minishell* sh, t_ast_list* r, bool duplicate);
+
 static size_t words_count(t_minishell* sh, t_ast_list* w)
 {
     size_t c;
@@ -150,8 +151,13 @@ static int exec_assignments(t_minishell* sh, t_ast_list* a, bool global)
         env = sh->env;
     while (a)
     {
-        if (envp_append_var(env, a->node->as.leaf.text, !global) == NULL)
-            return (1);
+        if (a->node->type == AST_APPEND_WORD)
+        {
+            if (envp_append_var(env, a->node->as.leaf.text, false) == NULL)
+                return (1);
+        }
+        else if (envp_setvar(env, a->node->as.leaf.text, false) == NULL)
+                return (1);
         a = a->next;
     }
     return (0);

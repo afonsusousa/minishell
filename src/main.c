@@ -95,7 +95,7 @@ static void print_ast(const t_ast *n, int d)
             print_indent(d); printf("SIMPLE_COMMAND\n");
             const t_ast_list *a = n->as.simple_command.assignments;
             for (; a; a = a->next) {
-                print_indent(d + 1); printf("ASSIGN ");
+                print_indent(d + 1); printf(a->node->type == AST_APPEND_WORD ? "APPEND" : "ASSIGN");
                 print_word_leaf(a->node);
                 printf("\n");
             }
@@ -124,6 +124,7 @@ static void print_ast(const t_ast *n, int d)
             printf("\n");
             break;
         case AST_ASSIGNMENT:
+        case AST_APPEND_WORD:
             print_indent(d); printf("ASSIGN_LEAF ");
             print_word_leaf(n);
             printf("\n");
