@@ -30,6 +30,30 @@ static size_t words_count(t_minishell* sh, t_ast_list* w)
     return (c);
 }
 
+
+int ft_strcmp(const char *s1, const char *s2)
+{
+    while (*s1++ && *s2++)
+        if (*s1 != *s2)
+            return (*s1 - *s2);
+    return (*s1 - *s2);
+}
+
+bool is_builtin (char *word)
+{
+
+    if (!word)
+        return (false);
+    return (ft_strcmp("export", word) == 0
+        || ft_strcmp("unset", word) == 0
+        || ft_strcmp("cd", word) == 0
+        || ft_strcmp("echo", word) == 0
+        || ft_strcmp("env", word) == 0
+        || ft_strcmp("pwd", word) == 0
+        || ft_strcmp("exit", word) == 0
+        );
+}
+
 //TODO: expand wildcards here
 char** words_to_argv(t_minishell* sh, t_ast_list* words)
 {
@@ -47,6 +71,7 @@ char** words_to_argv(t_minishell* sh, t_ast_list* words)
     while (words)
     {
         if (words->node && words->node->type == AST_WORD)
+            //expanded_sting
                 argv[i++] = ft_strdup(words->node->as.leaf.text);
         words = words->next;
     }
@@ -86,6 +111,12 @@ char* find_path(char* cmd, char** envp)
     return (free_until_null(&split_path), ft_strdup(cmd));
 }
 
+int exec_builtin(t_minishell *sh, char **argv)
+{
+    if (ft_strcmp("export", argv[0]) == 0)
+        return (export(sh, argv));
+}
+
 static int execve_wrapper(t_minishell* sh, char** argv)
 {
     char** env_arr;
@@ -94,6 +125,8 @@ static int execve_wrapper(t_minishell* sh, char** argv)
         return (0);
     env_arr = get_envp_array(sh->env);
     env_arr = strjoinjoin(env_arr, get_envp_array(sh->ctx));
+    if (is_builtin(argv[0]))
+        return (exec_builtin(sh, argv));
     argv[0] = find_path(argv[0], env_arr);
     minishell_free(sh);
     execve(argv[0], argv, env_arr);
@@ -173,6 +206,8 @@ int exec_simple_command(t_minishell* sh, t_ast* node, bool in_fork)
     memset(&sh->ctx, 0, sizeof(t_envp));
     if (!node || node->type != AST_SIMPLE_COMMAND)
         return (1);
+    if (is_builtin(node))
+        return (exec_builtin(node));
     argv = words_to_argv(sh, node->as.simple_command.words);
     if (exec_redirs(sh, node->as.simple_command.redirs, in_fork))
         return (1);
@@ -181,6 +216,7 @@ int exec_simple_command(t_minishell* sh, t_ast* node, bool in_fork)
     if (!argv)
         return (0);
     status = execve_wrapper(sh, argv);
+    //restore_fds();
     free_argv(argv);
     free_envp(&local_env);
     sh->last_status = status;
@@ -238,32 +274,6 @@ size_t ft_max(size_t a, size_t b)
     return b;
 }
 
-int ft_strcmp(const char *s1, const char *s2)
-{
-    while (*s1++ && *s2++)
-        if (*s1 != *s2)
-            return (*s1 - *s2);
-    return (*s1 - *s2);
-}
-
-bool is_builtin (t_ast *cmd)
-{
-    const char *word;
-
-    if (!cmd || !cmd->as.simple_command.words)
-        return (false);
-    word = cmd->as.simple_command.words->node->as.leaf.text;
-    if (!word)
-        return (false);
-    return (ft_strcmp("export", word) == 0
-        || ft_strcmp("unset", word) == 0
-        || ft_strcmp("cd", word) == 0
-        || ft_strcmp("echo", word) == 0
-        || ft_strcmp("env", word) == 0
-        || ft_strcmp("pwd", word) == 0
-        || ft_strcmp("exit", word) == 0
-        );
-}
 
 //TODO: buitlins will not fork
 int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)

@@ -15,6 +15,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "../includes/lexer.h"
+
+#include <ctype.h>
+
 #include "../includes/utils.h"
 
 #include "libft.h"
@@ -104,6 +107,8 @@ static t_token_type			evaluate_assign(const t_token *t)
     i = 0;
     first = true;
     len = ft_strlen(t->lexeme);
+    if (isdigit(t->lexeme[0]))
+        return (t->type);
     while (i < len)
     {
         if (first && t->lexeme[i] == '=')
