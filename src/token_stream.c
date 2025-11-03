@@ -28,6 +28,17 @@ void token_stream_init(t_minishell *sh, size_t capacity)
 
 void token_stream_free(t_token_stream *ts)
 {
+    size_t  i;
+
+    i = 0;
+    while (i < ts->count)
+    {
+        if (ts->data[i].type == TOK_WORD
+            || ts->data[i].type == TOK_ASSIGNMENT_WORD
+            || ts->data[i].type == TOK_APPEND_WORD)
+            free(ts->data[i].lexeme);
+        i++;
+    }
     if (ts->data)
         free(ts->data);
     memset(ts, 0, sizeof(t_token_stream));

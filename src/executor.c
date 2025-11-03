@@ -33,7 +33,6 @@ static size_t words_count(t_minishell* sh, t_ast_list* w)
 char** words_to_argv(t_minishell* sh, t_ast_list* words)
 {
     char** argv;
-    char** split;
     size_t count;
     size_t i;
 
@@ -47,11 +46,7 @@ char** words_to_argv(t_minishell* sh, t_ast_list* words)
     while (words)
     {
         if (words->node && words->node->type == AST_WORD)
-        {
-            split = ft_split(words->node->as.leaf.text, ' ');
-            while (split && *split)
-                argv[i++] = *split++;
-        }
+                argv[i++] = ft_strdup(words->node->as.leaf.text);
         words = words->next;
     }
     argv[i] = NULL;
