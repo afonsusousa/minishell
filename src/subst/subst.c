@@ -6,10 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
-#include "../includes/minishell.h"
-#include "../includes/subst.h"
-#include "../includes/utils.h"
-#include "../lib/libft/libft.h"
+#include "../../includes/minishell.h"
+#include "../../includes/subst.h"
+#include "../../includes/utils.h"
+#include "../../lib/libft/libft.h"
 
 #include <stdio.h>
 #include <unistd.h>

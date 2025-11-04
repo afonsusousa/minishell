@@ -14,9 +14,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "../includes/lexer.h"
+#include "../../../includes/lexer.h"
 #include <ctype.h>
-#include "../includes/utils.h"
+#include "../../../includes/utils.h"
 #include "libft.h"
 
 void lexer_read_char(t_lexer *lexer)

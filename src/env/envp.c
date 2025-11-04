@@ -3,11 +3,11 @@
 //
 
 #include <stddef.h>
-#include "../includes/envp.h"
+#include "../../includes/envp.h"
 #include <ctype.h>
 #include <stdlib.h>
-#include "../includes/utils.h"
-#include "../lib/libft/libft.h"
+#include "../../includes/utils.h"
+#include "../../lib/libft/libft.h"
 
 
 char    *sanitize_assignment(const char *str)

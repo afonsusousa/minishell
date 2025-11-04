@@ -1,17 +1,39 @@
 //
-// Created by afonsusousa on 10/17/25.
+// Created by afonsusousa on 11/4/25.
 //
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
 
-#include "../../includes/executor.h"
-#include "../../includes/minishell.h"
+#include "../../../includes/minishell.h"
+#include "../../../includes/executor.h"
 
+static inline int wait_pids(const t_pipeline *pipeline)
+{
+    size_t i;
+    int status;
+    int st;
 
-int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
+    i = 0;
+    status = 0;
+    while (i < pipeline->count)
+    {
+        if (waitpid(pipeline->pids[i], &st, 0) > 0 && i == pipeline->count - 1)
+        {
+            if (WIFEXITED(st))
+                status = WEXITSTATUS(st);
+            else if (WIFSIGNALED(st))
+                status = 128 + WTERMSIG(st);
+        }
+        i++;
+    }
+    return (status);
+}
+
+int exec_pipeline(t_minishell* sh, const t_ast_list* cores)
 {
     int status;
     t_pipeline *pipeline;
@@ -19,14 +41,20 @@ int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
     pipeline = &sh->pipeline;
     memset(pipeline, 0, sizeof(t_pipeline));
     pipeline->prev_read = -1;
-    if (!cmds->next)
+    // expand arguments
+    // exec assignments if no cmd
+    //
+    //
+    if (!cores->next)
     {
-        if (!cmds->node->as.simple_command.words)
-            return (exec_simple_command(sh, cmds->node, false));
+        if (cores->node->type == AST_COMMAND
+            && (!cores->node->as.command.words
+                || is_builtin((char *)cores->node->as.command.words[0])))
+            return (exec_command(sh, cores->node, false));
     }
-    while (cmds)
+    while (cores)
     {
-        if (cmds->next && pipe(pipeline->pipefd) < 0)
+        if (cores->next && pipe(pipeline->pipefd) < 0)
         {
             perror("pipe");
             if (pipeline->prev_read != -1)
@@ -37,7 +65,7 @@ int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
         if (pipeline->pids[pipeline->count] < 0)
         {
             perror("fork");
-            if (cmds->next)
+            if (cores->next)
             {
                 close(pipeline->pipefd[0]);
                 close(pipeline->pipefd[1]);
@@ -54,26 +82,26 @@ int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
                     exit(1);
                 close(pipeline->prev_read);
             }
-            if (cmds->next)
+            if (cores->next)
             {
                 close(pipeline->pipefd[0]);
                 if (dup2(pipeline->pipefd[1], STDOUT_FILENO) < 0)
                     exit(1);
                 close(pipeline->pipefd[1]);
             }
-            status = exec_command(sh, cmds->node, true);
+            status = exec_core(sh, cores->node, true);
             minishell_free(sh);
             exit(status);
         }
         if (pipeline->prev_read != -1)
             close(pipeline->prev_read);
-        if (cmds->next)
+        if (cores->next)
         {
             close(pipeline->pipefd[1]);
             pipeline->prev_read = pipeline->pipefd[0];
         }
         pipeline->count++;
-        cmds = cmds->next;
+        cores = cores->next;
     }
     if (pipeline->prev_read != -1)
         close(pipeline->prev_read);
@@ -81,3 +109,4 @@ int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
     sh->last_status = status;
     return (status);
 }
+

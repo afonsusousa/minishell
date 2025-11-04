@@ -5,9 +5,9 @@
 #include <ctype.h>
 #include <linux/limits.h>
 
-#include "../includes/envp.h"
-#include "../includes/utils.h"
-#include "../lib/libft/libft.h"
+#include "../../includes/envp.h"
+#include "../../includes/utils.h"
+#include "../../lib/libft/libft.h"
 
 typedef enum s_state
 {
