@@ -23,15 +23,24 @@ typedef struct s_envp
     size_t count;
 } t_envp;
 
+// Node Construction
 t_var       *new_var(const char *assign, bool export);
 t_var       *envp_push(t_envp *env, t_var *node);
+
+// Getters
 t_var       *envp_getvar(const t_envp *env, const char *name);
+char        **get_envp_array(const t_envp *env);
+
+// Setters
 t_var       *envp_setvar(t_envp *env, const char *var, bool export);
 const char  *envp_getvar_value(const t_envp *env, const char *name);
 bool        envp_unsetvar(t_envp *env, const char *name);
-void        free_envp(t_envp *env);
 t_var       *envp_append_var(t_envp *env, const char *append, bool export);
-char        **get_envp_array(const t_envp *env);
+
+// Cleanup
+void        free_envp(t_envp *env);
+
+// Utils
 size_t      key_len(const char *str);
 
 #endif //MINISHELL_ENVP_CLEAN_H
