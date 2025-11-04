@@ -2,10 +2,14 @@
 // Created by afonsusousa on 11/4/25.
 //
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "../../../../includes/minishell.h"
 #include "../../../../includes/executor.h"
+#include "../../../../includes/utils.h"
 
 static int exec_assignments(t_minishell* sh, const char **a, bool context)
 {
@@ -18,6 +22,23 @@ static int exec_assignments(t_minishell* sh, const char **a, bool context)
         if (envp_setvar(env, *a++, context) == NULL)
             return (1);
     return (0);
+}
+
+int execve_wrapper(t_minishell* sh, char** argv)
+{
+    char** env_arr;
+
+    if (!argv || !argv[0])
+        return (0);
+    env_arr = get_envp_array(sh->env);
+    env_arr = strjoinjoin(env_arr, get_envp_array(sh->ctx));
+    if (is_builtin(argv[0]))
+        return (exec_builtin(sh, argv));
+    argv[0] = find_path(argv[0], env_arr);
+    minishell_free(sh);
+    execve(argv[0], argv, env_arr);
+    perror("execve");
+    exit(127);
 }
 
 int exec_command(t_minishell* sh, t_ast* node, bool in_fork)
