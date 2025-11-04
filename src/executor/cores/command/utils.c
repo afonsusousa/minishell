@@ -3,8 +3,8 @@
 //
 
 #include <stdbool.h>
-#include "../../../../../includes/utils.h"
-#include "../../../../../includes/executor.h"
+#include "../../../../includes/utils.h"
+#include "../../../../includes/executor.h"
 
 bool is_builtin (char *word)
 {

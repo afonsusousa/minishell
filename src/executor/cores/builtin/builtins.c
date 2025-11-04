@@ -1,6 +1,6 @@
-#include "../../../../../includes/minishell.h"
-#include "../../../../../includes/executor.h"
-#include "../../../../../includes/utils.h"
+#include "../../../../includes/minishell.h"
+#include "../../../../includes/executor.h"
+#include "../../../../includes/utils.h"
 
 int export(t_minishell *sh, char **argv);
 

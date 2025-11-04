@@ -6,10 +6,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <readline/readline.h>
-#include "../../../../../includes/subst.h"
-#include "../../../../../lib/libft/libft.h"
+#include "../../includes/subst.h"
+#include "../../lib/libft/libft.h"
 #include <sys/wait.h>
-
 #include "minishell.h"
 
 //TODO: will need to keep track of pids to then kill in case of Ctrl-C

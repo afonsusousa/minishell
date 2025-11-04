@@ -4,8 +4,8 @@
 
 #include <string.h>
 
-#include "../../../../includes/minishell.h"
-#include "../../../../includes/executor.h"
+#include "../../includes/minishell.h"
+#include "../../includes/executor.h"
 
 int exec_grouping(t_minishell* sh, t_ast* node, bool in_fork)
 {

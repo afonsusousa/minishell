@@ -4,9 +4,9 @@
 
 #include <string.h>
 #include <unistd.h>
-#include "../../../../../includes/minishell.h"
+#include "../../includes/minishell.h"
 #include <fcntl.h>
-#include "../../../../../includes/subst.h"
+#include "../../includes/subst.h"
 
 int get_redir_fd(const t_token_type r)
 {

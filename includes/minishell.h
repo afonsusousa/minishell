@@ -8,6 +8,7 @@
 #include "ast.h"
 #include "tokens.h"
 #include "envp.h"
+#include "libft.h"
 
 typedef struct s_pipeline
 {

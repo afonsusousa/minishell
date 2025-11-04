@@ -4,8 +4,8 @@
 
 #include <string.h>
 
-#include "../../../../../includes/minishell.h"
-#include "../../../../../includes/executor.h"
+#include "../../../../includes/minishell.h"
+#include "../../../../includes/executor.h"
 
 static int exec_assignments(t_minishell* sh, const char **a, bool context)
 {

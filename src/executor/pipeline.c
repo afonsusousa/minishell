@@ -8,8 +8,8 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-#include "../../../includes/minishell.h"
-#include "../../../includes/executor.h"
+#include "../../includes/minishell.h"
+#include "../../includes/executor.h"
 
 static inline int wait_pids(const t_pipeline *pipeline)
 {

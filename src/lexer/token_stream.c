@@ -7,11 +7,11 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "../../../includes/lexer.h"
-#include "../../../includes/tokens.h"
-#include "../../../includes/minishell.h"
+#include "../../includes/lexer.h"
+#include "../../includes/tokens.h"
+#include "../../includes/minishell.h"
 
-void token_stream_init(t_minishell *sh, size_t capacity)
+void token_stream_init(const t_minishell *sh, size_t capacity)
 {
     if (capacity == 0)
         capacity = 32;
