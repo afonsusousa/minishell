@@ -80,6 +80,7 @@ t_var   *envp_push(t_envp *env, t_var *node)
     if (!env->head)
     {
         env->head = node;
+        env->count = 1;
         return (node);
     }
     while (iter->next)

@@ -169,15 +169,15 @@ static int exec_redirs(t_minishell* sh, t_ast_list* r, bool duplicate)
     return (0);
 }
 
-static int exec_assignments(t_minishell* sh, const char **a, bool global)
+static int exec_assignments(t_minishell* sh, const char **a, bool context)
 {
     t_envp *env;
 
-    env = sh->ctx;
-    if (global)
-        env = sh->env;
+    env = sh->env;
+    if (context)
+        env = sh->ctx;
     while (a && *a)
-        if (envp_setvar(env, *a++, false) == NULL)
+        if (envp_setvar(env, *a++, context) == NULL)
                 return (1);;
     return (0);
 }
@@ -197,7 +197,7 @@ int exec_command(t_minishell* sh, t_ast* node, bool in_fork)
         return (exec_builtin(sh, argv));
     if (exec_redirs(sh, node->as.command.redirs, in_fork))
         return (1);
-    if (exec_assignments(sh, node->as.command.assignments, argv == NULL))
+    if (exec_assignments(sh, node->as.command.assignments, argv != NULL))
         return (1);
     if (!argv)
         return (0);
