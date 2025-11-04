@@ -1,11 +1,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include <errno.h>
 #include <stdio.h>
 #include <fcntl.h>
-
 #include "../includes/executor.h"
+#include "../lib/libft/libft.h"
 #include <string.h>
 #include "../includes/ast.h"
 #include "../includes/envp.h"
@@ -177,7 +176,7 @@ static int exec_assignments(t_minishell* sh, const char **a, bool global)
     env = sh->ctx;
     if (global)
         env = sh->env;
-    while (a)
+    while (a && *a)
         if (envp_setvar(env, *a++, false) == NULL)
                 return (1);;
     return (0);
@@ -190,7 +189,7 @@ int exec_command(t_minishell* sh, t_ast* node, bool in_fork)
     t_envp local_env;
     (void)in_fork;
 
-    memset(&sh->ctx, 0, sizeof(t_envp));
+    memset(sh->ctx, 0, sizeof(t_envp));
     if (!node || node->type != AST_COMMAND)
         return (1);
     argv = words_to_argv(sh, node->as.command.words);

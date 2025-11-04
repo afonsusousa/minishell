@@ -20,6 +20,6 @@ const char  **parse_assignments(t_parser *p);
 t_ast		*parse_redir(t_parser *p);
 t_ast		*parse_grouping(t_parser *p);
 t_ast_list	*parse_core_redirs(t_parser *p);
-t_ast *parse(const t_token *tokens, size_t count);
+t_ast       *parse(const t_token *tokens, size_t count);
 
 #endif // MINISHELL_PARSER_H

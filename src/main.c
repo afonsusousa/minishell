@@ -173,9 +173,11 @@ int main(int argc, char **argv, char **envp)
     memset(&sh, 0, sizeof(t_minishell)); // ts -> NULL
     sh.ts = &ts;
     t_envp env = {0};
+    t_envp ctx = {0};
     for (int i = 0; envp[i] != NULL; i++)
         envp_append_var(&env, envp[i], true);
     sh.env = &env;
+    sh.ctx = &ctx;
     if (argc > 1)
     {
         sh.line = argv[1]; // simplified

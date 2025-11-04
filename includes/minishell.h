@@ -4,14 +4,24 @@
 
 #ifndef MINISHELL_MINISHELL_H
 #define MINISHELL_MINISHELL_H
-#include <stddef.h>
-
+#include <sys/types.h>
 #include "ast.h"
 #include "tokens.h"
-#include "pipeline.h"
-#include "heredoc.h"
 #include "envp.h"
-#include "../lib/libft/libft.h"
+
+typedef struct s_pipeline
+{
+    int     pipefd[2];
+    int     prev_read;
+    pid_t   pids[256];
+    size_t  count;
+} t_pipeline;
+
+typedef struct s_heredoc
+{
+    pid_t   pids[256];
+    size_t  count;
+}   t_heredoc;
 
 typedef struct s_minishell
 {

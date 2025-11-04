@@ -3,17 +3,13 @@
 //
 
 #include <ctype.h>
-#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
 #include "../includes/minishell.h"
-#include "../includes/envp.h"
 #include "../includes/subst.h"
-
-#include <math.h>
-
 #include "../includes/utils.h"
+#include "../lib/libft/libft.h"
 
 #include <stdio.h>
 #include <unistd.h>

@@ -7,29 +7,7 @@
 #include "libft.h"
 #include "utils.h"
 
-char    *sanitize_assignment(const char *str)
-{
-    size_t  i;
-    size_t  size;
-    char    *ret;
-
-    i = 0;
-    while (str[i])
-    {
-        if (str[i] == '+' && str[i + 1] && str[i + 1] == '=')
-            break;
-        i++;
-    }
-    if (!str[i])
-        return (ft_strdup(str));
-    size = ft_strlen(str);
-    ret = calloc(size + 1, sizeof(char));
-    if (!ret)
-        return (NULL);
-    ft_strlcpy(ret, str, i + 1);
-    ft_strlcpy(ret + i, str + i + 1, size - i);
-    return (ret);
-}
+t_ast	*parse_core(t_parser *p);
 
 static inline int	is_redir_token_type(t_token_type t)
 {
@@ -39,7 +17,7 @@ static inline int	is_redir_token_type(t_token_type t)
         || t == TOK_HEREDOC);
 }
 
-static inline int	is_trailing_redir_ahead(const t_parser *p)
+static inline int	is_redir_ahead(const t_parser *p)
 {
     const t_token *tk;
 
@@ -136,7 +114,7 @@ t_ast	*parse_or_list(t_parser *p)
 	lhs = parse_and_list(p);
 	if (!lhs)
 		return (NULL);
-	while (ts_match(&p->ts, TOK_OR_IF))
+	while (ts_match(&p->ts, TOK_OR))
 	{
 		rhs = parse_and_list(p);
 		if (!rhs)
@@ -156,7 +134,7 @@ t_ast	*parse_and_list(t_parser *p)
 	lhs = parse_pipeline(p);
 	if (!lhs)
 		return (NULL);
-	while (ts_match(&p->ts, TOK_AND_IF))
+	while (ts_match(&p->ts, TOK_AND))
 	{
 		rhs = parse_pipeline(p);
 		if (!rhs)
@@ -166,22 +144,6 @@ t_ast	*parse_and_list(t_parser *p)
 			return (NULL);
 	}
 	return (lhs);
-}
-
-t_ast	*parse_core(t_parser *p)
-{
-    t_ast			*core;
-
-    if (ts_check(&p->ts, TOK_LPAREN))
-        core = parse_grouping(p);
-    else if (ts_check(&p->ts, TOK_WORD)
-            || ts_check(&p->ts, TOK_ASSIGNMENT_WORD)
-            || ts_check(&p->ts, TOK_APPEND_WORD)
-            || is_trailing_redir_ahead(p))
-        core = parse_command(p);
-    else
-        return (NULL);
-    return (core);
 }
 
 t_ast	*parse_pipeline(t_parser *p)
@@ -206,44 +168,19 @@ t_ast	*parse_pipeline(t_parser *p)
 	return (pipeline);
 }
 
-t_ast *parse_redir(t_parser *p)
+t_ast	*parse_core(t_parser *p)
 {
-    t_ast		*redir;
-    const t_token *tk;
+    t_ast			*core;
 
-    tk = ts_peek(&p->ts);
-    if (!tk || !is_redir_token_type(tk->type))
-        return (NULL);
-    ts_advance(&p->ts);
-    redir = ast_make_redir_node(tk->type);
-    if (!redir)
-        return (NULL);
-    tk = ts_peek(&p->ts);
-    if (tk && ((tk->type == TOK_WORD)))
-    {
-        ts_advance(&p->ts);
-        redir->as.redir.target = ft_strdup(tk->lexeme);
-    }
+    if (ts_check(&p->ts, TOK_LPAREN))
+        core = parse_grouping(p);
+    else if (ts_check(&p->ts, TOK_WORD)
+            || ts_check(&p->ts, TOK_ASSIGNMENT_WORD)
+            || is_redir_ahead(p))
+        core = parse_command(p);
     else
-        return (ast_free(redir), NULL);
-    return (redir);
-}
-
-t_ast_list	*parse_core_redirs(t_parser *p)
-{
-    t_ast_list	*redirs;
-    t_ast		*redir_node;
-
-    redirs = NULL;
-    while (is_trailing_redir_ahead(p))
-    {
-        redir_node = parse_redir(p);
-        if (redir_node == NULL)
-            break;
-        if (ast_list_push(&redirs, redir_node) == NULL)
-            break;
-    }
-    return (redirs);
+        return (NULL);
+    return (core);
 }
 
 t_ast	*parse_grouping(t_parser *p)
@@ -266,23 +203,6 @@ t_ast	*parse_grouping(t_parser *p)
 	return (grp);
 }
 
-const char	**parse_assignments(t_parser *p)
-{
-	char            **assignments;
-	const t_token	*tk;
-
-	assignments = NULL;
-	while (1)
-	{
-		tk = ts_peek(&p->ts);
-		if (!tk || (tk->type != TOK_ASSIGNMENT_WORD && tk->type != TOK_APPEND_WORD))
-			break;
-		ts_advance(&p->ts);
-	    assignments = strjoinjoin(assignments, get_double_from_str(tk->lexeme));
-	}
-	return ((const char **) assignments);
-}
-
 t_ast		*parse_command(t_parser *p)
 {
 	t_ast		*simple_cmd;
@@ -301,14 +221,12 @@ t_ast		*parse_command(t_parser *p)
 		peek = ts_peek(&p->ts);
 		if (!peek)
 			break ;
-		if (peek->type == TOK_WORD
-			|| peek->type == TOK_ASSIGNMENT_WORD
-			|| peek->type == TOK_APPEND_WORD)
+		if (peek->type == TOK_WORD || peek->type == TOK_ASSIGNMENT_WORD)
 		{
 			ts_advance(&p->ts);
 		    words = strjoinjoin(words, get_double_from_str(peek->lexeme));
 		}
-		else if (is_trailing_redir_ahead(p))
+		else if (is_redir_ahead(p))
 			redirs = parse_core_redirs(p);
 		else
 			break ;
@@ -316,6 +234,63 @@ t_ast		*parse_command(t_parser *p)
 	simple_cmd->as.command.words = (const char **)words;
 	simple_cmd->as.command.redirs = redirs;
 	return (simple_cmd);
+}
+
+const char	**parse_assignments(t_parser *p)
+{
+    char            **assignments;
+    const t_token	*tk;
+
+    assignments = NULL;
+    while (1)
+    {
+        tk = ts_peek(&p->ts);
+        if (!tk || (tk->type != TOK_ASSIGNMENT_WORD))
+            break;
+        ts_advance(&p->ts);
+        assignments = strjoinjoin(assignments, get_double_from_str(tk->lexeme));
+    }
+    return ((const char **) assignments);
+}
+
+t_ast_list	*parse_core_redirs(t_parser *p)
+{
+    t_ast_list	*redirs;
+    t_ast		*redir_node;
+
+    redirs = NULL;
+    while (is_redir_ahead(p))
+    {
+        redir_node = parse_redir(p);
+        if (redir_node == NULL)
+            break;
+        if (ast_list_push(&redirs, redir_node) == NULL)
+            break;
+    }
+    return (redirs);
+}
+
+t_ast *parse_redir(t_parser *p)
+{
+    t_ast		*redir;
+    const t_token *tk;
+
+    tk = ts_peek(&p->ts);
+    if (!tk || !is_redir_token_type(tk->type))
+        return (NULL);
+    ts_advance(&p->ts);
+    redir = ast_make_redir_node(tk->type);
+    if (!redir)
+        return (NULL);
+    tk = ts_peek(&p->ts);
+    if (tk && ((tk->type == TOK_WORD)))
+    {
+        ts_advance(&p->ts);
+        redir->as.redir.target = ft_strdup(tk->lexeme);
+    }
+    else
+        return (ast_free(redir), NULL);
+    return (redir);
 }
 
 t_ast	*parse(const t_token *tokens, const size_t count)

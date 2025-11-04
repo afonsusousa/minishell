@@ -15,11 +15,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "../includes/lexer.h"
-
 #include <ctype.h>
-
 #include "../includes/utils.h"
-
 #include "libft.h"
 
 void lexer_read_char(t_lexer *lexer)
@@ -55,32 +52,6 @@ static int	is_break(char c)
     return (c == '\0' || is_space(c) || is_meta(c));
 }
 
-// static int	handle_escape(t_lexer *lx, int in_squote, int in_dquote)
-// {
-//     char next;
-//
-//     if (lx->ch != '\\')
-//         return (0);
-//     if (in_squote)
-//         return (0);
-//     next = lexer_peek_char(lx);
-//     if (in_dquote)
-//     {
-//         if (next == '$' || next == '`' || next == '"' || next == '\\' || next == '\n')
-//         {
-//             lexer_read_char(lx);
-//             if (lx->ch != '\0')
-//                 lexer_read_char(lx);
-//             return (1);
-//         }
-//         return (0);
-//     }
-//     lexer_read_char(lx);
-//     if (lx->ch != '\0')
-//         lexer_read_char(lx);
-//     return (1);
-// }
-
 static int	handle_quotes(t_lexer *lx, int *sq, int *dq)
 {
     if (*dq == 0 && lx->ch == '\'')
@@ -98,6 +69,7 @@ static int	handle_quotes(t_lexer *lx, int *sq, int *dq)
     return (0);
 }
 
+//TODO: fully move append distinction to a saner place
 static t_token_type			evaluate_assign(const t_token *t)
 {
     size_t i;
@@ -116,7 +88,7 @@ static t_token_type			evaluate_assign(const t_token *t)
             if (i && i + 1 < len
                 && ((!is_space(t->lexeme[i - 1]) || t->lexeme[i - 1] == '+')
                 || !is_space(t->lexeme[i + 1])))
-                return (t->lexeme[i - 1] == '+' ? TOK_APPEND_WORD : TOK_ASSIGNMENT_WORD);
+                return (TOK_ASSIGNMENT_WORD);
             first = false;
         }
         if (!is_valid(t->lexeme[i]) && t->lexeme[i] != '+')
@@ -126,7 +98,6 @@ static t_token_type			evaluate_assign(const t_token *t)
     return (t->type);
 }
 
-//TODO: better quote handling
 void	lexer_read_word(t_lexer *lexer, t_token *token)
 {
     size_t	start;
@@ -165,41 +136,41 @@ t_token   *token_new(const t_token_type type)
     token->type = type;
     return (token);
 }
-bool    lexer_next_token_dmeta(t_lexer *lexer, t_token **token)
+bool    lexer_next_dmeta(t_lexer *lexer)
 {
     char peek;
 
     peek = lexer_peek_char(lexer);
     if (lexer->ch == '|' && peek == '|')
-        *token = token_new(TOK_OR_IF);
+        lexer->tk = token_new(TOK_OR);
     else if (lexer->ch == '&' && peek == '&')
-        *token = token_new(TOK_AND_IF);
+        lexer->tk = token_new(TOK_AND);
     else if (lexer->ch == '>' && peek == '>')
-        *token = token_new(TOK_REDIR_APPEND);
+        lexer->tk = token_new(TOK_REDIR_APPEND);
     else if (lexer->ch == '<' && peek == '<')
-        *token = token_new(TOK_HEREDOC);
+        lexer->tk = token_new(TOK_HEREDOC);
     else 
         return (false);
     lexer_read_char(lexer);
     return (true);
 }
 
-bool    lexer_next_token_smeta(const t_lexer *lexer, t_token **token)
+bool    lexer_next_smeta(t_lexer *lexer)
 {
     if (lexer->ch == '|')
-        *token = token_new(TOK_PIPE);
+        lexer->tk = token_new(TOK_PIPE);
     else if (lexer->ch == '&')
-        *token = token_new(TOK_AMP);
+        lexer->tk = token_new(TOK_AMP);
     else if (lexer->ch == '>')
-        *token = token_new(TOK_REDIR_OUT);
+        lexer->tk = token_new(TOK_REDIR_OUT);
     else if (lexer->ch == '<')
-        *token = token_new(TOK_REDIR_IN);
+        lexer->tk = token_new(TOK_REDIR_IN);
     else if (lexer->ch == ';')
-        *token = token_new(TOK_SEMI);
+        lexer->tk  = token_new(TOK_SEMI);
     else if (lexer->ch == '(')
-        *token = token_new(TOK_LPAREN);
+        lexer->tk = token_new(TOK_LPAREN);
     else if (lexer->ch == ')')
-        *token = token_new(TOK_RPAREN);
+        lexer->tk = token_new(TOK_RPAREN);
     else
         return (false);
     return (true);
@@ -207,22 +178,18 @@ bool    lexer_next_token_smeta(const t_lexer *lexer, t_token **token)
 
 t_token *lexer_next_token(t_lexer *lexer)
 {
-    t_token	*token;
-
     lexer_skip_space(lexer);
     if (lexer->ch == '\0')
-        token = token_new(TOK_EOF);
-    else if (lexer_next_token_dmeta(lexer, &token))
-        lexer_read_char(lexer);
-    else if (lexer_next_token_smeta(lexer, &token))
+        lexer->tk = token_new(TOK_EOF);
+    else if (lexer_next_dmeta(lexer) || lexer_next_smeta(lexer))
         lexer_read_char(lexer);
     else
     {
-        token = token_new(TOK_WORD);
-        if (token == NULL)
+        lexer->tk = token_new(TOK_WORD);
+        if (lexer->tk == NULL)
             return (NULL);
-        lexer_read_word(lexer, token);
-        token->type = evaluate_assign(token);
+        lexer_read_word(lexer, lexer->tk);
+        lexer->tk->type = evaluate_assign(lexer->tk);
     }
-    return (token);
+    return (lexer->tk);
 }

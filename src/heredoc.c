@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <readline/readline.h>
 #include "../includes/subst.h"
+#include "../lib/libft/libft.h"
 #include <sys/wait.h>
 
 #include "minishell.h"

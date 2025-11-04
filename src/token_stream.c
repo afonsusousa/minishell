@@ -34,8 +34,7 @@ void token_stream_free(t_token_stream *ts)
     while (i < ts->count)
     {
         if (ts->data[i].type == TOK_WORD
-            || ts->data[i].type == TOK_ASSIGNMENT_WORD
-            || ts->data[i].type == TOK_APPEND_WORD)
+            || ts->data[i].type == TOK_ASSIGNMENT_WORD)
             free(ts->data[i].lexeme);
         i++;
     }
@@ -94,5 +93,47 @@ bool token_stream_fill(t_token_stream *ts, t_lexer *lexer)
     ts->read_position = 0;
     ts->tk = NULL;
     return (true);
+}
+
+static void ts_read_token(t_token_stream *ts)
+{
+    if (ts->read_position >= ts->count && ts->count > 0) {
+        ts->tk = &ts->data[ts->count - 1];
+    } else if (ts->count > 0) {
+        ts->tk = &ts->data[ts->read_position];
+    } else {
+        ts->tk = NULL;
+    }
+    ts->position = ts->read_position;
+    ts->read_position += 1;
+}
+
+const t_token *ts_peek(const t_token_stream *ts)
+{
+    if (ts->read_position >= ts->count && ts->count > 0)
+        return (&ts->data[ts->count - 1]);
+    return &ts->data[ts->read_position];
+}
+
+const t_token *ts_advance(t_token_stream *ts)
+{
+    const t_token *prev = ts->tk;
+    ts_read_token(ts);
+    return prev;
+}
+
+int ts_check(const t_token_stream *ts, t_token_type type)
+{
+    return ts_peek(ts)->type == type;
+}
+
+int ts_match(t_token_stream *ts, t_token_type type)
+{
+    if (ts_check(ts, type))
+    {
+        ts_read_token(ts);
+        return (1);
+    }
+    return (0);
 }
 

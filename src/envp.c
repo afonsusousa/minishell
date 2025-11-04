@@ -4,11 +4,35 @@
 
 #include <stddef.h>
 #include "../includes/envp.h"
-
 #include <ctype.h>
 #include <stdlib.h>
 #include "../includes/utils.h"
 #include "../lib/libft/libft.h"
+
+
+char    *sanitize_assignment(const char *str)
+{
+    size_t  i;
+    size_t  size;
+    char    *ret;
+
+    i = 0;
+    while (str[i])
+    {
+        if (str[i] == '+' && str[i + 1] && str[i + 1] == '=')
+            break;
+        i++;
+    }
+    if (!str[i])
+        return (ft_strdup(str));
+    size = ft_strlen(str);
+    ret = calloc(size + 1, sizeof(char));
+    if (!ret)
+        return (NULL);
+    ft_strlcpy(ret, str, i + 1);
+    ft_strlcpy(ret + i, str + i + 1, size - i);
+    return (ret);
+}
 
 size_t key_len(const char *str)
 {
