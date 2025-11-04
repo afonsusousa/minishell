@@ -5,22 +5,7 @@
 #include <string.h>
 
 #include "libft.h"
-
-t_ast	*ast_make_leaf_typed(t_ast_type type, const char *text)
-{
-	t_ast	*n;
-
-	n = ast_new(type);
-	if (!n)
-		return (NULL);
-	n->as.leaf.text = ft_strdup(text);
-    if (!n->as.leaf.text)
-    {
-        free(n);
-        return (NULL);
-    }
-	return (n);
-}
+#include "utils.h"
 
 char    *sanitize_assignment(const char *str)
 {
@@ -46,19 +31,20 @@ char    *sanitize_assignment(const char *str)
     return (ret);
 }
 
-t_ast	*ast_make_leaf_assign(const t_token *tk)
+static inline int	is_redir_token_type(t_token_type t)
 {
-	t_ast	*n;
+    return (t == TOK_REDIR_IN
+        || t == TOK_REDIR_OUT
+        || t == TOK_REDIR_APPEND
+        || t == TOK_HEREDOC);
+}
 
-	if (tk->type == TOK_ASSIGNMENT_WORD)
-		n = ast_new(AST_ASSIGNMENT);
-	else
-		n = ast_new(AST_APPEND_WORD);
-	if (!n)
-		return (NULL);
-	n->as.leaf.text = sanitize_assignment(tk->lexeme);
-	n->as.leaf.quoted = false;
-	return (n);
+static inline int	is_trailing_redir_ahead(const t_parser *p)
+{
+    const t_token *tk;
+
+    tk = ts_peek(&((t_parser *)p)->ts);
+    return (tk != NULL && is_redir_token_type(tk->type));
 }
 
 t_ast	*ast_make_binary_node(t_ast_type type, t_ast *left, t_ast *right)
@@ -85,30 +71,27 @@ t_ast	*ast_make_command_line_node(t_ast *list, int terminator)
 	return (n);
 }
 
-t_ast	*ast_make_pipeline_node(t_ast *first_cmd)
+t_ast	*ast_make_pipeline_node(t_ast *first_core)
 {
 	t_ast	*n;
 
 	n = ast_new(AST_PIPELINE);
 	if (!n)
 		return (NULL);
-	n->as.pipeline.commands = NULL;
-	if (!ast_list_push(&n->as.pipeline.commands, first_cmd))
-	{
-		free(n);
-		return (NULL);
-	}
+	n->as.pipeline.cores = NULL;
+	if (!ast_list_push(&n->as.pipeline.cores, first_core))
+		return (free(n), NULL);
 	return (n);
 }
 
-t_ast	*ast_make_command_node(t_ast *core)
+t_ast	*ast_make_grouping_node(t_ast *list)
 {
 	 t_ast	*n;
 
-	n = ast_new(AST_COMMAND);
+	n = ast_new(AST_GROUPING);
 	if (!n)
 		return (NULL);
-	n->as.command.core = core;
+	n->as.grouping.list = list;
 	n->as.command.redirs = NULL;
 	return (n);
 }
@@ -185,26 +168,82 @@ t_ast	*parse_and_list(t_parser *p)
 	return (lhs);
 }
 
+t_ast	*parse_core(t_parser *p)
+{
+    t_ast			*core;
+
+    if (ts_check(&p->ts, TOK_LPAREN))
+        core = parse_grouping(p);
+    else if (ts_check(&p->ts, TOK_WORD)
+            || ts_check(&p->ts, TOK_ASSIGNMENT_WORD)
+            || ts_check(&p->ts, TOK_APPEND_WORD)
+            || is_trailing_redir_ahead(p))
+        core = parse_command(p);
+    else
+        return (NULL);
+    return (core);
+}
+
 t_ast	*parse_pipeline(t_parser *p)
 {
-	t_ast	*cmd;
+	t_ast	*core;
 	t_ast	*pipeline;
 
-	cmd = parse_command(p);
-	if (!cmd)
+	core = parse_core(p);
+	if (!core)
 		return (NULL);
-	pipeline = ast_make_pipeline_node(cmd);
+	pipeline = ast_make_pipeline_node(core);
 	if (!pipeline)
 		return (NULL);
 	while (ts_match(&p->ts, TOK_PIPE))
 	{
-		cmd = parse_command(p);
-		if (!cmd)
+		core = parse_core(p);
+		if (!core)
 			return (NULL);
-		if (!ast_list_push(&pipeline->as.pipeline.commands, cmd))
+		if (!ast_list_push(&pipeline->as.pipeline.cores, core))
 			return (NULL);
 	}
 	return (pipeline);
+}
+
+t_ast *parse_redir(t_parser *p)
+{
+    t_ast		*redir;
+    const t_token *tk;
+
+    tk = ts_peek(&p->ts);
+    if (!tk || !is_redir_token_type(tk->type))
+        return (NULL);
+    ts_advance(&p->ts);
+    redir = ast_make_redir_node(tk->type);
+    if (!redir)
+        return (NULL);
+    tk = ts_peek(&p->ts);
+    if (tk && ((tk->type == TOK_WORD)))
+    {
+        ts_advance(&p->ts);
+        redir->as.redir.target = ft_strdup(tk->lexeme);
+    }
+    else
+        return (ast_free(redir), NULL);
+    return (redir);
+}
+
+t_ast_list	*parse_core_redirs(t_parser *p)
+{
+    t_ast_list	*redirs;
+    t_ast		*redir_node;
+
+    redirs = NULL;
+    while (is_trailing_redir_ahead(p))
+    {
+        redir_node = parse_redir(p);
+        if (redir_node == NULL)
+            break;
+        if (ast_list_push(&redirs, redir_node) == NULL)
+            break;
+    }
+    return (redirs);
 }
 
 t_ast	*parse_grouping(t_parser *p)
@@ -218,108 +257,19 @@ t_ast	*parse_grouping(t_parser *p)
 	if (!list)
 		return (NULL);
 	if (!ts_match(&p->ts, TOK_RPAREN))
-	{
-		ast_free(list);
-		return (NULL);
-	}
+		return (ast_free(list), NULL);
 	grp = ast_new(AST_GROUPING);
 	if (!grp)
-	{
-		ast_free(list);
-		return (NULL);
-	}
+		return (ast_free(list), NULL);
 	grp->as.grouping.list = list;
+    grp->as.grouping.redirs = parse_core_redirs(p);
 	return (grp);
 }
 
-static inline int	is_redir_token_type(t_token_type t)
+const char	**parse_assignments(t_parser *p)
 {
-	return (t == TOK_REDIR_IN
-		|| t == TOK_REDIR_OUT
-		|| t == TOK_REDIR_APPEND
-		|| t == TOK_HEREDOC);
-}
-
-static inline int	is_trailing_redir_ahead(const t_parser *p)
-{
-	const t_token *tk;
-
-	tk = ts_peek(&((t_parser *)p)->ts);
-	return (tk != NULL && is_redir_token_type(tk->type));
-}
-
-// TODO: check redirs with simple command;
-t_ast	*parse_command(t_parser *p)
-{
-	 t_ast			*core;
-	 t_ast_list		*trailing_redirs;
-	 t_ast			*cmd;
-
-	if (ts_check(&p->ts, TOK_LPAREN))
-		core = parse_grouping(p);
-	else if (ts_check(&p->ts, TOK_WORD)
-			|| ts_check(&p->ts, TOK_ASSIGNMENT_WORD)
-			|| ts_check(&p->ts, TOK_APPEND_WORD)
-			|| is_trailing_redir_ahead(p))
-		core = parse_simple_command(p);
-	else
-		return (NULL);
-	if (!core)
-		return (NULL);
-	trailing_redirs = parse_command_redirs(p);
-	cmd = ast_make_command_node(core);
-	if (!cmd)
-		return (NULL);
-	cmd->as.command.redirs = trailing_redirs;
-	return (cmd);
-}
-
-t_ast_list	*parse_command_redirs(t_parser *p)
-{
-	t_ast_list	*redirs;
-	t_ast		*redir_node;
-
-	redirs = NULL;
-	while (is_trailing_redir_ahead(p))
-	{
-		redir_node = parse_redir(p);
-		if (redir_node == NULL)
-			break;
-		if (ast_list_push(&redirs, redir_node) == NULL)
-			break;
-	}
-	return (redirs);
-}
-
-t_ast *parse_redir(t_parser *p)
-{
-	t_ast		*redir;
-	const t_token *tk;
-
-	tk = ts_peek(&p->ts);
-	if (!tk || !is_redir_token_type(tk->type))
-		return (NULL);
-	ts_advance(&p->ts);
-	redir = ast_make_redir_node(tk->type);
-	if (!redir)
-		return (NULL);
-	tk = ts_peek(&p->ts);
-	//subst here
-	if (tk && ((tk->type == TOK_WORD)))
-	{
-		ts_advance(&p->ts);
-		redir->as.redir.target = ast_make_leaf_typed(AST_WORD,tk->lexeme);
-	}
-	else
-		return (ast_free(redir), NULL);
-	return (redir);
-}
-
-t_ast_list	*parse_assignments(t_parser *p)
-{
-	t_ast_list	*assignments;
+	char            **assignments;
 	const t_token	*tk;
-	t_ast		*node;
 
 	assignments = NULL;
 	while (1)
@@ -328,27 +278,22 @@ t_ast_list	*parse_assignments(t_parser *p)
 		if (!tk || (tk->type != TOK_ASSIGNMENT_WORD && tk->type != TOK_APPEND_WORD))
 			break;
 		ts_advance(&p->ts);
-		node = ast_make_leaf_assign((const t_token *)tk);
-		if (!node)
-			break;
-		if (!ast_list_push(&assignments, node))
-			break;
+	    assignments = strjoinjoin(assignments, get_double_from_str(tk->lexeme));
 	}
-	return (assignments);
+	return ((const char **) assignments);
 }
 
-t_ast		*parse_simple_command(t_parser *p)
+t_ast		*parse_command(t_parser *p)
 {
 	t_ast		*simple_cmd;
-	t_ast_list	*words;
+	char	    **words;
 	t_ast_list	*redirs;
 	const t_token	*peek;
-	t_ast		*node;
 
-	simple_cmd = ast_new(AST_SIMPLE_COMMAND);
+	simple_cmd = ast_new(AST_COMMAND);
 	if (!simple_cmd)
 		return (NULL);
-	simple_cmd->as.simple_command.assignments = parse_assignments(p);
+	simple_cmd->as.command.assignments = parse_assignments(p);
 	words = NULL;
 	redirs = NULL;
 	while (1)
@@ -361,23 +306,15 @@ t_ast		*parse_simple_command(t_parser *p)
 			|| peek->type == TOK_APPEND_WORD)
 		{
 			ts_advance(&p->ts);
-			node = ast_make_leaf_typed(AST_WORD,peek->lexeme); //subst here
-			if (!node || !ast_list_push(&words, node))
-				break ;
+		    words = strjoinjoin(words, get_double_from_str(peek->lexeme));
 		}
 		else if (is_trailing_redir_ahead(p))
-		{
-			node = parse_redir(p);
-			if (!node)
-				return (NULL);
-			if (!ast_list_push(&redirs, node))
-				break ;
-		}
+			redirs = parse_core_redirs(p);
 		else
 			break ;
 	}
-	simple_cmd->as.simple_command.words = words;
-	simple_cmd->as.simple_command.redirs = redirs;
+	simple_cmd->as.command.words = (const char **)words;
+	simple_cmd->as.command.redirs = redirs;
 	return (simple_cmd);
 }
 

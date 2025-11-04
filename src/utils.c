@@ -129,3 +129,14 @@ bool is_valid(char c)
         || c == '_');
 }
 
+char **get_double_from_str(const char *str)
+{
+    char **ret;
+
+    ret = ft_calloc(2, sizeof(char *));
+    if (!ret)
+        return (NULL);
+    ret[0] = ft_strdup(str);
+    return ret;
+}
+

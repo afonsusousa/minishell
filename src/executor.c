@@ -15,21 +15,16 @@
 static int exec_node(t_minishell* sh, t_ast* node);
 static int exec_redirs(t_minishell* sh, t_ast_list* r, bool duplicate);
 
-static size_t words_count(t_minishell* sh, t_ast_list* w)
+static size_t words_count(t_minishell* sh, const char **w)
 {
     size_t c;
     (void) sh;
 
     c = 0;
-    while (w)
-    {
-        if (w->node && w->node->type == AST_WORD)
-            c += count_words(w->node->as.leaf.text, ' ');
-        w = w->next;
-    }
+    while (w && *w++)
+        c++;
     return (c);
 }
-
 
 int ft_strcmp(const char *s1, const char *s2)
 {
@@ -41,7 +36,6 @@ int ft_strcmp(const char *s1, const char *s2)
 
 bool is_builtin (char *word)
 {
-
     if (!word)
         return (false);
     return (ft_strcmp("export", word) == 0
@@ -55,7 +49,7 @@ bool is_builtin (char *word)
 }
 
 //TODO: expand wildcards here
-char** words_to_argv(t_minishell* sh, t_ast_list* words)
+char** words_to_argv(t_minishell* sh, const  char **words)
 {
     char** argv;
     size_t count;
@@ -68,13 +62,8 @@ char** words_to_argv(t_minishell* sh, t_ast_list* words)
     if (!argv)
         return (NULL);
     i = 0;
-    while (words)
-    {
-        if (words->node && words->node->type == AST_WORD)
-            //expanded_sting
-                argv[i++] = ft_strdup(words->node->as.leaf.text);
-        words = words->next;
-    }
+    while (words && *words)
+        argv[i++] = ft_strdup(*words++);
     argv[i] = NULL;
     return (argv);
 }
@@ -111,10 +100,16 @@ char* find_path(char* cmd, char** envp)
     return (free_until_null(&split_path), ft_strdup(cmd));
 }
 
+int export(t_minishell *sh, char **argv)
+{
+    (void) sh, (void) argv;
+    return (1);
+}
 int exec_builtin(t_minishell *sh, char **argv)
 {
     if (ft_strcmp("export", argv[0]) == 0)
         return (export(sh, argv));
+    return (1);
 }
 
 static int execve_wrapper(t_minishell* sh, char** argv)
@@ -148,7 +143,7 @@ static int exec_redirs(t_minishell* sh, t_ast_list* r, bool duplicate)
     memset(&sh->heredoc, 0, sizeof(t_heredoc));
     while (r)
     {
-        filename = (char *) r->node->as.redir.target->as.leaf.text;
+        filename = (char *) r->node->as.redir.target;
         if (r->node->as.redir.kind == TOK_REDIR_OUT)
             fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
         else if (r->node->as.redir.kind == TOK_REDIR_IN)
@@ -156,7 +151,7 @@ static int exec_redirs(t_minishell* sh, t_ast_list* r, bool duplicate)
         else if (r->node->as.redir.kind == TOK_REDIR_APPEND)
             fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
         else if (r->node->as.redir.kind == TOK_HEREDOC)
-            fd = heredoc_fd(sh, r->node->as.redir.target->as.leaf.text);
+            fd = heredoc_fd(sh, r->node->as.redir.target);
         else
             fd = -1;
         if (duplicate && dup2(fd, get_redir_fd(r->node->as.redir.kind)) < 0)
@@ -175,7 +170,7 @@ static int exec_redirs(t_minishell* sh, t_ast_list* r, bool duplicate)
     return (0);
 }
 
-static int exec_assignments(t_minishell* sh, t_ast_list* a, bool global)
+static int exec_assignments(t_minishell* sh, const char **a, bool global)
 {
     t_envp *env;
 
@@ -183,20 +178,12 @@ static int exec_assignments(t_minishell* sh, t_ast_list* a, bool global)
     if (global)
         env = sh->env;
     while (a)
-    {
-        if (a->node->type == AST_APPEND_WORD)
-        {
-            if (envp_append_var(env, a->node->as.leaf.text, false) == NULL)
-                return (1);
-        }
-        else if (envp_setvar(env, a->node->as.leaf.text, false) == NULL)
-                return (1);
-        a = a->next;
-    }
+        if (envp_setvar(env, *a++, false) == NULL)
+                return (1);;
     return (0);
 }
 
-int exec_simple_command(t_minishell* sh, t_ast* node, bool in_fork)
+int exec_command(t_minishell* sh, t_ast* node, bool in_fork)
 {
     char** argv;
     int status;
@@ -204,14 +191,14 @@ int exec_simple_command(t_minishell* sh, t_ast* node, bool in_fork)
     (void)in_fork;
 
     memset(&sh->ctx, 0, sizeof(t_envp));
-    if (!node || node->type != AST_SIMPLE_COMMAND)
+    if (!node || node->type != AST_COMMAND)
         return (1);
-    if (is_builtin(node))
-        return (exec_builtin(node));
-    argv = words_to_argv(sh, node->as.simple_command.words);
-    if (exec_redirs(sh, node->as.simple_command.redirs, in_fork))
+    argv = words_to_argv(sh, node->as.command.words);
+    if (argv && is_builtin(argv[0]))
+        return (exec_builtin(sh, argv));
+    if (exec_redirs(sh, node->as.command.redirs, in_fork))
         return (1);
-    if (exec_assignments(sh, node->as.simple_command.assignments, argv == NULL))
+    if (exec_assignments(sh, node->as.command.assignments, argv == NULL))
         return (1);
     if (!argv)
         return (0);
@@ -231,17 +218,17 @@ int exec_grouping(t_minishell* sh, t_ast* node, bool in_fork)
     return (status);
 }
 
-int exec_command(t_minishell* sh, t_ast* node, bool in_fork)
+int exec_core(t_minishell* sh, t_ast* core, bool in_fork)
 {
     int status;
 
-    if (!node || node->type != AST_COMMAND)
+    if (!core || (core->type != AST_COMMAND && core->type != AST_GROUPING))
         return (1);
     status = 0;
-    if (node->as.command.core->type == AST_SIMPLE_COMMAND)
-        status = exec_simple_command(sh, node->as.command.core, in_fork);
-    else if (node->as.command.core->type == AST_GROUPING)
-        status = exec_grouping(sh, node, in_fork);
+    if (core->type == AST_COMMAND)
+        status = exec_command(sh, core, in_fork);
+    else
+        status = exec_grouping(sh, core, in_fork);
     sh->last_status = status;
     return (status);
 }
@@ -274,9 +261,8 @@ size_t ft_max(size_t a, size_t b)
     return b;
 }
 
-
 //TODO: buitlins will not fork
-int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
+int exec_pipeline(t_minishell* sh, const t_ast_list* cores)
 {
     int status;
     t_pipeline *pipeline;
@@ -288,15 +274,16 @@ int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
     // exec assignments if no cmd
     //
     //
-    if (!cmds->next)
+    if (!cores->next)
     {
-        if (cmds->node->as.command.core->type == AST_SIMPLE_COMMAND
-            && (!cmds->node->as.command.core->as.simple_command.words || is_builtin(cmds->node->as.command.core)))
-            return (exec_simple_command(sh, cmds->node->as.command.core, false));
+        if (cores->node->type == AST_COMMAND
+            && (!cores->node->as.command.words
+                || is_builtin((char *)cores->node->as.command.words[0])))
+            return (exec_command(sh, cores->node, false));
     }
-    while (cmds)
+    while (cores)
     {
-        if (cmds->next && pipe(pipeline->pipefd) < 0)
+        if (cores->next && pipe(pipeline->pipefd) < 0)
         {
             perror("pipe");
             if (pipeline->prev_read != -1)
@@ -307,7 +294,7 @@ int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
         if (pipeline->pids[pipeline->count] < 0)
         {
             perror("fork");
-            if (cmds->next)
+            if (cores->next)
             {
                 close(pipeline->pipefd[0]);
                 close(pipeline->pipefd[1]);
@@ -324,26 +311,26 @@ int exec_pipeline(t_minishell* sh, const t_ast_list* cmds)
                     exit(1);
                 close(pipeline->prev_read);
             }
-            if (cmds->next)
+            if (cores->next)
             {
                 close(pipeline->pipefd[0]);
                 if (dup2(pipeline->pipefd[1], STDOUT_FILENO) < 0)
                     exit(1);
                 close(pipeline->pipefd[1]);
             }
-            status = exec_command(sh, cmds->node, true);
+            status = exec_core(sh, cores->node, true);
             minishell_free(sh);
             exit(status);
         }
         if (pipeline->prev_read != -1)
             close(pipeline->prev_read);
-        if (cmds->next)
+        if (cores->next)
         {
             close(pipeline->pipefd[1]);
             pipeline->prev_read = pipeline->pipefd[0];
         }
         pipeline->count++;
-        cmds = cmds->next;
+        cores = cores->next;
     }
     if (pipeline->prev_read != -1)
         close(pipeline->prev_read);
@@ -388,11 +375,9 @@ static int exec_node(t_minishell* sh, t_ast* node)
     if (node->type == AST_COMMAND_LINE)
         return (exec_command_line(sh, node));
     if (node->type == AST_PIPELINE)
-        return (exec_pipeline(sh, node->as.pipeline.commands));
+        return (exec_pipeline(sh, node->as.pipeline.cores));
     if (node->type == AST_COMMAND)
         return (exec_command(sh, node, false));
-    if (node->type == AST_SIMPLE_COMMAND)
-        return (exec_simple_command(sh, node, false));
     if (node->type == AST_GROUPING)
         return (exec_grouping(sh, node, false));
     if (node->type == AST_AND_LIST || node->type == AST_OR_LIST)

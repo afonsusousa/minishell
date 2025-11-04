@@ -35,110 +35,94 @@
 //     }
 // }
 
-static void print_indent(int depth)
-{
-    for (int i = 0; i < depth; ++i)
-        fputs("  ", stdout);
-}
-
-static const char *redir_kind_name(t_token_type k)
-{
-    switch (k) {
-        case TOK_REDIR_IN: return "<";
-        case TOK_REDIR_OUT: return ">";
-        case TOK_REDIR_APPEND: return ">>";
-        case TOK_HEREDOC: return "<<";
-        default: return "?";
-    }
-}
-
-static void print_word_leaf(const t_ast *n)
-{
-    printf("\"%s\" [%s]", n->as.leaf.text, n->as.leaf.quoted ? "QUOTED" : "LITERAL");
-}
-
-static void print_ast(const t_ast *n, int d)
-{
-    if (!n) { print_indent(d); printf("(null)\n"); return; }
-    switch (n->type) {
-        case AST_COMMAND_LINE:
-            print_indent(d); printf("COMMAND_LINE terminator=%c\n",
-                n->as.command_line.terminator ? n->as.command_line.terminator : '0');
-            print_ast(n->as.command_line.list, d + 1);
-            break;
-        case AST_OR_LIST:
-            print_indent(d); printf("OR_LIST\n");
-            print_ast(n->as.binop.left, d + 1);
-            print_ast(n->as.binop.right, d + 1);
-            break;
-        case AST_AND_LIST:
-            print_indent(d); printf("AND_LIST\n");
-            print_ast(n->as.binop.left, d + 1);
-            print_ast(n->as.binop.right, d + 1);
-            break;
-        case AST_PIPELINE: {
-            print_indent(d); printf("PIPELINE\n");
-            const t_ast_list *it = n->as.pipeline.commands;
-            for (; it; it = it->next)
-                print_ast(it->node, d + 1);
-            break; }
-        case AST_COMMAND: {
-            print_indent(d); printf("COMMAND\n");
-            print_ast(n->as.command.core, d + 1);
-            const t_ast_list *r = n->as.command.redirs;
-            for (; r; r = r->next) {
-                print_indent(d + 1); printf("TRAILING_REDIR\n");
-                print_ast(r->node, d + 2);
-            }
-            break; }
-        case AST_SIMPLE_COMMAND: {
-            print_indent(d); printf("SIMPLE_COMMAND\n");
-            const t_ast_list *a = n->as.simple_command.assignments;
-            for (; a; a = a->next) {
-                print_indent(d + 1); printf(a->node->type == AST_APPEND_WORD ? "APPEND" : "ASSIGN");
-                print_word_leaf(a->node);
-                printf("\n");
-            }
-            const t_ast_list *w = n->as.simple_command.words;
-            for (; w; w = w->next) {
-                print_indent(d + 1); printf("WORD ");
-                print_word_leaf(w->node);
-                printf("\n");
-            }
-            const t_ast_list *ir = n->as.simple_command.redirs;
-            for (; ir; ir = ir->next) {
-                print_indent(d + 1); printf("REDIR\n");
-                print_ast(ir->node, d + 2);
-            }
-            break; }
-        case AST_GROUPING:
-            print_indent(d); printf("GROUPING (\n");
-            print_ast(n->as.grouping.list, d + 1);
-            print_indent(d); printf(")\n");
-            break;
-        case AST_REDIR:
-            print_indent(d);
-            printf("REDIR kind=%s target=", redir_kind_name(n->as.redir.kind));
-            if (n->as.redir.target) print_word_leaf(n->as.redir.target);
-            else printf("<missing>");
-            printf("\n");
-            break;
-        case AST_ASSIGNMENT:
-        case AST_APPEND_WORD:
-            print_indent(d); printf("ASSIGN_LEAF ");
-            print_word_leaf(n);
-            printf("\n");
-            break;
-        case AST_WORD:
-            print_indent(d); printf("WORD_LEAF ");
-            print_word_leaf(n);
-            printf("\n");
-            break;
-        default:
-            print_indent(d); printf("<unknown node %d>\n", (int)n->type);
-            break;
-    }
-}
+// static void print_indent(int depth)
+// {
+//     for (int i = 0; i < depth; ++i)
+//         fputs("  ", stdout);
+// }
+//
+// static const char *redir_kind_name(t_token_type k)
+// {
+//     switch (k) {
+//         case TOK_REDIR_IN: return "<";
+//         case TOK_REDIR_OUT: return ">";
+//         case TOK_REDIR_APPEND: return ">>";
+//         case TOK_HEREDOC: return "<<";
+//         default: return "?";
+//     }
+// }
+//
+// static void print_ast(const t_ast *n, int d)
+// {
+//     if (!n) { print_indent(d); printf("(null)\n"); return; }
+//     switch (n->type) {
+//         case AST_COMMAND_LINE:
+//             print_indent(d); printf("COMMAND_LINE terminator=%c\n",
+//                 n->as.command_line.terminator ? n->as.command_line.terminator : '0');
+//             print_ast(n->as.command_line.list, d + 1);
+//             break;
+//         case AST_OR_LIST:
+//             print_indent(d); printf("OR_LIST\n");
+//             print_ast(n->as.binop.left, d + 1);
+//             print_ast(n->as.binop.right, d + 1);
+//             break;
+//         case AST_AND_LIST:
+//             print_indent(d); printf("AND_LIST\n");
+//             print_ast(n->as.binop.left, d + 1);
+//             print_ast(n->as.binop.right, d + 1);
+//             break;
+//         case AST_PIPELINE: {
+//             print_indent(d); printf("PIPELINE\n");
+//             const t_ast_list *it = n->as.pipeline.commands;
+//             for (; it; it = it->next)
+//                 print_ast(it->node, d + 1);
+//             break; }
+//         case AST_COMMAND: {
+//             print_indent(d); printf("COMMAND\n");
+//             print_ast(n->as.command.core, d + 1);
+//             const t_ast_list *r = n->as.command.redirs;
+//             for (; r; r = r->next) {
+//                 print_indent(d + 1); printf("TRAILING_REDIR\n");
+//                 print_ast(r->node, d + 2);
+//             }
+//             break; }
+//         case AST_SIMPLE_COMMAND: {
+//             print_indent(d); printf("SIMPLE_COMMAND\n");
+//             const char **a = n->as.simple_command.assignments;
+//             for (; a && *a; a++) {
+//                 print_indent(d + 1);
+//                 printf("\"%s\"", *a);
+//                 printf("\n");
+//             }
+//             const char **w = n->as.simple_command.words;
+//             for (; w && *w; w++) {
+//                 print_indent(d + 1); printf("WORD ");
+//                 printf("\"%s\"", *w);
+//                 printf("\n");
+//             }
+//             const t_ast_list *ir = n->as.simple_command.redirs;
+//             for (; ir; ir = ir->next) {
+//                 print_indent(d + 1); printf("REDIR\n");
+//                 print_ast(ir->node, d + 2);
+//             }
+//             break; }
+//         case AST_GROUPING:
+//             print_indent(d); printf("GROUPING (\n");
+//             print_ast(n->as.grouping.list, d + 1);
+//             print_indent(d); printf(")\n");
+//             break;
+//         case AST_REDIR:
+//             print_indent(d);
+//             printf("REDIR kind=%s target=", redir_kind_name(n->as.redir.kind));
+//             if (n->as.redir.target) printf("\"%s\"", n->as.redir.target);
+//             else printf("<missing>");
+//             printf("\n");
+//             break;
+//         default:
+//             print_indent(d); printf("<unknown node %d>\n", (int)n->type);
+//             break;
+//     }
+// }
 
 void    init_lexer(t_lexer *lx, char *input)
 {
@@ -159,7 +143,6 @@ int     exec_line(t_minishell *sh)
     token_stream_init(sh, 0);
     token_stream_fill(sh->ts, &lx);
     sh->ast = parse(sh->ts->data, sh->ts->count);
-    print_ast(sh->ast, 0);
     exec_ast(sh);
     return (sh->last_status);
 }

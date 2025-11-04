@@ -1,9 +1,3 @@
-//  - Factorized precedence: pipelines > && > || > command terminators (; & end)
-//  - Lists of repeated operators expressed via tail nonterminals (right recursion) suitable for RD parser
-//  - ε denotes empty (optional) production
-//  - Adjust/extend tokens (WORD, IO_NUMBER, etc.) per your lexer
-//  - You can implement the *tail nonterminals iteratively in code for efficiency
-
 command_line ::= list command_line_endopt ;
 
 command_line_endopt ::= ";"
@@ -26,52 +20,35 @@ and_list_tail ::= "&&" pipeline and_list_tail
                 ;
 
 //  PIPELINE
-pipeline ::= command pipeline_tail ;
+pipeline ::= core pipeline_tail ;
 
 //      TAIL
-pipeline_tail ::= "|" command pipeline_tail
+pipeline_tail ::= "|" core pipeline_tail
                 | ε
                 ;
+core ::= command
+       | grouping
+       ;
 
 //  COMMAND
-command ::= command_core command_trailing_redirs ;
+command ::= assignments_list cmd_items ;
 
-//      CORE
-command_core ::= grouping
-              | simple_command
-              ;
-//           TAIL
-command_trailing_redirs ::= redirection command_trailing_redirs
-                         | ε
-                         ;
-
-//  SIMPLE_COMMAND
-simple_command ::= assignment_prefix_list simple_body_opt ;
-
-//      ASSIGNMENT
-assignment_prefix_list ::= word assignment_prefix_list
-                         | ε
-                         ;
-//          BODY
-simple_body_opt ::= cmd_word_and_redirs
-                  | ε
-                  ;
-
-cmd_word_and_redirs ::= cmd_item cmd_item_list ;
-
-cmd_item_list ::= cmd_item cmd_item_list
-                | ε
-                ;
-
+cmd_items ::= cmd_item cmd_items
+            | ε
+            ;
 cmd_item ::= word
-          | redirection
-          ;
+           | redirection
+           ;
 
-// Grouping (subshell)
-grouping ::= "(" list ")" ;
+// GROUPING (subshell)
+grouping ::= "(" list ")" grouping_redirs ;
 
-// Redirections (add IO_NUMBER variants if desired: IO_NUMBER redirection_op ...)
-redirection ::= redirection_op word
+grouping_redirs ::= redirection grouping_redirs
+                      | ε
+                      ;
+
+// Redirections (add IO_NUMBER variants?)
+redirection ::= redirection_op WORD
               ;
 
 redirection_op ::= "<"
@@ -79,3 +56,16 @@ redirection_op ::= "<"
                  | ">>"
                  | "<<"
                  ;
+
+assignments_list ::= assignment_word assignments_list
+                   | ε
+                   ;
+
+assignment_word ::= ASSIGNMENT_WORD
+                  | APPEND_WORD
+                  ;
+
+word ::= WORD
+       | ASSIGNMENT_WORD
+       | APPEND_WORD
+       ;

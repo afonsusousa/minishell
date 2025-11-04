@@ -97,6 +97,7 @@ t_var     *envp_setvar(t_envp *env, const char *var, bool export)
     if (new && ft_strchr(var, '='))
     {
         free(new->value);
+        //expanded
         new->value = ft_strdup(var + klen);
         return (new);
     }
@@ -166,6 +167,7 @@ t_var *envp_append_var(t_envp *env, const char *append, bool export)
     var = envp_getvar(env, append);
     if (!var)
         return (envp_setvar(env, append, export));
+    //expanded
     join = ft_strjoin(var->value, ft_strchr(append, '=') + 1);
     free(var->value);
     var->value = join;

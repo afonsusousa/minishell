@@ -19,4 +19,6 @@ char *ft_strnjoin(const char *s1, const char *s2, size_t scnd);
 
 bool is_valid(char c);
 
+char **get_double_from_str(const char *str);
+
 #endif //MINISHELL_UTILS_H

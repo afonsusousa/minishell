@@ -13,23 +13,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ast.h"
+#include "utils.h"
 
 static void	free_pipeline(const t_ast *node)
 {
-	ast_list_free(node->as.pipeline.commands);
+	ast_list_free(node->as.pipeline.cores);
 }
 
-static void	free_command(const t_ast *node)
+static void	free_grouping(const t_ast *node)
 {
-	ast_free(node->as.command.core);
-	ast_list_free(node->as.command.redirs);
+	ast_free(node->as.grouping.list);
+	ast_list_free(node->as.grouping.redirs);
 }
 
 static void	free_simple_command(const t_ast *node)
 {
-	ast_list_free(node->as.simple_command.assignments);
-	ast_list_free(node->as.simple_command.words);
-	ast_list_free(node->as.simple_command.redirs);
+	free_until_null((char ***)&node->as.command.assignments);
+	free_until_null((char ***)&node->as.command.words);
+	ast_list_free(node->as.command.redirs);
 }
 
 void	ast_free(t_ast *node)
@@ -40,26 +41,18 @@ void	ast_free(t_ast *node)
 		ast_free(node->as.command_line.list);
 	else if (node->type == AST_PIPELINE)
 		free_pipeline(node);
+	else if (node->type == AST_GROUPING)
+		free_grouping(node);
 	else if (node->type == AST_COMMAND)
-		free_command(node);
-	else if (node->type == AST_SIMPLE_COMMAND)
 		free_simple_command(node);
 	else if (node->type == AST_GROUPING)
 		ast_free(node->as.grouping.list);
 	else if (node->type == AST_REDIR || node->type == AST_HEREDOC)
-		ast_free(node->as.redir.target);
+		free((char *)node->as.redir.target);
 	else if (node->type == AST_OR_LIST || node->type == AST_AND_LIST)
 	{
 		ast_free(node->as.binop.left);
 		ast_free(node->as.binop.right);
-	}
-	else if (node->type == AST_WORD || node->type == AST_ASSIGNMENT)
-	{
-		if (node->as.leaf.text)
-		{
-			free((char *)node->as.leaf.text);
-			node->as.leaf.text = NULL;
-		}
 	}
 	free(node);
 }

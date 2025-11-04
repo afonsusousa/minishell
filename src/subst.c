@@ -116,22 +116,13 @@ bool match_wildcard(const char *exp, const char *str)
     return *exp == '\0';
 }
 
-char **get_double_from_str(char *str)
-{
-    char **ret;
 
-    ret = ft_calloc(2, sizeof(char *));
-    if (!ret)
-        return (NULL);
-    ret[0] = ft_strdup(str);
-    return ret;
-}
 
 //TODO: split wild_string into directory and wildcard
 //WALLAÇOOOOO CARA DE PAU E PAU DE AÇO MEU ORGULHO
 // cwd -> diretorio de origem onde procurar
 //wildstr -> e uma split(padrao, '/')
-// /home/afonsusousa/*/*/* -> cwd = "/home/afonsusousa" && wildstr = ["*","*", "*"]
+// /home/afonsusousa/*cu/*.c/* -> cwd = "/home/afonsusousa" && wildstr = ["*cu","*.c", "*"]
 char    **get_matches(char *cwd, char **wildstr)
 {
     char            **ret;
@@ -173,10 +164,13 @@ char    **get_matches(char *cwd, char **wildstr)
     return (ret);
 }
 
-char    *expand_cwd_wildcards(const char *wild_string)
+//ISSUE
+char    **expand_cwd_wildcards(const char *wild_string)
 {
-   // only puporse here will be to address get_matches with the right parameters
-    //currenty does nothing
+    char **splt;
 
-    return (ft_strdup(wild_string));
+    splt = ft_split(wild_string, '/');
+    if (!splt)
+        return (NULL);
+    return (get_matches(splt[0], &splt[1]));
 }

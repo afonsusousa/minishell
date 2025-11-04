@@ -15,11 +15,9 @@ typedef enum e_ast_type {
     AST_AND_LIST,
     AST_PIPELINE,
     AST_COMMAND,
-    AST_SIMPLE_COMMAND,
     AST_GROUPING,
     AST_ASSIGNMENT,
     AST_APPEND_WORD,
-    AST_WORD,
     AST_REDIR,
     AST_HEREDOC
 } t_ast_type;
@@ -33,41 +31,38 @@ typedef struct s_ast {
     t_ast_type type;
     union {
 
-        struct {                // AST_COMMAND_LINE
-            struct s_ast *list; // child list
-            int terminator;     // ';' '&' or 0 for none
+        struct
+        {
+            struct s_ast *list;
+            int terminator;
         } command_line;
 
-        struct {                // AST_PIPELINE
-            t_ast_list *commands; // sequence of command nodes
+        struct
+        {
+            t_ast_list *cores;
         } pipeline;
 
-        struct {                // AST_COMMAND
-            struct s_ast *core; // grouping or simple_command
-            t_ast_list   *redirs; // trailing redirections
+        struct
+        {
+            const char **assignments;
+            const char **words;
+            t_ast_list *redirs;
         } command;
 
-        struct {                // AST_SIMPLE_COMMAND
-            t_ast_list *assignments; // leading assignment nodes (AST_ASSIGNMENT)
-            t_ast_list *words;       // command name + args (AST_WORD)
-            t_ast_list *redirs;      // interleaved redirs (AST_REDIR / AST_HEREDOC)
-        } simple_command;
-
-        struct {                // AST_GROUPING
-            struct s_ast *list; // nested list
+        struct
+        {
+            struct s_ast *list;
+            t_ast_list   *redirs;
         } grouping;
 
-        struct {                // AST_ASSIGNMENT / AST_WORD / HEREDOC delimiter or filename
-            const char *text;
-            bool        quoted;
-        } leaf;
-
-        struct {                // AST_REDIR / AST_HEREDOC (normalized redirection)
+        struct
+        {
             t_token_type kind;
-            struct s_ast *target; // AST_WORD
+            const char  *target;
         } redir;
 
-        struct {                // AST_OR_LIST / AST_AND_LIST binary nodes
+        struct
+        {
             struct s_ast *left;
             struct s_ast *right;
         } binop;
@@ -75,7 +70,6 @@ typedef struct s_ast {
 } t_ast;
 
 t_ast *ast_new(t_ast_type type);
-//static t_ast_list	*ast_list_new(t_ast *n);
 t_ast_list *ast_list_push(t_ast_list **head, t_ast *node);
 void   ast_list_free(t_ast_list *lst);
 
