@@ -71,40 +71,59 @@ t_var   *new_var(const char *assign, bool export)
     return (var);
 }
 
-t_var   *envp_push(t_envp *env, t_var *node)
+t_var *envp_push(t_envp *env, t_var *node)
 {
     t_var *iter;
-   if (!env || !node)
-       return NULL;
-    iter = env->head;
+
+    if (!env || !node)
+        return (NULL);
+    node->prev = NULL;
+    node->next = NULL;
     if (!env->head)
     {
         env->head = node;
         env->count = 1;
         return (node);
     }
-    while (iter->next)
-      iter = iter->next;
-    iter->next = node;
-    node->prev = iter;
+    iter = env->head;
+    while (iter && ft_strcmp(iter->name, node->name) < 0)
+        iter = iter->next;
+    if (!iter)
+    {
+        iter = env->head;
+        while (iter->next)
+            iter = iter->next;
+        iter->next = node;
+        node->prev = iter;
+        node->next = NULL;
+        env->count++;
+        return (node);
+    }
+    node->next = iter;
+    node->prev = iter->prev;
+    if (iter->prev)
+        iter->prev->next = node;
+    else
+        env->head = node;
+    iter->prev = node;
     env->count++;
     return (node);
 }
 
-t_var   *envp_getvar(const t_envp *env, const char *name)
+
+t_var *envp_getvar(const t_envp *env, const char *name)
 {
     t_var *iter;
     size_t klen;
+
     if (!env || !name)
-       return NULL;
+        return NULL;
     klen = key_len(name);
     iter = env->head;
     while (iter)
     {
-        if (klen > iter->len && ft_strncmp(iter->name, name, klen) == 0)
-            return (iter);
-        if (ft_strncmp(iter->name, name, iter->len) == 0)
-            return (iter);
+        if (iter->len == klen && ft_strncmp(iter->name, name, klen) == 0)
+            return iter;
         iter = iter->next;
     }
     return NULL;
