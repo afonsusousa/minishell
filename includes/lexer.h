@@ -6,6 +6,7 @@
 #define MINISHELL_LEXER_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef enum e_token_type
 {

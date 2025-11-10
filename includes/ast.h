@@ -15,10 +15,7 @@ typedef enum e_ast_type {
     AST_PIPELINE,
     AST_COMMAND,
     AST_GROUPING,
-    AST_ASSIGNMENT,
-    AST_APPEND_WORD,
     AST_REDIR,
-    AST_HEREDOC
 } t_ast_type;
 
 typedef struct s_ast_list {

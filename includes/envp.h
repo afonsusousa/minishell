@@ -6,6 +6,7 @@
 #define MINISHELL_ENVP_CLEAN_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef struct s_var
 {

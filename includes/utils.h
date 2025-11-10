@@ -6,6 +6,7 @@
 #define MINISHELL_UTILS_H
 
 #include <stddef.h>
+#include <stdbool.h>
 
 int     count_words(const char *str, const char sep);
 void    free_until_null(char ***str_v);

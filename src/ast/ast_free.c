@@ -47,7 +47,7 @@ void	ast_free(t_ast *node)
 		free_simple_command(node);
 	else if (node->type == AST_GROUPING)
 		ast_free(node->as.grouping.list);
-	else if (node->type == AST_REDIR || node->type == AST_HEREDOC)
+	else if (node->type == AST_REDIR)
 		free((char *)node->as.redir.target);
 	else if (node->type == AST_OR_LIST || node->type == AST_AND_LIST)
 	{
