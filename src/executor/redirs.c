@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include "../../includes/minishell.h"
 #include <fcntl.h>
-#include "../../includes/subst.h"
+#include "../../includes/globbing.h"
 
 int get_redir_fd(const t_token_type r)
 {
@@ -22,7 +22,8 @@ int exec_redirs(t_minishell* sh, t_ast_list* r, bool duplicate)
     memset(&sh->heredoc, 0, sizeof(t_heredoc));
     while (r)
     {
-        filename = (char *) r->node->as.redir.target;
+        filename = (char *) r->node->as.redir.target.file_name;
+        //subst
         if (r->node->as.redir.kind == TOK_REDIR_OUT)
             fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
         else if (r->node->as.redir.kind == TOK_REDIR_IN)
@@ -30,7 +31,7 @@ int exec_redirs(t_minishell* sh, t_ast_list* r, bool duplicate)
         else if (r->node->as.redir.kind == TOK_REDIR_APPEND)
             fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
         else if (r->node->as.redir.kind == TOK_HEREDOC)
-            fd = heredoc_fd(sh, r->node->as.redir.target);
+            fd = r->node->as.redir.target.heredoc[0];
         else
             fd = -1;
         if (duplicate && dup2(fd, get_redir_fd(r->node->as.redir.kind)) < 0)

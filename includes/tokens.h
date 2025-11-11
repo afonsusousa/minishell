@@ -7,7 +7,7 @@
 typedef struct s_minishell t_minishell;
 typedef struct s_token_stream
 {
-    t_token  *data;
+    t_token  *tokens;
     size_t    count;
     size_t    capacity;
     size_t    position;

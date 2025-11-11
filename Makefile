@@ -19,6 +19,7 @@ SRCS := \
 	$(SRC_DIR)/parser/cores.c \
 	$(SRC_DIR)/parser/logical.c \
 	$(SRC_DIR)/parser/helpers.c \
+	$(SRC_DIR)/parser/heredoc.c \
 	$(SRC_DIR)/parser/pipeline.c \
 	$(SRC_DIR)/parser/redirs.c \
 	$(SRC_DIR)/parser/utils.c \
@@ -27,7 +28,6 @@ SRCS := \
 	$(SRC_DIR)/executor/logical.c \
 	$(SRC_DIR)/executor/pipeline.c \
 	$(SRC_DIR)/executor/cores.c \
-	$(SRC_DIR)/executor/heredoc.c \
 	$(SRC_DIR)/executor/redirs.c \
 	$(SRC_DIR)/executor/cores/builtin/builtins.c \
 	$(SRC_DIR)/executor/cores/builtin/export.c \
@@ -35,7 +35,7 @@ SRCS := \
 	$(SRC_DIR)/executor/cores/command/setup.c \
 	$(SRC_DIR)/executor/cores/command/utils.c \
 	$(SRC_DIR)/subst/subst_machine.c \
-	$(SRC_DIR)/subst/subst.c
+	$(SRC_DIR)/subst/globbing.c
 
 OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)

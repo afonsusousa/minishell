@@ -34,11 +34,15 @@ t_ast *parse_redir(t_parser *p)
     redir = ast_make_redir_node(tk->type);
     if (!redir)
         return (NULL);
-    tk = ts_peek(&p->ts);
-    if (tk && ((tk->type == TOK_WORD)))
+    if (tk->type == TOK_HEREDOC && ts_peek(&p->ts)->type == TOK_WORD)
     {
         ts_advance(&p->ts);
-        redir->as.redir.target = ft_strdup(tk->lexeme);
+        heredoc_setup(p->ts.tk->lexeme, redir->as.redir.target.heredoc);
+    }
+    else if ((ts_peek(&p->ts)->type == TOK_WORD))
+    {
+        ts_advance(&p->ts);
+        redir->as.redir.target.file_name = ft_strdup(tk->lexeme);
     }
     else
         return (ast_free(redir), NULL);

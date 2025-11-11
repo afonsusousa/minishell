@@ -75,7 +75,7 @@ void    sm_init(t_quote_machine *sm, const char *str)
 }
 
 //TODO: is_valid needs fixing (allows much more characters!!)
-char *expanded(const t_envp *env, const char *str)
+char *expanded(const t_envp *env, const char *str, bool vars)
 {
     t_quote_machine sm;
     const char *var;
@@ -89,14 +89,14 @@ char *expanded(const t_envp *env, const char *str)
                sm_trasition(&sm, IN_SQ);
             else if (sm.ch == '"')
                 sm_trasition(&sm, IN_DQ);
-            else if (sm.ch == '$')
+            else if (sm.ch == '$' && vars)
                 sm_trasition(&sm, IN_VAR);
             else
                 sm_consume(&sm);
         }
         else if (sm.curr == IN_DQ)
         {
-            if (sm.ch == '$')
+            if (sm.ch == '$' && vars)
                 sm_trasition(&sm, IN_VAR);
             else if (sm.ch == '"')
                 sm_trasition(&sm, DEFAULT);

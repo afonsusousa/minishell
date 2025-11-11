@@ -11,7 +11,7 @@
 #include "../includes/ast.h"
 #include "../includes/envp.h"
 #include "../includes/executor.h"
-#include "../includes/subst.h"
+#include "../includes/globbing.h"
 
 static void print_indent(int depth)
 {
@@ -96,7 +96,9 @@ static void print_ast(const t_ast *n, int d)
             break;
         case AST_REDIR:
             printf("[%s,", redir_kind_name(n->as.redir.kind));
-            if (n->as.redir.target) printf("\"%s\"]", n->as.redir.target);
+            if (n->as.redir.target.file_name
+                && n->as.redir.kind != TOK_HEREDOC)
+                printf("\"%s\"]", n->as.redir.target.file_name);
             else printf("<missing>");
             break;
         default:
@@ -123,7 +125,7 @@ int     exec_line(t_minishell *sh)
     init_lexer(&lx, sh->line);
     token_stream_init(sh, 0);
     token_stream_fill(sh->ts, &lx);
-    sh->ast = parse(sh->ts->data, sh->ts->count);
+    parse(sh);
     print_ast(sh->ast, 0);
     exec_ast(sh);
     return (sh->last_status);
@@ -135,7 +137,7 @@ int     rl_loop(t_minishell *sh)
     sh->line = readline("minishell> ");
     while (sh->line != NULL)
     {
-        printf("%s\n", expanded(sh->env, sh->line));
+        printf("%s\n", expanded(sh->env, sh->line, true));
         exec_line(sh);
         free(sh->line);
         token_stream_free(sh->ts);

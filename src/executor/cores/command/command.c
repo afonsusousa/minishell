@@ -19,6 +19,7 @@ static int exec_assignments(t_minishell* sh, const char **a, bool context)
     if (context)
         env = sh->ctx;
     while (a && *a)
+        //sub??
         if (envp_setvar(env, *a++, context) == NULL)
             return (1);
     return (0);

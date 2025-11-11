@@ -33,6 +33,7 @@ static void	free_simple_command(const t_ast *node)
 	ast_list_free(node->as.command.redirs);
 }
 
+// TODO: close heredoc redir
 void	ast_free(t_ast *node)
 {
 	if (node == NULL)
@@ -47,8 +48,8 @@ void	ast_free(t_ast *node)
 		free_simple_command(node);
 	else if (node->type == AST_GROUPING)
 		ast_free(node->as.grouping.list);
-	else if (node->type == AST_REDIR)
-		free((char *)node->as.redir.target);
+	else if (node->type == AST_REDIR && node->as.redir.kind != TOK_HEREDOC)
+		free((char *)node->as.redir.target.file_name);
 	else if (node->type == AST_OR_LIST || node->type == AST_AND_LIST)
 	{
 		ast_free(node->as.binop.left);

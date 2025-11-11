@@ -2,6 +2,7 @@
 // Created by afonsusousa on 11/4/25.
 //
 
+#include "globbing.h"
 #include "../../includes/parser.h"
 #include "../../includes/utils.h"
 

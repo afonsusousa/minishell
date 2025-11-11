@@ -15,8 +15,8 @@ void token_stream_init(const t_minishell *sh, size_t capacity)
 {
     if (capacity == 0)
         capacity = 32;
-    sh->ts->data = (t_token *)calloc(capacity, sizeof(t_token));
-    if (sh->ts->data)
+    sh->ts->tokens = (t_token *)calloc(capacity, sizeof(t_token));
+    if (sh->ts->tokens)
         sh->ts->capacity = capacity;
     else
         sh->ts->capacity = 0;
@@ -33,13 +33,13 @@ void token_stream_free(t_token_stream *ts)
     i = 0;
     while (i < ts->count)
     {
-        if (ts->data[i].type == TOK_WORD
-            || ts->data[i].type == TOK_ASSIGNMENT_WORD)
-            free(ts->data[i].lexeme);
+        if (ts->tokens[i].type == TOK_WORD
+            || ts->tokens[i].type == TOK_ASSIGNMENT_WORD)
+            free(ts->tokens[i].lexeme);
         i++;
     }
-    if (ts->data)
-        free(ts->data);
+    if (ts->tokens)
+        free(ts->tokens);
     memset(ts, 0, sizeof(t_token_stream));
 }
 
@@ -56,10 +56,10 @@ bool    token_stream_reserve(t_token_stream *ts, size_t needed)
     new_data = (t_token *)calloc(to_reserve, sizeof(t_token));
     if (!new_data)
         return (false);
-    if (ts->data && ts->count)
-        memcpy(new_data, ts->data, ts->count * sizeof(t_token));
-    free(ts->data);
-    ts->data = new_data;
+    if (ts->tokens && ts->count)
+        memcpy(new_data, ts->tokens, ts->count * sizeof(t_token));
+    free(ts->tokens);
+    ts->tokens = new_data;
     ts->capacity = to_reserve;
     return (true);
 }
@@ -68,7 +68,7 @@ bool token_stream_push(t_token_stream *ts, const t_token *token)
 {
     if (!token_stream_reserve(ts, ts->count + 1))
         return (false);
-    ts->data[ts->count++] = *token;
+    ts->tokens[ts->count++] = *token;
     return (true);
 }
 
@@ -98,9 +98,9 @@ bool token_stream_fill(t_token_stream *ts, t_lexer *lexer)
 static void ts_read_token(t_token_stream *ts)
 {
     if (ts->read_position >= ts->count && ts->count > 0) {
-        ts->tk = &ts->data[ts->count - 1];
+        ts->tk = &ts->tokens[ts->count - 1];
     } else if (ts->count > 0) {
-        ts->tk = &ts->data[ts->read_position];
+        ts->tk = &ts->tokens[ts->read_position];
     } else {
         ts->tk = NULL;
     }
@@ -111,8 +111,8 @@ static void ts_read_token(t_token_stream *ts)
 const t_token *ts_peek(const t_token_stream *ts)
 {
     if (ts->read_position >= ts->count && ts->count > 0)
-        return (&ts->data[ts->count - 1]);
-    return &ts->data[ts->read_position];
+        return (&ts->tokens[ts->count - 1]);
+    return &ts->tokens[ts->read_position];
 }
 
 const t_token *ts_advance(t_token_stream *ts)

@@ -22,6 +22,7 @@ int exec_core(t_minishell* sh, t_ast* core, bool in_fork)
     if (!core || (core->type != AST_COMMAND && core->type != AST_GROUPING))
         return (1);
     status = 0;
+   //subs
     if (core->type == AST_COMMAND)
         status = exec_command(sh, core, in_fork);
     else

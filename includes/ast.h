@@ -43,6 +43,7 @@ typedef struct s_ast {
             const char **assignments;
             const char **argv;
             t_ast_list *redirs;
+            int         fd[2];
         } command;
 
         struct
@@ -54,7 +55,11 @@ typedef struct s_ast {
         struct
         {
             t_token_type kind;
-            const char  *target;
+            union
+            {
+                const char  *file_name;
+                int         heredoc[2]; // heredoc[0] => fd; heredoc[1] => (bool) quoted
+            } target;
         } redir;
 
         struct

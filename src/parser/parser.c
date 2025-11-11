@@ -7,6 +7,8 @@
 
 #include "../../includes/parser.h"
 
+#include "minishell.h"
+
 t_ast	*parse_command_line(t_parser *p)
 {
     int		term;
@@ -23,15 +25,15 @@ t_ast	*parse_command_line(t_parser *p)
     return (ast_make_command_line_node(list_node, term));
 }
 
-t_ast	*parse(const t_token *tokens, const size_t count)
+void parse(t_minishell *sh)
 {
 	t_parser	p = {0};
 
-	p.ts.data = (t_token *)tokens;
-	p.ts.count = count;
-	p.ts.capacity = count;
+	p.ts.tokens = sh->ts->tokens;
+	p.ts.count = sh->ts->count;
+	p.ts.capacity = sh->ts->count;
 	p.ts.position = 0;
 	p.ts.read_position = 0;
 	p.ts.tk = NULL;
-	return (parse_command_line(&p));
+	sh->ast = parse_command_line(&p);
 }
