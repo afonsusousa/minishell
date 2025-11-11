@@ -48,8 +48,8 @@ int exec_pipeline(t_minishell* sh, const t_ast_list* cores)
     if (!cores->next)
     {
         if (cores->node->type == AST_COMMAND
-            && (!cores->node->as.command.words
-                || is_builtin((char *)cores->node->as.command.words[0])))
+            && (!cores->node->as.command.argv
+                || is_builtin((char *)cores->node->as.command.argv[0])))
             return (exec_command(sh, cores->node, false));
     }
     while (cores)

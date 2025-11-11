@@ -23,7 +23,7 @@ static size_t words_count(t_minishell* sh, const char **w)
 }
 
 //TODO: expand wildcards here
-char** words_to_argv(t_minishell* sh, const  char **words)
+char** argv_to_arr(t_minishell* sh, const  char **words)
 {
     char** argv;
     size_t count;

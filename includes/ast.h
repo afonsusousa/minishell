@@ -41,7 +41,7 @@ typedef struct s_ast {
         struct
         {
             const char **assignments;
-            const char **words;
+            const char **argv;
             t_ast_list *redirs;
         } command;
 

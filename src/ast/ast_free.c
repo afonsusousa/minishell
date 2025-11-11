@@ -29,7 +29,7 @@ static void	free_grouping(const t_ast *node)
 static void	free_simple_command(const t_ast *node)
 {
 	free_until_null((char ***)&node->as.command.assignments);
-	free_until_null((char ***)&node->as.command.words);
+	free_until_null((char ***)&node->as.command.argv);
 	ast_list_free(node->as.command.redirs);
 }
 

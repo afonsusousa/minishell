@@ -51,7 +51,7 @@ int exec_command(t_minishell* sh, t_ast* node, bool in_fork)
     memset(sh->ctx, 0, sizeof(t_envp));
     if (!node || node->type != AST_COMMAND)
         return (1);
-    argv = words_to_argv(sh, node->as.command.words);
+    argv = argv_to_arr(sh, node->as.command.argv);
     if (argv && is_builtin(argv[0]))
         return (exec_builtin(sh, argv));
     if (exec_redirs(sh, node->as.command.redirs, in_fork))
