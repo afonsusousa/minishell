@@ -41,6 +41,7 @@ typedef struct s_ast {
         struct
         {
             const char **assignments;
+            int        argc;
             const char **argv;
             t_ast_list *redirs;
             int         fd[2];

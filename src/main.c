@@ -4,14 +4,18 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <readline/readline.h>
-
 #include "../includes/lexer.h"
+#include "../includes/sig.h"
 #include "../includes/tokens.h"
 #include "../includes/parser.h"
 #include "../includes/ast.h"
 #include "../includes/envp.h"
 #include "../includes/executor.h"
 #include "../includes/globbing.h"
+#include <signal.h>
+#include <termios.h>
+
+volatile int sig = 1;
 
 static void print_indent(int depth)
 {
@@ -32,16 +36,20 @@ static const char *redir_kind_name(t_token_type k)
 
 static void print_strs(const char **strs)
 {
+    const char **s;
+
+    s = strs;
     if (!strs)
     {
         printf("[N/A]\n");
         return ;
     }
-    for (auto s = strs; s && *s; s++)
+    while (*s != NULL)
     {
         printf("[\"%s\"]", *s);
         if (s[1])
             printf(" ");
+        s++;
     }
    printf("\n");
 }
@@ -131,9 +139,11 @@ int     exec_line(t_minishell *sh)
     return (sh->last_status);
 }
 
-//may return something else
 int     rl_loop(t_minishell *sh)
 {
+    signal(SIGINT, signal_handler);
+    signal(SIGQUIT, SIG_IGN);
+    signal(SIGPIPE, SIG_IGN);
     sh->line = readline("minishell> ");
     while (sh->line != NULL)
     {
@@ -154,7 +164,7 @@ int main(int argc, char **argv, char **envp)
     t_minishell sh;
     t_token_stream ts;
     printf("%d\n", getpid());
-    memset(&sh, 0, sizeof(t_minishell)); // ts -> NULL
+    memset(&sh, 0, sizeof(t_minishell));
     sh.ts = &ts;
     t_envp env = {0};
     t_envp ctx = {0};
@@ -164,7 +174,7 @@ int main(int argc, char **argv, char **envp)
     sh.ctx = &ctx;
     if (argc > 1)
     {
-        sh.line = argv[1]; // simplified
+        sh.line = argv[1];
         exec_line(&sh);
         minishell_free(&sh);
         return sh.last_status;

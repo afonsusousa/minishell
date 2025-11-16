@@ -30,6 +30,7 @@ int exec_redirs(t_minishell* sh, t_ast_list* r, bool duplicate)
             fd = open(filename, O_RDONLY);
         else if (r->node->as.redir.kind == TOK_REDIR_APPEND)
             fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
+        //aqui eu vou me foder
         else if (r->node->as.redir.kind == TOK_HEREDOC)
             fd = r->node->as.redir.target.heredoc[0];
         else

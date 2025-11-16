@@ -168,6 +168,8 @@ void    free_envp(t_envp *env)
     t_var *iter;
     t_var *tmp;
 
+    if (!env)
+        return ;
     iter = env->head;
     tmp = NULL;
     while (iter)

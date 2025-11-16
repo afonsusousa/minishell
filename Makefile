@@ -34,6 +34,7 @@ SRCS := \
 	$(SRC_DIR)/executor/cores/command/command.c \
 	$(SRC_DIR)/executor/cores/command/setup.c \
 	$(SRC_DIR)/executor/cores/command/utils.c \
+	$(SRC_DIR)/signal/signal.c \
 	$(SRC_DIR)/subst/subst_machine.c \
 	$(SRC_DIR)/subst/globbing.c
 

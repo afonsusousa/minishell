@@ -1,7 +1,11 @@
+#include <fcntl.h>
+
 #include "../../../../includes/minishell.h"
 #include "../../../../includes/executor.h"
 #include "../../../../includes/utils.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 //tira +
 // char    *sanitize_assignment(const char *str)
 // {
@@ -58,39 +62,56 @@ bool is_append(const char *str)
     return (false);
 }
 
- int export(const t_minishell *sh, char **argv)
- {
-    t_var *var;
-     if (argv[1] == NULL)
-         return (print_exported_variables(sh));
-     var = NULL;
-     while (*argv != NULL)
-     {
-         argv++;
-         if (is_append(*argv))
-            var = envp_append_var(sh->env, *argv, true);
-         else
-            var = envp_setvar(sh->env, *argv, true);
-     }
-     if (!var)
-         return (127);
-     return (0);
- }
-
-int unset(t_minishell *sh, char **argv)
+int export(const t_minishell *sh, char **argv, int argc)
 {
-        if (argv[1] == NULL)
-            return (0);
-        while (*++argv != NULL)
-            envp_unsetvar(sh->env, *argv);
+    t_var *var;
+    (void) argc;
+    if (argv[1] == NULL)
+        return (print_exported_variables(sh));
+    var = NULL;
+    while (*argv != NULL)
+    {
+        argv++;
+        if (is_append(*argv))
+            var = envp_append_var(sh->env, *argv, true);
+        else
+            var = envp_setvar(sh->env, *argv, true);
+    }
+    if (!var)
+        return (127);
     return (0);
 }
 
- int exec_builtin(t_minishell *sh, char **argv)
- {
-   if (ft_strcmp("export", argv[0]) == 0)
-         return (export(sh, argv));
-     if (ft_strcmp("unset", argv[0]) == 0)
-         return (unset(sh, argv));
-     return (1);
- }
+int unset(t_minishell *sh, char **argv, int argc)
+{
+    (void) argc;
+    if (argv[1] == NULL)
+        return (0);
+    while (*++argv != NULL)
+        envp_unsetvar(sh->env, *argv);
+    return (0);
+}
+
+int exit_builtin(t_minishell *sh, char **argv, int argc)
+{
+    int code;
+
+    code = 0;
+    if (argc == 2)
+        code = ft_atoi(argv[1]);
+    else if (argc > 2)
+        write(2, "minishell: exit: too many arguments\n", 36);
+    minishell_free(sh);
+    exit(code);
+}
+
+int exec_builtin(t_minishell *sh, char **argv, int argc)
+{
+    if (ft_strcmp("export", argv[0]) == 0)
+        return (export(sh, argv, argc));
+    if (ft_strcmp("unset", argv[0]) == 0)
+        return (unset(sh, argv, argc));
+    if (ft_strcmp("exit", argv[0]) == 0)
+        return (exit_builtin(sh, argv, argc));
+    return (1);
+}

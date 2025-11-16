@@ -23,7 +23,7 @@ int     exec_logical(t_minishell *sh, t_ast *node);
 int     exec_pipeline(t_minishell *sh, const t_ast_list *cores);
 int     exec_core(t_minishell* sh, t_ast* core, bool in_fork);
 int     exec_command(t_minishell *sh, t_ast *core, bool in_fork);
-int     exec_builtin(t_minishell *sh, char **argv);
+int     exec_builtin(t_minishell *sh, char **argv, int argc);
 int     exec_grouping(t_minishell *sh, t_ast *node, bool in_fork);
 int     exec_redirs(t_minishell* sh, t_ast_list* r, bool duplicate);
 int     get_redir_fd(t_token_type r);
@@ -32,7 +32,7 @@ int     get_redir_fd(t_token_type r);
 char    *find_path(char* cmd, char** envp);
 char	**argv_to_arr(t_minishell *sh, const char **words);
 void	free_argv(char **argv);
-int     execve_wrapper(t_minishell* sh, char** argv);
+int     execve_wrapper(t_minishell* sh, char** argv, int argc);
 bool    is_builtin(char *word);
 
 #endif /* MINISHELL_EXECUTOR_H */

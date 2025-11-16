@@ -25,7 +25,7 @@ static int exec_assignments(t_minishell* sh, const char **a, bool context)
     return (0);
 }
 
-int execve_wrapper(t_minishell* sh, char** argv)
+int execve_wrapper(t_minishell* sh, char** argv, int argc)
 {
     char** env_arr;
 
@@ -34,7 +34,7 @@ int execve_wrapper(t_minishell* sh, char** argv)
     env_arr = get_envp_array(sh->env);
     env_arr = strjoinjoin(env_arr, get_envp_array(sh->ctx));
     if (is_builtin(argv[0]))
-        return (exec_builtin(sh, argv));
+        return (exec_builtin(sh, argv, argc));
     argv[0] = find_path(argv[0], env_arr);
     minishell_free(sh);
     execve(argv[0], argv, env_arr);
@@ -54,14 +54,14 @@ int exec_command(t_minishell* sh, t_ast* node, bool in_fork)
         return (1);
     argv = argv_to_arr(sh, node->as.command.argv);
     if (argv && is_builtin(argv[0]))
-        return (exec_builtin(sh, argv));
+        return (exec_builtin(sh, argv, node->as.command.argc));
     if (exec_redirs(sh, node->as.command.redirs, in_fork))
         return (1);
     if (exec_assignments(sh, node->as.command.assignments, argv != NULL))
         return (1);
     if (!argv)
         return (0);
-    status = execve_wrapper(sh, argv);
+    status = execve_wrapper(sh, argv, node->as.command.argc);
     //restore_fds();
     free_argv(argv);
     free_envp(&local_env);

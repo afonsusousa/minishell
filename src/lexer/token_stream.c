@@ -31,6 +31,8 @@ void token_stream_free(t_token_stream *ts)
     size_t  i;
 
     i = 0;
+    if (!ts)
+        return ;
     while (i < ts->count)
     {
         if (ts->tokens[i].type == TOK_WORD

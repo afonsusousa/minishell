@@ -44,6 +44,7 @@ t_ast	*parse_grouping(t_parser *p)
 t_ast		*parse_command(t_parser *p)
 {
     t_ast		*simple_cmd;
+    int         argc;
     char	    **argv;
     t_ast_list	*redirs;
     const t_token	*peek;
@@ -52,6 +53,7 @@ t_ast		*parse_command(t_parser *p)
     if (!simple_cmd)
         return (NULL);
     simple_cmd->as.command.assignments = parse_assignments(p);
+    argc = 0;
     argv = NULL;
     redirs = NULL;
     while (1)
@@ -63,6 +65,7 @@ t_ast		*parse_command(t_parser *p)
         {
             ts_advance(&p->ts);
             argv = strjoinjoin(argv, get_double_from_str(peek->lexeme));
+            argc++;
         }
         else if (is_redir_ahead(p))
             redirs = parse_core_redirs(p);
@@ -70,6 +73,7 @@ t_ast		*parse_command(t_parser *p)
             break ;
     }
     simple_cmd->as.command.argv = (const char **)argv;
+    simple_cmd->as.command.argc = argc;
     simple_cmd->as.command.redirs = redirs;
     return (simple_cmd);
 }
