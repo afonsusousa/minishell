@@ -10,6 +10,8 @@ t_ast	*parse_core(t_minishell *sh)
 {
     t_ast			*core;
 
+    if (sh->aborted_parse)
+        return (NULL);
     if (ts_check(sh->ts, TOK_LPAREN))
         core = parse_grouping(sh);
     else if (ts_check(sh->ts, TOK_WORD)
@@ -26,10 +28,12 @@ t_ast	*parse_grouping(t_minishell *sh)
     t_ast	*list;
     t_ast	*grp;
 
+    if (sh->aborted_parse)
+        return (NULL);
     if (!ts_match(sh->ts, TOK_LPAREN))
         return (NULL);
     list = parse_command_line(sh);
-    if (!list)
+    if (!list || sh->aborted_parse)
         return (NULL);
     if (!ts_match(sh->ts, TOK_RPAREN))
         return (ast_free(list), NULL);
@@ -43,12 +47,14 @@ t_ast	*parse_grouping(t_minishell *sh)
 
 t_ast		*parse_command(t_minishell *sh)
 {
-    t_ast		*simple_cmd;
-    int         argc;
-    char	    **argv;
-    t_ast_list	*redirs;
+    t_ast		    *simple_cmd;
+    int             argc;
+    char	        **argv;
+    t_ast_list	    *redirs;
     const t_token	*peek;
 
+    if (sh->aborted_parse)
+        return (NULL);
     simple_cmd = ast_new(AST_COMMAND);
     if (!simple_cmd)
         return (NULL);
@@ -56,7 +62,7 @@ t_ast		*parse_command(t_minishell *sh)
     argc = 0;
     argv = NULL;
     redirs = NULL;
-    while (1)
+    while (!sh->aborted_parse)
     {
         peek = ts_peek(sh->ts);
         if (!peek)
@@ -72,6 +78,8 @@ t_ast		*parse_command(t_minishell *sh)
         else
             break ;
     }
+    if (sh->aborted_parse)
+        return (ast_free(simple_cmd), NULL);
     simple_cmd->as.command.argv = (const char **)argv;
     simple_cmd->as.command.argc = argc;
     simple_cmd->as.command.redirs = redirs;
@@ -84,7 +92,7 @@ const char	**parse_assignments(t_minishell *sh)
     const t_token	*tk;
 
     assignments = NULL;
-    while (1)
+    while (!sh->aborted_parse)
     {
         tk = ts_peek(sh->ts);
         if (!tk || (tk->type != TOK_ASSIGNMENT_WORD))
@@ -94,4 +102,3 @@ const char	**parse_assignments(t_minishell *sh)
     }
     return ((const char **) assignments);
 }
-

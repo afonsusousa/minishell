@@ -34,6 +34,7 @@ typedef struct s_minishell
    char           *line;
    t_token_stream *ts;
    t_ast          *ast;
+   bool            aborted_parse;
    t_pipeline     pipeline;
    t_heredoc      heredoc;
    int            last_status;

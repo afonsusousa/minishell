@@ -2,11 +2,6 @@
 // Created by afonsusousa on 10/14/25.
 //
 
-// filepath: src/parser/heredoc.c
-//
-// Created by afonsusousa on 10/14/25.
-//
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -20,7 +15,6 @@
 #include "sig.h"
 #include "utils.h"
 
-// TODO: CANCEL PARSING ON SIGINT
 static int is_quoted(const char *delimiter)
 {
     while (*delimiter)
@@ -63,6 +57,9 @@ static void run_heredoc_child(t_minishell *sh)
     if (sh->heredoc.quoted == 1)
         free(sh->heredoc.del);
     close(write_fd);
+    if (sh->heredoc.quoted)
+        free(sh->heredoc.del);
+    minishell_free(sh);
     exit(0);
 }
 
@@ -80,11 +77,11 @@ static void handle_heredoc_parent(t_minishell *sh, int heredoc[2])
         close(sh->heredoc.fd[0]);
         heredoc[0] = -1;
         heredoc[1] = -1;
+        sh->aborted_parse = true;
+        sh->last_status = 130;
     }
     else
-    {
         heredoc[0] = sh->heredoc.fd[0];
-    }
 }
 
 void heredoc_setup(t_minishell *sh, int heredoc[2])

@@ -10,14 +10,14 @@
 #include "../includes/envp.h"
 #include "../includes/executor.h"
 #include "../includes/globbing.h"
-#include <signal.h>
 
 int     exec_line(t_minishell *sh)
 {
+    sh->aborted_parse = false;
     token_stream_init(sh);
     parse(sh);
     token_stream_free(sh->ts);
-    if (!sh->ast)
+    if (sh->aborted_parse || !sh->ast)
         return (sh->last_status);
     exec_ast(sh);
     ast_free(sh->ast);
@@ -45,7 +45,7 @@ int     rl_loop(t_minishell *sh)
 int main(int argc, char **argv, char **envp)
 {
     t_minishell sh;
-    t_token_stream ts;
+    t_token_stream ts = {0};
     t_envp env = (t_envp){0};
     t_envp ctx = (t_envp){0};
     int i;

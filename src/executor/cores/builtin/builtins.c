@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "libft.h"
 //tira +
 // char    *sanitize_assignment(const char *str)
 // {

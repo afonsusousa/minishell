@@ -14,8 +14,10 @@ t_ast	*parse_command_line(t_minishell *sh)
     int		term;
     t_ast	*list_node;
 
+    if (sh->aborted_parse)
+        return (NULL);
     list_node = parse_or_list(sh);
-    if (!list_node)
+    if (!list_node || sh->aborted_parse)
         return (NULL);
     term = 0;
     if (ts_match(sh->ts, TOK_SEMI))
@@ -27,5 +29,11 @@ t_ast	*parse_command_line(t_minishell *sh)
 
 void parse(t_minishell *sh)
 {
+    if (sh->aborted_parse)
+    {
+        ast_free(sh->ast);
+        sh->ast = NULL;
+        return ;
+    }
     sh->ast = parse_command_line(sh);
 }
