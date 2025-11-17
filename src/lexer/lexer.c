@@ -194,3 +194,13 @@ t_token *lexer_next_token(t_lexer *lexer)
     }
     return (lexer->tk);
 }
+
+void    init_lexer(t_lexer *lx, char *input)
+{
+    lx->input = input;
+    lx->input_len = strlen(input);
+    lx->position = 0;
+    lx->read_position = 0;
+    lx->ch = '\0';
+    lexer_read_char(lx);
+}

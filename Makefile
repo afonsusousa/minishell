@@ -13,6 +13,7 @@ SRCS := \
 	$(SRC_DIR)/ast/ast.c \
 	$(SRC_DIR)/ast/ast_free.c \
 	$(SRC_DIR)/ast/ast_list.c \
+	$(SRC_DIR)/ast/ast_print.c \
 	$(SRC_DIR)/lexer/lexer.c \
 	$(SRC_DIR)/lexer/token_stream.c \
 	$(SRC_DIR)/parser/parser.c \

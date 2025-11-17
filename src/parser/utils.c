@@ -14,10 +14,10 @@ int	is_redir_token_type(t_token_type t)
         || t == TOK_HEREDOC);
 }
 
-int	is_redir_ahead(const t_parser *p)
+int	is_redir_ahead(const t_token_stream *ts)
 {
     const t_token *tk;
 
-    tk = ts_peek(&((t_parser *)p)->ts);
+    tk = ts_peek(ts);
     return (tk != NULL && is_redir_token_type(tk->type));
 }

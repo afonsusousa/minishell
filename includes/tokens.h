@@ -16,7 +16,7 @@ typedef struct s_token_stream
 }   t_token_stream;
 
 // Stream construction
-void            token_stream_init(const t_minishell *sh, size_t capacity);
+void            token_stream_init(const t_minishell *sh);
 void            token_stream_free(t_token_stream *ts);
 bool            token_stream_reserve(t_token_stream *ts, size_t needed);
 bool            token_stream_push(t_token_stream *ts, const t_token *token);

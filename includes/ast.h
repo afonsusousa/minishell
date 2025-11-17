@@ -56,6 +56,7 @@ typedef struct s_ast {
         struct
         {
             t_token_type kind;
+            //maybe add flags here?
             union
             {
                 const char  *file_name;
@@ -76,5 +77,6 @@ t_ast       *ast_new(t_ast_type type);
 t_ast_list  *ast_list_push(t_ast_list **head, t_ast *node);
 void        ast_list_free(t_ast_list *lst);
 void        ast_free(t_ast *node);
+void        print_ast(const t_ast *n, int d);
 
 #endif // MINISHELL_AST_H

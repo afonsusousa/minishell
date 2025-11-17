@@ -20,8 +20,11 @@ typedef struct s_pipeline
 
 typedef struct s_heredoc
 {
-    pid_t   pids[256];
-    size_t  count;
+    int     fd[2];
+    char    *del;
+    int     quoted;
+    pid_t   pid;
+    int     status;
 }   t_heredoc;
 
 typedef struct s_minishell

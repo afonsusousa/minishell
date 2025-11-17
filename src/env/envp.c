@@ -9,9 +9,6 @@
 #include "../../includes/utils.h"
 #include "../../lib/libft/libft.h"
 
-
-
-
 size_t key_len(const char *str)
 {
     size_t klen;

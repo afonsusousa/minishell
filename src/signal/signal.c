@@ -2,37 +2,30 @@
 // Created by wlucas-f on 11/16/25.
 //
 
-#include <stddef.h>
-#include <unistd.h>
-//#include <bits/signum-generic.h>
 #include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <unistd.h>
 #include <readline/readline.h>
 
-extern volatile int sig;
-
-void sigint_behaviour(void)
+void sigint_handler(int signum)
 {
+    (void)signum;
     write(1, "\n", 1);
     rl_on_new_line();
     rl_replace_line("", 0);
     rl_redisplay();
 }
 
-void sigquit_behaviour(void)
+void signal_setup(void)
 {
-    sig = 0;
-    rl_replace_line("2", 0);
-    rl_on_new_line();
-}
+    struct sigaction sa;
 
-void signal_handler(int sigg)
-{
-    printf("ENTREI AQUI CARALHO\n");
-    if (sigg == SIGINT)
-        sigint_behaviour();
-    if (sigg == SIGABRT)
-        sigquit_behaviour();
+    sa.sa_handler = sigint_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sigaction(SIGINT, &sa, NULL);
+
+    sa.sa_handler = SIG_IGN;
+    sigaction(SIGQUIT, &sa, NULL);
+    sigaction(SIGPIPE, &sa, NULL);
 }
 

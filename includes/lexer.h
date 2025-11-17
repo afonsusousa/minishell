@@ -42,11 +42,12 @@ typedef struct s_lexer
     t_token     *tk;
 } t_lexer;
 
+void    init_lexer(t_lexer *lx, char *input);
 void    lexer_read_char(t_lexer *lexer);
 char    lexer_peek_char(const t_lexer *lexer);
 void    lexer_read_word(t_lexer *lexer, t_token *token);
 void    lexer_skip_space(t_lexer *lexer);
-t_token *token_new(const t_token_type type);
+t_token *token_new(t_token_type type);
 bool    lexer_next_dmeta(t_lexer *lexer);
 bool    lexer_next_smeta(t_lexer *lexer);
 t_token *lexer_next_token(t_lexer *lexer);

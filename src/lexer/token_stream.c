@@ -11,10 +11,13 @@
 #include "../../includes/tokens.h"
 #include "../../includes/minishell.h"
 
-void token_stream_init(const t_minishell *sh, size_t capacity)
+void token_stream_init(const t_minishell *sh)
 {
-    if (capacity == 0)
-        capacity = 32;
+    t_lexer lx;
+    size_t  capacity;
+
+    init_lexer(&lx, sh->line);
+    capacity = 16;
     sh->ts->tokens = (t_token *)calloc(capacity, sizeof(t_token));
     if (sh->ts->tokens)
         sh->ts->capacity = capacity;
@@ -24,6 +27,7 @@ void token_stream_init(const t_minishell *sh, size_t capacity)
     sh->ts->position = 0;
     sh->ts->read_position = 0;
     sh->ts->tk = NULL;
+    token_stream_fill(sh->ts, &lx);
 }
 
 void token_stream_free(t_token_stream *ts)
@@ -99,13 +103,12 @@ bool token_stream_fill(t_token_stream *ts, t_lexer *lexer)
 
 static void ts_read_token(t_token_stream *ts)
 {
-    if (ts->read_position >= ts->count && ts->count > 0) {
+    if (ts->read_position >= ts->count && ts->count > 0)
         ts->tk = &ts->tokens[ts->count - 1];
-    } else if (ts->count > 0) {
+    else if (ts->count > 0)
         ts->tk = &ts->tokens[ts->read_position];
-    } else {
+    else
         ts->tk = NULL;
-    }
     ts->position = ts->read_position;
     ts->read_position += 1;
 }
@@ -132,10 +135,6 @@ int ts_check(const t_token_stream *ts, t_token_type type)
 int ts_match(t_token_stream *ts, t_token_type type)
 {
     if (ts_check(ts, type))
-    {
-        ts_read_token(ts);
-        return (1);
-    }
+        return (ts_read_token(ts),1);
     return (0);
 }
-
