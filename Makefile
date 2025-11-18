@@ -24,6 +24,7 @@ SRCS := \
 	$(SRC_DIR)/parser/pipeline.c \
 	$(SRC_DIR)/parser/redirs.c \
 	$(SRC_DIR)/parser/utils.c \
+	$(SRC_DIR)/parser/error.c \
 	$(SRC_DIR)/env/envp.c \
 	$(SRC_DIR)/executor/executor.c \
 	$(SRC_DIR)/executor/logical.c \

@@ -2,6 +2,9 @@
 // Created by afonsusousa on 11/4/25.
 //
 
+#include <stdio.h>
+#include <unistd.h>
+
 #include "globbing.h"
 #include "../../includes/parser.h"
 #include "../../includes/utils.h"
@@ -19,7 +22,7 @@ t_ast	*parse_core(t_minishell *sh)
             || is_redir_ahead(sh->ts))
         core = parse_command(sh);
     else
-        return (NULL);
+        return (parser_abort_error(sh), NULL);
     return (core);
 }
 
@@ -31,15 +34,15 @@ t_ast	*parse_grouping(t_minishell *sh)
     if (sh->aborted_parse)
         return (NULL);
     if (!ts_match(sh->ts, TOK_LPAREN))
-        return (NULL);
+        return (parser_abort_error(sh), NULL);
     list = parse_command_line(sh);
     if (!list || sh->aborted_parse)
         return (NULL);
     if (!ts_match(sh->ts, TOK_RPAREN))
-        return (ast_free(list), NULL);
+        return (parser_abort_error(sh), ast_free(list), NULL);
     grp = ast_new(AST_GROUPING);
     if (!grp)
-        return (ast_free(list), NULL);
+        return (parser_abort_error(sh), ast_free(list), NULL);
     grp->as.grouping.list = list;
     grp->as.grouping.redirs = parse_core_redirs(sh);
     return (grp);

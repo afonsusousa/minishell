@@ -50,9 +50,6 @@ t_ast *parse_redir(t_minishell *sh)
         redir->as.redir.target.file_name = ft_strdup(sh->ts->tk->lexeme);
     }
     else
-    {
-        sh->aborted_parse = true;
-        return (ast_free(redir), NULL);
-    }
+        return (parser_abort_error(sh), ast_free(redir), NULL);
     return (redir);
 }

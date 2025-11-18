@@ -31,4 +31,8 @@ t_ast       *ast_make_pipeline_node(t_ast *first_core);
 t_ast       *ast_make_grouping_node(t_ast *list);
 t_ast       *ast_make_redir_node(t_token_type type);
 
+// Error
+void        parser_abort(t_minishell *sh);
+void        parser_abort_error(t_minishell *sh);
+
 #endif // MINISHELL_PARSER_H
