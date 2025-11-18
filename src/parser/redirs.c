@@ -47,9 +47,12 @@ t_ast *parse_redir(t_minishell *sh)
     else if (ts_peek(sh->ts)->type == TOK_WORD)
     {
         ts_advance(sh->ts);
-        redir->as.redir.target.file_name = ft_strdup(tk->lexeme);
+        redir->as.redir.target.file_name = ft_strdup(sh->ts->tk->lexeme);
     }
     else
+    {
+        sh->aborted_parse = true;
         return (ast_free(redir), NULL);
+    }
     return (redir);
 }

@@ -17,6 +17,7 @@ int     exec_line(t_minishell *sh)
     token_stream_init(sh);
     parse(sh);
     token_stream_free(sh->ts);
+    print_ast(sh->ast, 0);
     if (sh->aborted_parse || !sh->ast)
         return (sh->last_status);
     exec_ast(sh);

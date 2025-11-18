@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
+#include "sig.h"
 #include "../../includes/minishell.h"
 #include "../../includes/executor.h"
 
@@ -21,13 +22,17 @@ static inline int wait_pids(const t_pipeline *pipeline)
     status = 0;
     while (i < pipeline->count)
     {
+        signal(SIGINT, SIG_IGN);
         if (waitpid(pipeline->pids[i], &st, 0) > 0 && i == pipeline->count - 1)
         {
             if (WIFEXITED(st))
                 status = WEXITSTATUS(st);
             else if (WIFSIGNALED(st))
                 status = 128 + WTERMSIG(st);
+            if (WIFSIGNALED(st) && WTERMSIG(st) == SIGINT)
+                write(1, "\n", 1);
         }
+        signal(SIGINT, sigint_handler);
         i++;
     }
     return (status);
@@ -41,10 +46,6 @@ int exec_pipeline(t_minishell* sh, const t_ast_list* cores)
     pipeline = &sh->pipeline;
     memset(pipeline, 0, sizeof(t_pipeline));
     pipeline->prev_read = -1;
-    // expand arguments
-    // exec assignments if no cmd
-    //
-    //
     if (!cores->next)
     {
         if (cores->node->type == AST_COMMAND
