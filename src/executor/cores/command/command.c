@@ -31,10 +31,10 @@ int execve_wrapper(t_minishell* sh, char** argv, int argc)
 
     if (!argv || !argv[0])
         return (0);
-    env_arr = get_envp_array(sh->env);
-    env_arr = strjoinjoin(env_arr, get_envp_array(sh->ctx));
     if (is_builtin(argv[0]))
         return (exec_builtin(sh, argv, argc));
+    env_arr = get_envp_array(sh->env);
+    env_arr = strjoinjoin(env_arr, get_envp_array(sh->ctx));
     argv[0] = find_path(argv[0], env_arr);
     minishell_free(sh);
     execve(argv[0], argv, env_arr);
@@ -42,29 +42,23 @@ int execve_wrapper(t_minishell* sh, char** argv, int argc)
     exit(127);
 }
 
-int exec_command(t_minishell* sh, const t_ast* core, bool in_fork)
+int exec_command(t_minishell* sh, const t_ast* core)
 {
     char** argv;
     int status;
-    t_envp local_env;
-    (void)in_fork;
 
     memset(sh->ctx, 0, sizeof(t_envp));
     if (!core || core->type != AST_COMMAND)
         return (1);
     argv = argv_to_arr(sh, core->as.command.argv);
-    if (argv && is_builtin(argv[0]))
-        return (exec_builtin(sh, argv, core->as.command.argc));
-    if (exec_redirs(sh, core->as.command.redirs, in_fork))
+    if (exec_redirs(sh, core->as.command.redirs))
         return (1);
     if (exec_assignments(sh, core->as.command.assignments, argv != NULL))
         return (1);
     if (!argv)
         return (0);
     status = execve_wrapper(sh, argv, core->as.command.argc);
-    //restore_fds();
     free_argv(argv);
-    free_envp(&local_env);
     sh->last_status = status;
     return (status);
 }

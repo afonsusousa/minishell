@@ -21,9 +21,9 @@ int exec_node(t_minishell* sh, const t_ast* node)
     if (node->type == AST_PIPELINE)
         return (exec_pipeline(sh, node->as.pipeline.cores));
     if (node->type == AST_COMMAND)
-        return (exec_command(sh, node, false));
+        return (exec_command(sh, node));
     if (node->type == AST_GROUPING)
-        return (exec_grouping(sh, node, false));
+        return (exec_grouping(sh, node));
     if (node->type == AST_AND_LIST || node->type == AST_OR_LIST)
         return (exec_logical(sh, node));
     return (0);

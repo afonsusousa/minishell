@@ -22,10 +22,10 @@ int     exec_command_line(t_minishell *sh, const t_ast *node);
 int     exec_logical(t_minishell *sh, const t_ast *node);
 int     exec_pipeline(t_minishell *sh, const t_ast_list *cores);
 int     exec_core(t_minishell* sh, const t_ast* core, bool in_fork);
-int     exec_command(t_minishell *sh, const t_ast *core, bool in_fork);
+int     exec_command(t_minishell *sh, const t_ast *core);
 int     exec_builtin(t_minishell *sh, char **argv, int argc);
-int     exec_grouping(t_minishell *sh, const t_ast *node, bool in_fork);
-int     exec_redirs(t_minishell* sh, const t_ast_list* r, bool duplicate);
+int     exec_grouping(t_minishell *sh, const t_ast *node);
+int     exec_redirs(t_minishell* sh, const t_ast_list* r);
 int     get_redir_fd(t_token_type r);
 
 // Commands execution helpers

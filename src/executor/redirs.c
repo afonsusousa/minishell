@@ -42,7 +42,7 @@ static int apply_redir(const int fd, const t_token_type kind)
     return (0);
 }
 
-static int handle_redir_node(const t_ast *node, const bool duplicate)
+static int handle_redir_node(const t_ast *node)
 {
     int fd;
     char *filename;
@@ -56,19 +56,19 @@ static int handle_redir_node(const t_ast *node, const bool duplicate)
     }
     else
         fd = node->as.redir.target.heredoc[0];
-    if (fd >= 0 && duplicate && apply_redir(fd, node->as.redir.kind) != 0)
+    if (fd >= 0 && apply_redir(fd, node->as.redir.kind) != 0)
             return (1);
     if (fd >= 0)
         close(fd);
     return (0);
 }
 
-int exec_redirs(t_minishell* sh, const t_ast_list* r, bool duplicate)
+int exec_redirs(t_minishell* sh, const t_ast_list* r)
 {
     memset(&sh->heredoc, 0, sizeof(t_heredoc));
     while (r)
     {
-        if (handle_redir_node(r->node, duplicate) != 0)
+        if (handle_redir_node(r->node) != 0)
             return (1);
         r = r->next;
     }

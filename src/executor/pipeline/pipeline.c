@@ -11,18 +11,7 @@
 #include "../../../includes/executor.h"
 #include "pipeline.h"
 
-static int should_run_builtin_directly(const t_ast_list *cores)
-{
-    if (!cores->next && cores->node->type == AST_COMMAND)
-    {
-        if (!cores->node->as.command.argv
-            || is_builtin((char *)cores->node->as.command.argv[0]))
-            return (1);
-    }
-    return (0);
-}
-
-static void execute_pipeline_child(t_minishell *sh, const t_pipeline *pipeline,
+static void exec_pipeline_child(t_minishell *sh, const t_pipeline *pipeline,
                                    const t_ast *node, const bool has_next)
 {
     int status;
@@ -34,7 +23,7 @@ static void execute_pipeline_child(t_minishell *sh, const t_pipeline *pipeline,
     exit(status);
 }
 
-static int execute_pipeline_loop(t_minishell *sh, const t_ast_list *cores)
+static int exec_pipeline_loop(t_minishell *sh, const t_ast_list *cores)
 {
     t_pipeline *pipeline;
 
@@ -47,7 +36,7 @@ static int execute_pipeline_loop(t_minishell *sh, const t_ast_list *cores)
         if (pipeline->pids[pipeline->count] < 0)
             return (handle_fork_error(pipeline, cores->next != NULL));
         if (pipeline->pids[pipeline->count] == 0)
-            execute_pipeline_child(sh, pipeline, cores->node, cores->next != NULL);
+            exec_pipeline_child(sh, pipeline, cores->node, cores->next != NULL);
         close_parent_fds(pipeline, cores->next != NULL);
         pipeline->count++;
         cores = cores->next;
@@ -63,9 +52,7 @@ int exec_pipeline(t_minishell* sh, const t_ast_list* cores)
     pipeline = &sh->pipeline;
     memset(pipeline, 0, sizeof(t_pipeline));
     pipeline->prev_read = -1;
-    if (should_run_builtin_directly(cores))
-        return (exec_command(sh, cores->node, false));
-    if (execute_pipeline_loop(sh, cores) != 0)
+    if (exec_pipeline_loop(sh, cores) != 0)
         return (1);
     if (pipeline->prev_read != -1)
         close(pipeline->prev_read);
