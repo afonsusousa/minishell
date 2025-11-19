@@ -49,9 +49,9 @@ static const char   *get_token_type_name(const t_token *tk)
         return (name);
     if (tk->type == TOK_LPAREN)
         return ("(");
-    else if (tk->type == TOK_RPAREN)
+    if (tk->type == TOK_RPAREN)
         return (")");
-    else if (tk->type == TOK_EOF)
+    if (tk->type == TOK_EOF)
         return ("newline");
     return ("unknown token");
 }

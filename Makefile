@@ -31,6 +31,7 @@ SRCS := \
 	$(SRC_DIR)/executor/pipeline.c \
 	$(SRC_DIR)/executor/cores.c \
 	$(SRC_DIR)/executor/redirs.c \
+	$(SRC_DIR)/executor/error.c \
 	$(SRC_DIR)/executor/cores/builtin/builtins.c \
 	$(SRC_DIR)/executor/cores/builtin/export.c \
 	$(SRC_DIR)/executor/cores/command/command.c \

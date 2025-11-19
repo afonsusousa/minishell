@@ -91,7 +91,7 @@ void heredoc_setup(t_minishell *sh, int heredoc[2])
     if (sh->heredoc.quoted)
         sh->heredoc.del = expanded(NULL, sh->heredoc.del, false);
     if (!open_heredoc_pipe(sh->heredoc.fd))
-        return;
+        return ;
     sh->heredoc.pid = fork();
     if (sh->heredoc.pid < 0)
     {

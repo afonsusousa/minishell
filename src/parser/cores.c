@@ -23,6 +23,8 @@ t_ast	*parse_core(t_minishell *sh)
         core = parse_command(sh);
     else
         return (parser_abort_error(sh), NULL);
+    if (!core || sh->aborted_parse)
+        return (NULL);
     return (core);
 }
 
@@ -45,6 +47,8 @@ t_ast	*parse_grouping(t_minishell *sh)
         return (parser_abort_error(sh), ast_free(list), NULL);
     grp->as.grouping.list = list;
     grp->as.grouping.redirs = parse_core_redirs(sh);
+    if (sh->aborted_parse)
+        return (ast_free(grp), NULL);
     return (grp);
 }
 

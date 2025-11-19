@@ -5,14 +5,14 @@
 #include "../../includes/minishell.h"
 #include "../../includes/executor.h"
 
-int exec_command_line(t_minishell* sh, t_ast* node)
+int exec_command_line(t_minishell* sh, const t_ast* node)
 {
     if (!node || node->type != AST_COMMAND_LINE)
         return (1);
     return (exec_node(sh, node->as.command_line.list));
 }
 
-int exec_node(t_minishell* sh, t_ast* node)
+int exec_node(t_minishell* sh, const t_ast* node)
 {
     if (!node)
         return (1);

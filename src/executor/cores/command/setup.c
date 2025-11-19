@@ -11,7 +11,7 @@
 #include "../../../../includes/utils.h"
 #include "../../../../lib/libft/libft.h"
 
-static size_t words_count(t_minishell* sh, const char **w)
+static size_t words_count(const t_minishell* sh, const char **w)
 {
     size_t c;
     (void) sh;
@@ -23,7 +23,7 @@ static size_t words_count(t_minishell* sh, const char **w)
 }
 
 //TODO: expand wildcards here
-char** argv_to_arr(t_minishell* sh, const  char **words)
+char** argv_to_arr(const t_minishell* sh, const  char **words)
 {
     char** argv;
     size_t count;

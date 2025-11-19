@@ -56,11 +56,10 @@ typedef struct s_ast {
         struct
         {
             t_token_type kind;
-            //maybe add flags here?
             union
             {
                 const char  *file_name;
-                int         heredoc[2]; // heredoc[0] => fd; heredoc[1] => (bool) quoted
+                int         heredoc[2];
             } target;
         } redir;
 

@@ -27,6 +27,7 @@ t_ast *parse_redir(t_minishell *sh)
 {
     t_ast		*redir;
     const t_token *tk;
+    const t_token *peek;
 
     if (sh->aborted_parse)
         return (NULL);
@@ -37,14 +38,15 @@ t_ast *parse_redir(t_minishell *sh)
     redir = ast_make_redir_node(tk->type);
     if (!redir)
         return (NULL);
-    if (tk->type == TOK_HEREDOC && ts_peek(sh->ts)->type == TOK_WORD)
+    peek = ts_peek(sh->ts);
+    if (tk->type == TOK_HEREDOC && peek && peek->type == TOK_WORD)
     {
         ts_advance(sh->ts);
         heredoc_setup(sh, redir->as.redir.target.heredoc);
         if (sh->aborted_parse || redir->as.redir.target.heredoc[1] == -1)
             return (ast_free(redir), NULL);
     }
-    else if (ts_peek(sh->ts)->type == TOK_WORD)
+    else if (peek && peek->type == TOK_WORD)
     {
         ts_advance(sh->ts);
         redir->as.redir.target.file_name = ft_strdup(sh->ts->tk->lexeme);

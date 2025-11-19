@@ -22,7 +22,7 @@ t_ast	*parse_or_list(t_minishell *sh)
             return (ast_free(lhs), NULL);
         lhs = ast_make_binary_node(AST_OR_LIST, lhs, rhs);
         if (!lhs)
-            return (NULL);
+            return (ast_free(rhs), NULL);
     }
     return (lhs);
 }
@@ -44,7 +44,7 @@ t_ast	*parse_and_list(t_minishell *sh)
             return (ast_free(lhs), NULL);
         lhs = ast_make_binary_node(AST_AND_LIST, lhs, rhs);
         if (!lhs)
-            return (NULL);
+            return (ast_free(rhs), NULL);
     }
     return (lhs);
 }

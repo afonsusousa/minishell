@@ -5,7 +5,7 @@
 #include "../../includes/minishell.h"
 #include "../../includes/executor.h"
 
-int exec_logical(t_minishell* sh, t_ast* node)
+int exec_logical(t_minishell* sh, const t_ast* node)
 {
     int left_status;
 

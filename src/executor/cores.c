@@ -7,7 +7,7 @@
 #include "../../includes/minishell.h"
 #include "../../includes/executor.h"
 
-int exec_grouping(t_minishell* sh, t_ast* node, bool in_fork)
+int exec_grouping(t_minishell* sh, const t_ast* node, bool in_fork)
 {
     int status;
     exec_redirs(sh, node->as.command.redirs, in_fork);
@@ -15,7 +15,7 @@ int exec_grouping(t_minishell* sh, t_ast* node, bool in_fork)
     return (status);
 }
 
-int exec_core(t_minishell* sh, t_ast* core, bool in_fork)
+int exec_core(t_minishell* sh, const t_ast* core, bool in_fork)
 {
     int status;
 

@@ -6,7 +6,7 @@
 #include "../../../../includes/utils.h"
 #include "../../../../includes/executor.h"
 
-bool is_builtin (char *word)
+bool is_builtin (const char *word)
 {
     if (!word)
         return (false);

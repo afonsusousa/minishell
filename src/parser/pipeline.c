@@ -22,9 +22,9 @@ t_ast	*parse_pipeline(t_minishell *sh)
     {
         core = parse_core(sh);
         if (!core || sh->aborted_parse)
-            return (ast_list_free(pipeline->as.pipeline.cores), NULL);
+            return (ast_free(pipeline), NULL);
         if (!ast_list_push(&pipeline->as.pipeline.cores, core))
-            return (NULL);
+            return (ast_free(core), ast_free(pipeline), NULL);
     }
     return (pipeline);
 }
