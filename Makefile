@@ -28,8 +28,6 @@ SRCS := \
 	$(SRC_DIR)/env/envp.c \
 	$(SRC_DIR)/executor/executor.c \
 	$(SRC_DIR)/executor/logical.c \
-	$(SRC_DIR)/executor/pipeline.c \
-	$(SRC_DIR)/executor/pipeline_utils.c \
 	$(SRC_DIR)/executor/cores.c \
 	$(SRC_DIR)/executor/redirs.c \
 	$(SRC_DIR)/executor/error.c \
@@ -38,6 +36,8 @@ SRCS := \
 	$(SRC_DIR)/executor/cores/command/command.c \
 	$(SRC_DIR)/executor/cores/command/setup.c \
 	$(SRC_DIR)/executor/cores/command/utils.c \
+	$(SRC_DIR)/executor/pipeline/pipeline.c \
+	$(SRC_DIR)/executor/pipeline/utils.c \
 	$(SRC_DIR)/signal/signal.c \
 	$(SRC_DIR)/subst/subst_machine.c \
 	$(SRC_DIR)/subst/globbing.c

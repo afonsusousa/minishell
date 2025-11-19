@@ -4,12 +4,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
 
-#include "../../includes/sig.h"
-#include "../../includes/minishell.h"
+#include "../../../includes/sig.h"
+#include "../../../includes/minishell.h"
 
 int setup_pipe(t_pipeline *pipeline, const bool has_next)
 {
@@ -23,7 +22,7 @@ int setup_pipe(t_pipeline *pipeline, const bool has_next)
     return (0);
 }
 
-int setup_child_fds(t_pipeline *pipeline, const bool has_next)
+int setup_child_fds(const t_pipeline *pipeline, const bool has_next)
 {
     if (pipeline->prev_read != -1)
     {

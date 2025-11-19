@@ -7,9 +7,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "../../includes/minishell.h"
-#include "../../includes/executor.h"
-#include "pipeline_utils.h"
+#include "../../../includes/minishell.h"
+#include "../../../includes/executor.h"
+#include "pipeline.h"
 
 static int should_run_builtin_directly(const t_ast_list *cores)
 {
@@ -22,7 +22,7 @@ static int should_run_builtin_directly(const t_ast_list *cores)
     return (0);
 }
 
-static void execute_pipeline_child(t_minishell *sh, t_pipeline *pipeline,
+static void execute_pipeline_child(t_minishell *sh, const t_pipeline *pipeline,
                                    const t_ast *node, const bool has_next)
 {
     int status;
