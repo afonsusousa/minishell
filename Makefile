@@ -29,6 +29,7 @@ SRCS := \
 	$(SRC_DIR)/executor/executor.c \
 	$(SRC_DIR)/executor/logical.c \
 	$(SRC_DIR)/executor/pipeline.c \
+	$(SRC_DIR)/executor/pipeline_utils.c \
 	$(SRC_DIR)/executor/cores.c \
 	$(SRC_DIR)/executor/redirs.c \
 	$(SRC_DIR)/executor/error.c \

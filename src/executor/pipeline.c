@@ -6,64 +6,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/wait.h>
 
-#include "sig.h"
 #include "../../includes/minishell.h"
 #include "../../includes/executor.h"
+#include "pipeline_utils.h"
 
-static inline int wait_pids(const t_pipeline *pipeline)
+static int should_run_builtin_directly(const t_ast_list *cores)
 {
-    size_t i;
-    int status;
-    int st;
-
-    i = 0;
-    status = 0;
-    while (i < pipeline->count)
+    if (!cores->next && cores->node->type == AST_COMMAND)
     {
-        signal(SIGINT, SIG_IGN);
-        if (waitpid(pipeline->pids[i], &st, 0) > 0 && i == pipeline->count - 1)
-        {
-            if (WIFEXITED(st))
-                status = WEXITSTATUS(st);
-            else if (WIFSIGNALED(st))
-                status = 128 + WTERMSIG(st);
-            if (WIFSIGNALED(st) && WTERMSIG(st) == SIGINT)
-                write(1, "\n", 1);
-        }
-        signal(SIGINT, sigint_handler);
-        i++;
-    }
-    return (status);
-}
-
-static int setup_pipe(t_pipeline *pipeline, const bool has_next)
-{
-    if (has_next && pipe(pipeline->pipefd) < 0)
-    {
-        perror("pipe");
-        if (pipeline->prev_read != -1)
-            close(pipeline->prev_read);
-        return (1);
-    }
-    return (0);
-}
-
-static int setup_child_fds(t_pipeline *pipeline, const bool has_next)
-{
-    if (pipeline->prev_read != -1)
-    {
-        if (dup2(pipeline->prev_read, STDIN_FILENO) < 0)
+        if (!cores->node->as.command.argv
+            || is_builtin((char *)cores->node->as.command.argv[0]))
             return (1);
-        close(pipeline->prev_read);
-    }
-    if (has_next)
-    {
-        close(pipeline->pipefd[0]);
-        if (dup2(pipeline->pipefd[1], STDOUT_FILENO) < 0)
-            return (1);
-        close(pipeline->pipefd[1]);
     }
     return (0);
 }
@@ -78,28 +32,6 @@ static void execute_pipeline_child(t_minishell *sh, t_pipeline *pipeline,
     status = exec_core(sh, node, true);
     minishell_free(sh);
     exit(status);
-}
-
-static void close_parent_fds(t_pipeline *pipeline, const bool has_next)
-{
-    if (pipeline->prev_read != -1)
-        close(pipeline->prev_read);
-    if (has_next)
-    {
-        close(pipeline->pipefd[1]);
-        pipeline->prev_read = pipeline->pipefd[0];
-    }
-}
-
-static int should_run_builtin_directly(const t_ast_list *cores)
-{
-    if (!cores->next && cores->node->type == AST_COMMAND)
-    {
-        if (!cores->node->as.command.argv
-            || is_builtin((char *)cores->node->as.command.argv[0]))
-            return (1);
-    }
-    return (0);
 }
 
 static int execute_pipeline_loop(t_minishell *sh, const t_ast_list *cores)
