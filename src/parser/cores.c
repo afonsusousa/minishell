@@ -54,7 +54,7 @@ t_ast	*parse_grouping(t_minishell *sh)
 
 t_ast		*parse_command(t_minishell *sh)
 {
-    t_ast		    *simple_cmd;
+    const char      **assignments;
     int             argc;
     char	        **argv;
     t_ast_list	    *redirs;
@@ -62,10 +62,7 @@ t_ast		*parse_command(t_minishell *sh)
 
     if (sh->aborted_parse)
         return (NULL);
-    simple_cmd = ast_new(AST_COMMAND);
-    if (!simple_cmd)
-        return (NULL);
-    simple_cmd->as.command.assignments = parse_assignments(sh);
+    assignments = parse_assignments(sh);
     argc = 0;
     argv = NULL;
     redirs = NULL;
@@ -86,11 +83,8 @@ t_ast		*parse_command(t_minishell *sh)
             break ;
     }
     if (sh->aborted_parse)
-        return (ast_free(simple_cmd), NULL);
-    simple_cmd->as.command.argv = (const char **)argv;
-    simple_cmd->as.command.argc = argc;
-    simple_cmd->as.command.redirs = redirs;
-    return (simple_cmd);
+        return (NULL);
+    return (ast_make_command_node(assignments, argv, argc, redirs));
 }
 
 const char	**parse_assignments(t_minishell *sh)

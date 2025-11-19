@@ -65,3 +65,17 @@ t_ast	*ast_make_redir_node(t_token_type type)
     n->as.redir.kind = type;
     return (n);
 }
+
+t_ast	*ast_make_command_node(const char **assignments, char **argv, int argc, t_ast_list *redirs)
+{
+    t_ast	*n;
+
+    n = ast_new(AST_COMMAND);
+    if (!n)
+        return (NULL);
+    n->as.command.assignments = assignments;
+    n->as.command.argv = (const char **)argv;
+    n->as.command.argc = argc;
+    n->as.command.redirs = redirs;
+    return (n);
+}

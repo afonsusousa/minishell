@@ -11,6 +11,16 @@
 #include "../../../includes/executor.h"
 #include "pipeline.h"
 
+static bool is_core_builtin(const t_ast *core)
+{
+    if (!core)
+        return (false);
+    if (core->type == AST_COMMAND && core->as.command.argv
+        && core->as.command.argv[0])
+        return (is_builtin(core->as.command.argv[0]));
+    return (false);
+}
+
 static void exec_pipeline_child(t_minishell *sh, const t_pipeline *pipeline,
                                    const t_ast *node, const bool has_next)
 {
@@ -49,6 +59,10 @@ int exec_pipeline(t_minishell* sh, const t_ast_list* cores)
     int         status;
     t_pipeline  *pipeline;
 
+    if (!cores)
+        return (0);
+    if (!cores->next && is_core_builtin(cores->node))
+        return (exec_core(sh, cores->node, false));
     pipeline = &sh->pipeline;
     memset(pipeline, 0, sizeof(t_pipeline));
     pipeline->prev_read = -1;
