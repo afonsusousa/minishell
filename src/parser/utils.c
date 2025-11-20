@@ -6,18 +6,23 @@
 
 #include "../../includes/parser.h"
 
-int	is_redir_token_type(t_token_type t)
+t_token_type	is_redir_token_type(t_token_stream *ts)
 {
-    return (t == TOK_REDIR_IN
-        || t == TOK_REDIR_OUT
-        || t == TOK_REDIR_APPEND
-        || t == TOK_HEREDOC);
+    if (ts_match(ts, TOK_REDIR_IN))
+        return (TOK_REDIR_IN);
+    if (ts_match(ts, TOK_REDIR_OUT))
+        return (TOK_REDIR_OUT);
+    if (ts_match(ts, TOK_REDIR_APPEND))
+        return (TOK_REDIR_APPEND);
+    if (ts_match(ts, TOK_HEREDOC))
+        return (TOK_HEREDOC);
+    return (0);
 }
 
 int	is_redir_ahead(const t_token_stream *ts)
 {
-    const t_token *tk;
-
-    tk = ts_peek(ts);
-    return (tk != NULL && is_redir_token_type(tk->type));
+    return (ts_check(ts, TOK_REDIR_IN)
+        || ts_check(ts, TOK_REDIR_OUT)
+        || ts_check(ts, TOK_REDIR_APPEND)
+        || ts_check(ts, TOK_HEREDOC));
 }

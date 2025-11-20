@@ -120,13 +120,6 @@ const t_token *ts_peek(const t_token_stream *ts)
     return &ts->tokens[ts->read_position];
 }
 
-const t_token *ts_advance(t_token_stream *ts)
-{
-    const t_token *prev = ts->tk;
-    ts_read_token(ts);
-    return prev;
-}
-
 int ts_check(const t_token_stream *ts, t_token_type type)
 {
     return ts_peek(ts)->type == type;

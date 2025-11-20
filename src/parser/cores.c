@@ -58,7 +58,6 @@ t_ast		*parse_command(t_minishell *sh)
     int             argc;
     char	        **argv;
     t_ast_list	    *redirs;
-    const t_token	*peek;
 
     if (sh->aborted_parse)
         return (NULL);
@@ -68,38 +67,29 @@ t_ast		*parse_command(t_minishell *sh)
     redirs = NULL;
     while (!sh->aborted_parse)
     {
-        peek = ts_peek(sh->ts);
-        if (!peek)
-            break ;
-        if (peek->type == TOK_WORD || peek->type == TOK_ASSIGNMENT_WORD)
-        {
-            ts_advance(sh->ts);
-            argv = strjoinjoin(argv, get_double_from_str(peek->lexeme));
-            argc++;
-        }
+        if ((ts_match(sh->ts, TOK_WORD) || ts_match(sh->ts, TOK_ASSIGNMENT_WORD))
+            && ++argc)
+            argv = strjoinjoin(argv, get_double_from_str(sh->ts->tk->lexeme));
         else if (is_redir_ahead(sh->ts))
             redirs = parse_core_redirs(sh);
         else
             break ;
     }
     if (sh->aborted_parse)
-        return (NULL);
+        return (free_until_null((char ***) &assignments), NULL);
     return (ast_make_command_node(assignments, argv, argc, redirs));
 }
 
 const char	**parse_assignments(t_minishell *sh)
 {
     char            **assignments;
-    const t_token	*tk;
 
     assignments = NULL;
     while (!sh->aborted_parse)
     {
-        tk = ts_peek(sh->ts);
-        if (!tk || (tk->type != TOK_ASSIGNMENT_WORD))
+        if (!sh->ts->tk || !ts_match(sh->ts, TOK_ASSIGNMENT_WORD))
             break;
-        ts_advance(sh->ts);
-        assignments = strjoinjoin(assignments, get_double_from_str(tk->lexeme));
+        assignments = strjoinjoin(assignments, get_double_from_str(sh->ts->tk->lexeme));
     }
     return ((const char **) assignments);
 }

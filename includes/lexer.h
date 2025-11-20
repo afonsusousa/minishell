@@ -10,7 +10,7 @@
 
 typedef enum e_token_type
 {
-    TOK_WORD = 0,
+    TOK_WORD = 1,
     TOK_ASSIGNMENT_WORD,
     TOK_PIPE,         // |
     TOK_AND,          // &&

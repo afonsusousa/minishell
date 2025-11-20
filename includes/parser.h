@@ -20,8 +20,8 @@ t_ast		*parse_grouping(t_minishell *sh);
 t_ast_list	*parse_core_redirs(t_minishell *sh);
 
 // Utils
-int         is_redir_token_type(t_token_type t);
-int         is_redir_ahead(const t_token_stream *ts);
+t_token_type is_redir_token_type(t_token_stream *ts);
+int          is_redir_ahead(const t_token_stream *ts);
 void        heredoc_setup(t_minishell *sh, int heredoc[2]);
 
 // Helpers

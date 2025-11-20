@@ -26,29 +26,24 @@ t_ast_list	*parse_core_redirs(t_minishell *sh)
 t_ast *parse_redir(t_minishell *sh)
 {
     t_ast		*redir;
-    const t_token *tk;
-    const t_token *peek;
+    t_token_type redir_type;
 
     if (sh->aborted_parse)
         return (NULL);
-    tk = ts_peek(sh->ts);
-    if (!tk || !is_redir_token_type(tk->type))
+    redir_type = is_redir_token_type(sh->ts);
+    if (!redir_type)
         return (NULL);
-    ts_advance(sh->ts);
-    redir = ast_make_redir_node(tk->type);
+    redir = ast_make_redir_node(redir_type);
     if (!redir)
         return (NULL);
-    peek = ts_peek(sh->ts);
-    if (tk->type == TOK_HEREDOC && peek && peek->type == TOK_WORD)
+    if (redir_type == TOK_HEREDOC && ts_match(sh->ts, TOK_WORD))
     {
-        ts_advance(sh->ts);
         heredoc_setup(sh, redir->as.redir.target.heredoc);
         if (sh->aborted_parse || redir->as.redir.target.heredoc[1] == -1)
             return (ast_free(redir), NULL);
     }
-    else if (peek && peek->type == TOK_WORD)
+    else if (ts_match(sh->ts, TOK_WORD))
     {
-        ts_advance(sh->ts);
         redir->as.redir.target.file_name = ft_strdup(sh->ts->tk->lexeme);
     }
     else
