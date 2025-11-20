@@ -92,20 +92,17 @@ t_var     *envp_setvar(t_envp *env, const char *var, bool export)
 {
     t_var *new;
     size_t  klen;
-    char  *value;
 
     if (!env || !var)
         return NULL;
-    value = NULL;
     klen = key_len(var);
     new = envp_getvar(env, var);
-    if (var[klen] == '=')
-        value = ft_strdup(&var[klen + 1]);
     if (new)
     {
         if (new->value)
             free(new->value);
-        new->value = value;
+        if (var[klen] == '=')
+            new->value = ft_strdup(&var[klen + 1]);
         return (new);
     }
     new = new_var(var, export);

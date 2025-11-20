@@ -45,7 +45,7 @@ bool match_wildcard(const char *exp, const char *str)
 }
 
 //WALLAÇOOOOO CARA DE PAU E PAU DE AÇO MEU ORGULHO
-static DIR *setup_get_mathces(char *cwd, char *path, struct dirent **entry)
+static DIR *setup_get_matches(char *cwd, char *path, struct dirent **entry)
 {
     DIR *dir;
 
@@ -97,7 +97,7 @@ char    **get_matches(char *cwd, char **wildstr)
     struct dirent   *entry;
 
     ret = NULL;
-    dir[0] = setup_get_mathces(cwd, path, &entry);
+    dir[0] = setup_get_matches(cwd, path, &entry);
     if (!wildstr || !*wildstr)
     {
         if (access(cwd, F_OK) == 0)
