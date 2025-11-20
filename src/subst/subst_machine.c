@@ -51,15 +51,18 @@ void sm_laststate(t_quote_machine *sm)
     sm->curr = sm->curr ^ sm->prev;
 }
 
-const char *sm_getstr(t_quote_machine *sm)
-{
-    return (&(sm->str[sm->str_pos]));
-}
-
 void sm_consume(t_quote_machine *sm)
 {
     sm->buffer[sm->buff_pos++] = sm->ch;
     sm_advance(sm);
+}
+
+void sm_cat(t_quote_machine *sm, const char *str)
+{
+    if (!str)
+        return ;
+    while (*str && sm->buff_pos < ARG_MAX)
+        sm->buffer[sm->buff_pos++] = *str++;
 }
 
 void    sm_init(t_quote_machine *sm, const char *str)
@@ -113,14 +116,15 @@ char *expanded(const t_envp *env, const char *str,
         }
         else if (sm.curr == IN_VAR)
         {
+            //TODO: check this !is_valid behaviour
             if (!is_valid(sm.ch))
             {
                 while (!isspace(sm.ch) && sm.ch)
                     sm_consume(&sm);
                 sm_laststate(&sm);
             }
-            var = envp_getvar_value(env, sm_getstr(&sm));
-            ft_strlcat(sm.buffer, var, ft_strlen(sm.buffer) + ft_strlen(var) + 1);
+            var = envp_getvar_value(env, &sm.str[sm.str_pos]);
+            sm_cat(&sm, var);
             while (is_valid(sm.ch))
                 sm_advance(&sm);
             sm_laststate(&sm);

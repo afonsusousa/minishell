@@ -5,8 +5,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../includes/utils.h"
-#include "../lib/libft/libft.h"
+#include "../../includes/utils.h"
+#include "../../lib/libft/libft.h"
 
 int count_words(const char* str, const char sep)
 {
@@ -142,6 +142,12 @@ char **get_double_from_str(const char *str)
 
 int ft_strcmp(const char *s1, const char *s2)
 {
+    if (!s1 && !s2)
+        return (0);
+    if (!s1)
+        return (-1);
+    if (!s2)
+        return (1);
     while (*s1 && *s2)
     {
         if (*s1 != *s2)

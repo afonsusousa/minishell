@@ -34,16 +34,21 @@
 //
 int print_exported_variables(const t_minishell *sh)
 {
-    t_var *var;
+    char    **envp;
+    int     size;
 
-    var = sh->env->head;
-    while (var)
+    size = 0;
+    envp = get_envp_array(sh->env, true);
+    while (envp && envp[size])
+        size++;
+    merge_sort_strings(envp, 0, size - 1);
+    while (envp && *envp)
     {
-        if (var->value && var->export)
-            printf("declare -x %s=\"%s\"\n", var->name, var->value);
-        else if (var->export)
-            printf("declare -x %s\n", var->name);
-        var = var->next;
+        if (ft_strchr(*envp, '='))
+            printf("declare -x %.*s=\"%s\"\n", (int) key_len(*envp), *envp, ft_strchr(*envp, '=') + 1);
+        else
+            printf("declare -x %s\n", *envp);
+        envp++;
     }
     return (0);
 }
@@ -70,9 +75,8 @@ int export(const t_minishell *sh, char **argv, int argc)
     if (argv[1] == NULL)
         return (print_exported_variables(sh));
     var = NULL;
-    while (*argv != NULL)
+    while (*++argv != NULL)
     {
-        argv++;
         if (is_append(*argv))
             var = envp_append_var(sh->env, *argv, true);
         else

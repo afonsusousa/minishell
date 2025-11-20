@@ -8,7 +8,6 @@ LIBFT := $(LIBFT_DIR)/libft.a
 
 SRCS := \
 	$(SRC_DIR)/main.c \
-	$(SRC_DIR)/utils.c \
 	$(SRC_DIR)/dispose.c \
 	$(SRC_DIR)/ast/ast.c \
 	$(SRC_DIR)/ast/ast_free.c \
@@ -40,7 +39,9 @@ SRCS := \
 	$(SRC_DIR)/executor/pipeline/utils.c \
 	$(SRC_DIR)/signal/signal.c \
 	$(SRC_DIR)/subst/subst_machine.c \
-	$(SRC_DIR)/subst/globbing.c
+	$(SRC_DIR)/subst/globbing.c \
+	$(SRC_DIR)/utils/sort.c \
+	$(SRC_DIR)/utils/utils.c
 
 OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)

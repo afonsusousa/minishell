@@ -44,48 +44,69 @@ bool match_wildcard(const char *exp, const char *str)
     return *exp == '\0';
 }
 
-
-
-//TODO: split wild_string into directory and wildcard
 //WALLAÇOOOOO CARA DE PAU E PAU DE AÇO MEU ORGULHO
-// cwd -> diretorio de origem onde procurar
-//wildstr -> e uma split(padrao, '/')
-// /home/afonsusousa/*cu/*.c/* -> cwd = "/home/afonsusousa" && wildstr = ["*cu","*.c", "*"]
+static DIR *setup_get_mathces(char *cwd, char *path, struct dirent **entry)
+{
+    DIR *dir;
+
+    if (cwd[0])
+        dir = opendir(cwd);
+    else
+        dir = opendir(".");
+    if (cwd[0])
+    {
+        strcpy(path, cwd);
+        ft_strlcat(path, "/", ft_strlen(path) + 2);
+    }
+    else
+        path[0] = '\0';
+    *entry = readdir(dir);
+    return (dir);
+}
+
+// maybe there'll be an issue with hidden files
+static char **process_entry(struct dirent *entry, char **wildstr, const char *path)
+{
+    char *next_call;
+    DIR *dir;
+    char **ret;
+
+    ret = NULL;
+    if ((entry->d_name[0] != '.' || (*wildstr)[0] == '.')
+        && match_wildcard(*wildstr, entry->d_name))
+    {
+        next_call = ft_strjoin(path, entry->d_name);
+        dir = opendir(next_call);
+        if (dir)
+        {
+            ret = strjoinjoin(ret, get_matches(next_call, wildstr + 1));
+            closedir(dir);
+        }
+        else if (access(next_call, F_OK) == 0 && !wildstr[1])
+            ret = strjoinjoin(ret, get_double_from_str(next_call));
+        free(next_call);
+    }
+    return (ret);
+}
+
 char    **get_matches(char *cwd, char **wildstr)
 {
     char            **ret;
-    char            *next_call;
     char            path[PATH_MAX];
     DIR         	*dir[2];
     struct dirent   *entry;
 
     ret = NULL;
-    dir[0] = opendir(cwd);
-    entry = readdir(dir[0]);
+    dir[0] = setup_get_mathces(cwd, path, &entry);
     if (!wildstr || !*wildstr)
     {
         if (access(cwd, F_OK) == 0)
             return (get_double_from_str(cwd));
-        return NULL;
+        return (NULL);
     }
-    strcpy(path, cwd);
-    ft_strlcat(path, "/", ft_strlen(path) + 2);
     while (entry)
     {
-        //TODO: figure out hidden files
-        if ((entry->d_name[0] != '.' || (*wildstr)[0] == '.') && match_wildcard(*wildstr, entry->d_name))
-        {
-            next_call = ft_strjoin(path, entry->d_name);
-            dir[1] = opendir(next_call);
-            if (dir[1])
-            {
-                ret = strjoinjoin(ret, get_matches(next_call, wildstr + 1));
-                closedir(dir[1]);
-            }
-            else if (access(next_call, F_OK) == 0 && !wildstr[1])
-                ret = strjoinjoin(ret, get_double_from_str(next_call));
-            free(next_call);
-        }
+        ret = strjoinjoin(ret, process_entry(entry, wildstr, path));
         entry = readdir(dir[0]);
     }
     closedir(dir[0]);
@@ -96,9 +117,24 @@ char    **get_matches(char *cwd, char **wildstr)
 char    **expand_cwd_wildcards(const char *wild_string)
 {
     char **splt;
+    char **matches;
+    bool has_wild;
 
+    if (!wild_string)
+        return (NULL);
+    has_wild = ft_strchr(wild_string, '*');
+    if (!has_wild)
+        return (get_double_from_str(wild_string));
     splt = ft_split(wild_string, '/');
     if (!splt)
         return (NULL);
-    return (get_matches(splt[0], &splt[1]));
+    if (splt[1])
+        matches = get_matches(splt[0], &splt[1]);
+    else
+        matches = get_matches("", &splt[0]);
+    free_until_null(&splt);
+    if (!matches)
+        return (get_double_from_str(wild_string));
+    return (matches);
 }
+

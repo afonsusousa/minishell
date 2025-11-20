@@ -17,5 +17,6 @@ char    *ft_strnjoin(const char *s1, const char *s2, size_t scnd);
 bool    is_valid(char c);
 char    **get_double_from_str(const char *str);
 int     ft_strcmp(const char *s1, const char *s2);
+bool	merge_sort_strings(char *arr[], int left, int right);
 
 #endif //MINISHELL_UTILS_H

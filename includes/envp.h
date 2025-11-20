@@ -30,7 +30,7 @@ t_var       *envp_push(t_envp *env, t_var *node);
 
 // Getters
 t_var       *envp_getvar(const t_envp *env, const char *name);
-char        **get_envp_array(const t_envp *env);
+char        **get_envp_array(const t_envp *env, bool export);
 
 // Setters
 t_var       *envp_setvar(t_envp *env, const char *var, bool export);

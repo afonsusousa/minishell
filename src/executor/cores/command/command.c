@@ -33,8 +33,8 @@ int execve_wrapper(t_minishell* sh, char** argv, int argc)
         return (0);
     if (is_builtin(argv[0]))
         return (exec_builtin(sh, argv, argc));
-    env_arr = get_envp_array(sh->env);
-    env_arr = strjoinjoin(env_arr, get_envp_array(sh->ctx));
+    env_arr = get_envp_array(sh->env, true);
+    env_arr = strjoinjoin(env_arr, get_envp_array(sh->ctx, true));
     argv[0] = find_path(argv[0], env_arr);
     minishell_free(sh);
     execve(argv[0], argv, env_arr);

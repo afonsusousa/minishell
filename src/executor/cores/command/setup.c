@@ -5,45 +5,77 @@
 
 #include <stdlib.h>
 #include <unistd.h>
-
 #include "../../../../includes/minishell.h"
 #include "../../../../includes/executor.h"
 #include "../../../../includes/utils.h"
+#include "../../../../includes/globbing.h"
 #include "../../../../lib/libft/libft.h"
 
-static size_t words_count(const t_minishell* sh, const char **w)
+// parameter expansion -> wildcard expansion
+static char **expand_argv_word(const t_minishell *sh, const char *word)
 {
-    size_t c;
-    (void) sh;
-
-    c = 0;
-    while (w && *w++)
-        c++;
-    return (c);
-}
-
-//TODO: expand wildcards here
-char** argv_to_arr(const t_minishell* sh, const  char **words)
-{
-    char** argv;
-    size_t count;
+    char *exp;
+    char **words;
+    char **matches;
+    char **result;
     size_t i;
 
-    count = words_count(sh, words);
-    if (!count)
+    if (!word)
         return (NULL);
-    argv = (char**)ft_calloc(count + 1, sizeof(char*));
-    if (!argv)
+    exp = expanded(sh->env, word, true, true);
+    if (!exp)
         return (NULL);
+    words = ft_split(exp, ' ');
+    free(exp);
+    if (!words)
+        return (get_double_from_str(word));
+    result = NULL;
     i = 0;
+    while (words[i])
+    {
+        matches = expand_cwd_wildcards(words[i]);
+        if (!matches)
+            result = strjoinjoin(result, get_double_from_str(words[i]));
+        else
+            result = strjoinjoin(result, matches);
+        i++;
+    }
+    free_until_null(&words);
+    if (!result)
+        return (get_double_from_str(word));
+    return (result);
+}
+
+char** argv_to_arr(const t_minishell* sh, const  char **words)
+{
+    char    **argv;
+    char    **expanded_part;
+    int     size;
+
+    size = 0;
+    argv = NULL;
+    if (!words)
+        return (NULL);
     while (words && *words)
-        argv[i++] = ft_strdup(*words++);
-    argv[i] = NULL;
+    {
+        expanded_part = expand_argv_word(sh, *words++);
+        argv = strjoinjoin(argv, expanded_part);
+    }
+    while (argv && argv[size])
+        size++;
+    merge_sort_strings(&argv[1], 0, size - 2);
     return (argv);
 }
 
 void free_argv(char** argv)
 {
+    size_t i;
+
+    if (!argv)
+        return;
+    i = 0;
+    while (argv[i])
+        free(argv[i++]);
     free(argv);
 }
 

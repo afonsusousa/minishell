@@ -26,13 +26,18 @@ static int is_quoted(const char *delimiter)
     return (0);
 }
 
-static int  open_heredoc_pipe(int fd[2])
+// TODO: checkout assign heredoc interplay
+static char *expand_heredoc_line(t_minishell *sh, char **line, bool expand)
 {
-    if (pipe(fd) != 0)
-        return (0);
-    return (1);
-}
+    char *ret;
 
+    if (!expand || !*line)
+        return (*line);
+    ret = expanded(sh->env, *line, true, false);
+    free(*line);
+    *line = ret;
+    return (ret);
+}
 static void run_heredoc_child(t_minishell *sh)
 {
     char    *line;
@@ -43,6 +48,7 @@ static void run_heredoc_child(t_minishell *sh)
     while (1)
     {
         line = readline("heredoc> ");
+        expand_heredoc_line(sh, &line, !sh->heredoc.quoted);
         if (!line)
             break;
         if (ft_strcmp(line, sh->heredoc.del) == 0)
@@ -90,7 +96,7 @@ void heredoc_setup(t_minishell *sh, int heredoc[2])
     sh->heredoc.quoted = is_quoted(sh->heredoc.del);
     if (sh->heredoc.quoted)
         sh->heredoc.del = expanded(NULL, sh->heredoc.del, false, true);
-    if (!open_heredoc_pipe(sh->heredoc.fd))
+    if (pipe(sh->heredoc.fd) != 0)
         return ;
     sh->heredoc.pid = fork();
     if (sh->heredoc.pid < 0)
