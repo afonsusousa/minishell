@@ -11,6 +11,6 @@ char    *expanded_str(const t_envp *env, const char *str, bool follow_dq);
 bool    match_wildcard(const char *exp, const char *str);
 char    **expand_cwd_wildcards(const char *wild_string);
 int     heredoc_fd(t_minishell *sh, const char *delimiter);
-char    *expanded(const t_envp *env, const char *str, bool vars);
+char    *expanded(const t_envp *env, const char *str, bool vars, bool quotes);
 #endif
 

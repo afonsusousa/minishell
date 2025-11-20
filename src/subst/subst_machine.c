@@ -24,7 +24,7 @@ typedef struct s_quote_machine
     const char  *str;
     size_t      str_pos;
     size_t      str_len;
-    char         ch;
+    char        ch;
     char        buffer[ARG_MAX];
     size_t      buff_pos;
 } t_quote_machine;
@@ -75,7 +75,8 @@ void    sm_init(t_quote_machine *sm, const char *str)
 }
 
 //TODO: is_valid needs fixing (allows much more characters!!)
-char *expanded(const t_envp *env, const char *str, bool vars)
+char *expanded(const t_envp *env, const char *str,
+    const bool vars, const bool quotes)
 {
     t_quote_machine sm;
     const char *var;
@@ -85,18 +86,18 @@ char *expanded(const t_envp *env, const char *str, bool vars)
     {
         if (sm.curr == DEFAULT)
         {
-            if (sm.ch == '\'')
+            if (quotes && sm.ch == '\'')
                sm_trasition(&sm, IN_SQ);
-            else if (sm.ch == '"')
+            else if (quotes && sm.ch == '"')
                 sm_trasition(&sm, IN_DQ);
-            else if (sm.ch == '$' && vars)
+            else if (vars && sm.ch == '$')
                 sm_trasition(&sm, IN_VAR);
             else
                 sm_consume(&sm);
         }
         else if (sm.curr == IN_DQ)
         {
-            if (sm.ch == '$' && vars)
+            if (vars && sm.ch == '$')
                 sm_trasition(&sm, IN_VAR);
             else if (sm.ch == '"')
                 sm_trasition(&sm, DEFAULT);
