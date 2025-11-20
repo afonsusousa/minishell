@@ -71,7 +71,7 @@ t_ast		*parse_command(t_minishell *sh)
             && ++argc)
             argv = strjoinjoin(argv, get_double_from_str(sh->ts->tk->lexeme));
         else if (is_redir_ahead(sh->ts))
-            redirs = parse_core_redirs(sh);
+            ast_list_push_list(&redirs, parse_core_redirs(sh));
         else
             break ;
     }

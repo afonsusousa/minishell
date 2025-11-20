@@ -47,6 +47,23 @@ t_ast_list	*ast_list_push(t_ast_list **head, t_ast *node)
 	return new_list_node;
 }
 
+void	ast_list_push_list(t_ast_list **head, t_ast_list *list)
+{
+	t_ast_list	*current;
+
+	if (head == NULL || list == NULL)
+		return ;
+	if (*head == NULL)
+	{
+		*head = list;
+		return ;
+	}
+	current = *head;
+	while (current->next != NULL)
+		current = current->next;
+	current->next = list;
+}
+
 void	ast_list_free(t_ast_list *lst)
 {
 	t_ast_list	*n;
