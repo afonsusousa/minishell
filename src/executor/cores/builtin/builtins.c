@@ -110,6 +110,20 @@ int exit_builtin(t_minishell *sh, char **argv, int argc)
     exit(code);
 }
 
+int echo(char **argv, int argc)
+{
+    size_t i;
+
+    i = 1;
+    while (i < (size_t) argc)
+    {
+        printf ("%s%.*s", argv[i], i != (size_t) argc - 1, " ");
+        i++;
+    }
+    printf("\n");
+    return (1);
+}
+
 int exec_builtin(t_minishell *sh, char **argv, int argc)
 {
     if (ft_strcmp("export", argv[0]) == 0)
@@ -118,5 +132,7 @@ int exec_builtin(t_minishell *sh, char **argv, int argc)
         return (unset(sh, argv, argc));
     if (ft_strcmp("exit", argv[0]) == 0)
         return (exit_builtin(sh, argv, argc));
+    if (ft_strcmp("echo", argv[0]) == 0)
+        return (echo(argv, argc));
     return (1);
 }

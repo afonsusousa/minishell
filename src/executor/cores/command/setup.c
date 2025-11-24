@@ -12,47 +12,45 @@
 #include "../../../../lib/libft/libft.h"
 
 // parameter expansion -> wildcard expansion
+// THERE CAN ONLY BE WILDCARDS ON SINGLE WORD (if it were spaced, it would imply quotes!)
 static char **expand_argv_word(const t_minishell *sh, const char *word)
 {
     char *exp;
-    char **words;
     char **matches;
     char **result;
-    size_t i;
+    int  size;
 
     if (!word)
         return (NULL);
-    exp = expanded(sh->env, word, true, true);
+    exp = expanded(sh, word, EXPAND_VARS | CONSUME_QUOTES);
     if (!exp)
         return (NULL);
-    words = ft_split(exp, ' ');
-    free(exp);
-    if (!words)
-        return (get_double_from_str(word));
     result = NULL;
-    i = 0;
-    while (words[i])
+    if (*word != '\'' && *word != '"' && ft_strchr(exp, '*'))
+        matches = expand_cwd_wildcards(exp);
+    else
+        matches = NULL;
+    if (!matches)
+        result = strjoinjoin(result, get_double_from_str(exp));
+    else
     {
-        matches = expand_cwd_wildcards(words[i]);
-        if (!matches)
-            result = strjoinjoin(result, get_double_from_str(words[i]));
-        else
-            result = strjoinjoin(result, matches);
-        i++;
+        size = 0;
+        while (matches[size])
+            size++;
+        merge_sort_strings(matches, 0, size - 1);
+        result = strjoinjoin(result, matches);
     }
-    free_until_null(&words);
+    free(exp);
     if (!result)
         return (get_double_from_str(word));
     return (result);
 }
 
-char** argv_to_arr(const t_minishell* sh, const  char **words)
+char **argv_to_arr(const t_minishell *sh, const char **words)
 {
-    char    **argv;
-    char    **expanded_part;
-    int     size;
+    char **argv;
+    char **expanded_part;
 
-    size = 0;
     argv = NULL;
     if (!words)
         return (NULL);
@@ -61,13 +59,10 @@ char** argv_to_arr(const t_minishell* sh, const  char **words)
         expanded_part = expand_argv_word(sh, *words++);
         argv = strjoinjoin(argv, expanded_part);
     }
-    while (argv && argv[size])
-        size++;
-    merge_sort_strings(&argv[1], 0, size - 2);
     return (argv);
 }
 
-void free_argv(char** argv)
+void free_argv(char **argv)
 {
     size_t i;
 
@@ -79,12 +74,11 @@ void free_argv(char** argv)
     free(argv);
 }
 
-//TODO: local access (./)
-char *find_path(char* cmd, char** envp)
+char *find_path(char *cmd, char **envp)
 {
     size_t i;
-    char** split_path;
-    char* try;
+    char **split_path;
+    char *try;
 
     i = 0;
     while (*envp && (ft_strncmp("PATH=", *envp, 5)))

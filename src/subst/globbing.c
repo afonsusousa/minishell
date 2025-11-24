@@ -113,7 +113,6 @@ char    **get_matches(char *cwd, char **wildstr)
     return (ret);
 }
 
-//ISSUE
 char    **expand_cwd_wildcards(const char *wild_string)
 {
     char **splt;

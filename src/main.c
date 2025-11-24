@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <linux/limits.h>
 #include <readline/readline.h>
 #include "../includes/sig.h"
 #include "../includes/tokens.h"
@@ -10,14 +11,16 @@
 #include "../includes/envp.h"
 #include "../includes/executor.h"
 #include "../includes/globbing.h"
+#include "../lib/libft/libft.h"
 
 int     exec_line(t_minishell *sh)
 {
     sh->aborted_parse = false;
     token_stream_init(sh);
+    free(sh->line);
     parse(sh);
     token_stream_free(sh->ts);
-    print_ast(sh->ast, 0);
+    //print_ast(sh->ast, 0);
     if (sh->aborted_parse || !sh->ast)
         return (sh->last_status);
     exec_ast(sh);
@@ -36,11 +39,30 @@ int     rl_loop(t_minishell *sh)
             break;
         if (*sh->line != '\0')
             exec_line(sh);
-        free(sh->line);
         sh->line = NULL;
     }
     minishell_free(sh);
     return (true);
+}
+
+static void notty_line(t_minishell *sh)
+{
+    ssize_t  rd;
+    char     c;
+    char     *cursor;
+
+    sh->line = ft_calloc(ARG_MAX, sizeof(char));
+    cursor = sh->line;
+    while (true)
+    {
+        rd = read(0, &c, 1);
+        if (rd < 0)
+            perror("read:");
+        else if (rd)
+            *cursor++ = c;
+        else
+            break;
+    }
 }
 
 int main(int argc, char **argv, char **envp)
@@ -60,7 +82,15 @@ int main(int argc, char **argv, char **envp)
     sh.ctx = &ctx;
     if (argc > 1)
     {
-        sh.line = argv[1];
+        sh.line = ft_strdup(argv[1]);
+        exec_line(&sh);
+        minishell_free(&sh);
+        return (sh.last_status);
+    }
+    i = 0;
+    if (!isatty(STDIN_FILENO))
+    {
+        notty_line(&sh);
         exec_line(&sh);
         minishell_free(&sh);
         return (sh.last_status);

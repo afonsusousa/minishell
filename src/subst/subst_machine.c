@@ -3,19 +3,12 @@
 //
 
 #include <ctype.h>
-#include <linux/limits.h>
+#include <stdlib.h>
 
 #include "../../includes/envp.h"
 #include "../../includes/utils.h"
 #include "../../lib/libft/libft.h"
-
-typedef enum s_state
-{
-    DEFAULT = 0,
-    IN_DQ,
-    IN_SQ,
-    IN_VAR
-} t_state;
+#include "../../includes/globbing.h"
 
 typedef struct s_quote_machine
 {
@@ -78,29 +71,28 @@ void    sm_init(t_quote_machine *sm, const char *str)
 }
 
 //TODO: is_valid needs fixing (allows much more characters!!)
-char *expanded(const t_envp *env, const char *str,
-    const bool vars, const bool quotes)
+char *expanded(const t_minishell *sh, const char *str, int flags)
 {
     t_quote_machine sm;
-    const char *var;
+    char *var;
 
     sm_init(&sm, str);
     while (sm.ch)
     {
         if (sm.curr == DEFAULT)
         {
-            if (quotes && sm.ch == '\'')
+            if (flags & CONSUME_QUOTES && sm.ch == '\'')
                sm_trasition(&sm, IN_SQ);
-            else if (quotes && sm.ch == '"')
+            else if (flags & CONSUME_QUOTES && sm.ch == '"')
                 sm_trasition(&sm, IN_DQ);
-            else if (vars && sm.ch == '$')
+            else if (flags & EXPAND_VARS && sm.ch == '$')
                 sm_trasition(&sm, IN_VAR);
             else
                 sm_consume(&sm);
         }
         else if (sm.curr == IN_DQ)
         {
-            if (vars && sm.ch == '$')
+            if (flags & EXPAND_VARS && sm.ch == '$')
                 sm_trasition(&sm, IN_VAR);
             else if (sm.ch == '"')
                 sm_trasition(&sm, DEFAULT);
@@ -116,19 +108,31 @@ char *expanded(const t_envp *env, const char *str,
         }
         else if (sm.curr == IN_VAR)
         {
-            //TODO: check this !is_valid behaviour
-            if (!is_valid(sm.ch))
+            //TODO: check this !is_valid behaviour, ? has to come with a leading space
+            if (!is_valid(sm.ch) && sm.ch != '?')
             {
+                sm_cat(&sm, "$");
                 while (!isspace(sm.ch) && sm.ch)
                     sm_consume(&sm);
                 sm_laststate(&sm);
+                continue ;
             }
-            var = envp_getvar_value(env, &sm.str[sm.str_pos]);
+            var = envp_getvar_value(sh, &sm.str[sm.str_pos]);
             sm_cat(&sm, var);
-            while (is_valid(sm.ch))
+            if (var)
+                free(var);
+            while (is_valid(sm.ch) || sm.ch == '?')
                 sm_advance(&sm);
             sm_laststate(&sm);
         }
     }
     return (ft_strdup(sm.buffer));
+}
+
+char *expanded_gambiarra(t_envp *env, const char *str, int flags)
+{
+    t_minishell gambiarra;
+
+    gambiarra.env = env;
+    return (expanded(&gambiarra, str, flags));
 }

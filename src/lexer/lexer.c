@@ -70,7 +70,6 @@ static int	handle_quotes(t_lexer *lx, int *sq, int *dq)
     return (0);
 }
 
-//TODO: fully move append distinction to a saner place
 static t_token_type			evaluate_assign(const t_token *t)
 {
     size_t i;

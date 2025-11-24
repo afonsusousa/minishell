@@ -8,6 +8,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+typedef struct s_minishell t_minishell;
+
 typedef struct s_var
 {
     char *name;
@@ -34,7 +36,7 @@ char        **get_envp_array(const t_envp *env, bool export);
 
 // Setters
 t_var       *envp_setvar(t_envp *env, const char *var, bool export);
-const char  *envp_getvar_value(const t_envp *env, const char *name);
+char        *envp_getvar_value(const t_minishell *sh, const char *name);
 bool        envp_unsetvar(t_envp *env, const char *name);
 t_var       *envp_append_var(t_envp *env, const char *append, bool export);
 

@@ -6,6 +6,8 @@
 #include "../../includes/envp.h"
 #include <ctype.h>
 #include <stdlib.h>
+#include <string.h>
+#include "globbing.h"
 #include "../../includes/utils.h"
 #include "../../lib/libft/libft.h"
 
@@ -21,16 +23,22 @@ size_t key_len(const char *str)
 
 char    *name_from_assign(const char *assign)
 {
-    if (!ft_strchr(assign, '='))
+    const char *end;
+
+    end = ft_strchr(assign, '=');
+    if (!end)
         return (ft_strdup(assign));
-    return (ft_strndup(assign, key_len((assign))));
+    return (ft_substr(assign, 0, end - assign));
 }
 
 char    *value_from_assign(const char *assign)
 {
-    if (!ft_strchr(assign, '='))
+    const char  *start;
+
+    start = ft_strchr(assign, '=');
+    if (!start)
        return (NULL);
-    return (ft_strdup(assign + key_len(assign) + 1));
+    return (ft_strdup(start + 1));
 }
 
 t_var   *new_var(const char *assign, const bool export)
@@ -88,6 +96,7 @@ t_var *envp_getvar(const t_envp *env, const char *name)
     return NULL;
 }
 
+// expannsions here
 t_var     *envp_setvar(t_envp *env, const char *var, bool export)
 {
     t_var *new;
@@ -102,7 +111,7 @@ t_var     *envp_setvar(t_envp *env, const char *var, bool export)
         if (new->value)
             free(new->value);
         if (var[klen] == '=')
-            new->value = ft_strdup(&var[klen + 1]);
+            new->value = expanded_gambiarra(env, &var[klen + 1], CONSUME_QUOTES & EXPAND_VARS);
         return (new);
     }
     new = new_var(var, export);
@@ -110,16 +119,18 @@ t_var     *envp_setvar(t_envp *env, const char *var, bool export)
     return (new);
 }
 
-const char     *envp_getvar_value(const t_envp *env, const char *name)
+char     *envp_getvar_value(const t_minishell *sh, const char *name)
 {
     t_var *var;
 
-    if (!env || !name)
+    if (!sh->env || !name)
         return NULL;
-    var = envp_getvar(env, name);
+    var = envp_getvar(sh->env, name);
+    if (!var && ft_strcmp(name, "?") == 0)
+        return (ft_itoa(sh->last_status));
     if (!var)
-        return NULL;
-    return ((const char *)var->value);
+        return (NULL);
+    return (ft_strdup(var->value));
 }
 
 bool   envp_unsetvar(t_envp *env, const char *name)
@@ -169,13 +180,19 @@ t_var *envp_append_var(t_envp *env, const char *append, bool export)
 {
     t_var	*var;
     char    *join;
+    char    *exp;
 
     var = envp_getvar(env, append);
     if (!var)
         return (envp_setvar(env, append, export));
-    //expanded
-    join = ft_strjoin(var->value, ft_strchr(append, '=') + 1);
-    free(var->value);
+    exp = NULL;
+    exp = expanded_gambiarra(env, ft_strchr(append, '=') + 1,
+        CONSUME_QUOTES & EXPAND_VARS);
+    join = ft_strjoin(var->value, exp);
+    if (exp)
+        free(exp);
+    if (var->value)
+        free(var->value);
     var->value = join;
     return (var);
 }

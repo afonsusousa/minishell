@@ -33,7 +33,7 @@ static char *expand_heredoc_line(t_minishell *sh, char **line, bool expand)
 
     if (!expand || !*line)
         return (*line);
-    ret = expanded(sh->env, *line, true, false);
+    ret = expanded(sh, *line, EXPAND_VARS);
     free(*line);
     *line = ret;
     return (ret);
@@ -95,7 +95,7 @@ void heredoc_setup(t_minishell *sh, int heredoc[2])
     sh->heredoc.del = (char *) sh->ts->tk->lexeme;
     sh->heredoc.quoted = is_quoted(sh->heredoc.del);
     if (sh->heredoc.quoted)
-        sh->heredoc.del = expanded(NULL, sh->heredoc.del, false, true);
+        sh->heredoc.del = expanded(sh, sh->heredoc.del, CONSUME_QUOTES);
     if (pipe(sh->heredoc.fd) != 0)
         return ;
     sh->heredoc.pid = fork();
