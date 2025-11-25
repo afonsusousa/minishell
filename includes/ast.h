@@ -44,7 +44,6 @@ typedef struct s_ast {
             int        argc;
             const char **argv;
             t_ast_list *redirs;
-            int         fd[2];
         } command;
 
         struct

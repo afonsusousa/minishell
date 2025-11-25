@@ -8,14 +8,13 @@
 #include "ast.h"
 #include "tokens.h"
 #include "envp.h"
-#include "libft.h"
 
 typedef struct s_pipeline
 {
-    int     pipefd[2];
-    int     prev_read;
     pid_t   pids[256];
     size_t  count;
+    int     pipefd[2];
+    int     io[2];
 } t_pipeline;
 
 typedef struct s_heredoc

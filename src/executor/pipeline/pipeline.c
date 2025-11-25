@@ -4,74 +4,86 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
-
 #include "../../../includes/minishell.h"
 #include "../../../includes/executor.h"
-#include "pipeline.h"
 
-static bool is_core_builtin(const t_ast *core)
+
+static int setup_fds(const t_minishell *sh)
 {
-    if (!core)
-        return (false);
-    if (core->type == AST_COMMAND && core->as.command.argv
-        && core->as.command.argv[0])
-        return (is_builtin(core->as.command.argv[0]));
-    return (false);
+    if (sh->pipeline.io[READ_END] != STDIN_FILENO &&
+        dup2(sh->pipeline.io[READ_END], STDIN_FILENO) < 0)
+            return (perror("dup2"), 1);
+    if (sh->pipeline.io[WRITE_END] != STDOUT_FILENO
+        && dup2(sh->pipeline.io[WRITE_END], STDOUT_FILENO) < 0)
+            return (perror("dup2"), 1);
+    return (0);
 }
 
-static void exec_pipeline_child(t_minishell *sh, const t_pipeline *pipeline,
-                                   const t_ast *node, const bool has_next)
+static int fork_core(t_minishell *sh, const t_ast *core)
 {
-    int status;
+    int     status;
+    pid_t   pid;
 
-    if (setup_child_fds(pipeline, has_next) != 0)
-        exit(1);
-    status = exec_core(sh, node, true);
-    minishell_free(sh);
-    exit(status);
-}
-
-static int exec_pipeline_loop(t_minishell *sh, const t_ast_list *cores)
-{
-    t_pipeline *pipeline;
-
-    pipeline = &sh->pipeline;
-    while (cores)
+    pid = fork();
+    if (pid < 0)
+        return (-1);
+    if (pid == 0)
     {
-        if (setup_pipe(pipeline, cores->next != NULL) != 0)
-            return (1);
-        pipeline->pids[pipeline->count] = fork();
-        if (pipeline->pids[pipeline->count] < 0)
-            return (handle_fork_error(pipeline, cores->next != NULL));
-        if (pipeline->pids[pipeline->count] == 0)
-            exec_pipeline_child(sh, pipeline, cores->node, cores->next != NULL);
-        close_parent_fds(pipeline, cores->next != NULL);
-        pipeline->count++;
-        cores = cores->next;
+        if (setup_fds(sh) != 0)
+            exit(1);
+        sh->pipeline.count = 0;
+        status = exec_core(sh, core, true);
+        minishell_free(sh);
+        exit(status);
+    }
+    sh->pipeline.pids[sh->pipeline.count++] = pid;
+    return (0);
+}
+
+static int exec_pipeline_core(t_minishell *sh, const t_ast_list *core)
+{
+    sh->pipeline.io[WRITE_END] = STDOUT_FILENO;
+    if (core->next)
+    {
+        if (pipe(sh->pipeline.pipefd) < 0)
+        {
+            if (sh->pipeline.io[READ_END] != STDIN_FILENO)
+                close(sh->pipeline.io[READ_END]);
+            return (perror("pipe"), 1);
+        }
+        sh->pipeline.io[WRITE_END] = sh->pipeline.pipefd[WRITE_END];
+    }
+    if (fork_core(sh, core->node) < 0)
+        return (pipeline_fork_error(sh, core));
+    if (sh->pipeline.io[READ_END] != STDIN_FILENO)
+        close(sh->pipeline.io[READ_END]);
+    if (core->next)
+    {
+        close(sh->pipeline.pipefd[WRITE_END]);
+        sh->pipeline.io[READ_END] = sh->pipeline.pipefd[READ_END];
     }
     return (0);
 }
 
-int exec_pipeline(t_minishell* sh, const t_ast_list* cores)
+int exec_pipeline(t_minishell *sh, const t_ast_list *cores)
 {
-    int         status;
-    t_pipeline  *pipeline;
+    const t_ast_list    *curr;
 
+    sh->pipeline.count = 0;
+    sh->pipeline.io[READ_END] = -1;
+    sh->pipeline.io[WRITE_END] = -1;
     if (!cores)
         return (0);
     if (!cores->next && is_core_builtin(cores->node))
         return (exec_core(sh, cores->node, false));
-    pipeline = &sh->pipeline;
-    memset(pipeline, 0, sizeof(t_pipeline));
-    pipeline->prev_read = -1;
-    if (exec_pipeline_loop(sh, cores) != 0)
-        return (1);
-    if (pipeline->prev_read != -1)
-        close(pipeline->prev_read);
-    status = wait_pids(pipeline);
-    sh->last_status = status;
-    return (status);
+    curr = cores;
+    sh->pipeline.io[READ_END] = STDIN_FILENO;
+    while (curr && sh->pipeline.count < 256)
+    {
+        if (exec_pipeline_core(sh, curr) != 0)
+            return (1);
+        curr = curr->next;
+    }
+    return (wait_pids((&sh->pipeline)));
 }
-

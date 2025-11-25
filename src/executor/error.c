@@ -21,16 +21,3 @@ void print_dup2_error(void)
     ft_putstr_fd(strerror(errno), STDERR_FILENO);
     ft_putstr_fd("\n", STDERR_FILENO);
 }
-
-int handle_fork_error(const t_pipeline *pipeline, const bool has_next)
-{
-    perror("fork");
-    if (has_next)
-    {
-        close(pipeline->pipefd[0]);
-        close(pipeline->pipefd[1]);
-    }
-    if (pipeline->prev_read != -1)
-        close(pipeline->prev_read);
-    return (1);
-}

@@ -35,10 +35,17 @@ void	free_argv(char **argv);
 int     execve_wrapper(t_minishell* sh, char** argv, int argc);
 bool    is_builtin(const char *word);
 
+// Pipeline helpers
+
+# define READ_END 0
+# define WRITE_END 1
+bool    is_core_builtin(const t_ast *core);
+int     pipeline_fork_error(t_minishell *sh, const t_ast_list *curr);
+int     wait_pids(const t_pipeline *pipeline);
+
 // Error
 void    print_open_error(const char *filename);
 void    print_dup2_error(void);
-int     handle_fork_error(const t_pipeline *pipeline, bool has_next);
 
 
 #endif /* MINISHELL_EXECUTOR_H */
