@@ -40,7 +40,7 @@ t_ast *parse_redir(t_minishell *sh)
     {
         heredoc_setup(sh, redir->as.redir.target.heredoc);
         if (sh->aborted_parse || redir->as.redir.target.heredoc[1] == -1)
-            return (ast_free(redir), NULL);
+            return (NULL);
     }
     else if (ts_match(sh->ts, TOK_WORD))
     {

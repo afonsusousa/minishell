@@ -54,7 +54,7 @@ static void run_heredoc_child(t_minishell *sh)
         if (ft_strcmp(line, sh->heredoc.del) == 0)
         {
             free(line);
-            break;
+            break ;
         }
         write(write_fd, line, ft_strlen(line));
         write(write_fd, "\n", 1);
