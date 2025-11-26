@@ -16,9 +16,9 @@ t_ast_list	*parse_core_redirs(t_minishell *sh)
     {
         redir_node = parse_redir(sh);
         if (!redir_node)
-            break;
+            break ;
         if (ast_list_push(&redirs, redir_node) == NULL)
-            break;
+            break ;
     }
     return (redirs);
 }
@@ -43,9 +43,7 @@ t_ast *parse_redir(t_minishell *sh)
             return (NULL);
     }
     else if (ts_match(sh->ts, TOK_WORD))
-    {
         redir->as.redir.target.file_name = ft_strdup(sh->ts->tk->lexeme);
-    }
     else
         return (parser_abort_error(sh), ast_free(redir), NULL);
     return (redir);

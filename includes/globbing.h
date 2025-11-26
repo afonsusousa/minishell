@@ -7,7 +7,8 @@
 # include "envp.h"
 
 #define CONSUME_QUOTES 0x01
-#define EXPAND_VARS 0x02
+#define ECHO 0x02
+#define EXPAND_VARS 0x04
 
 typedef enum s_state
 {

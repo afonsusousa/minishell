@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <readline/readline.h>
 
-void sigint_handler(int signum)
+void sigint_handler(const int signum)
 {
     (void)signum;
     write(1, "\n", 1);

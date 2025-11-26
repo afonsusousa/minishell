@@ -68,7 +68,7 @@ bool is_append(const char *str)
     return (false);
 }
 
-int export(const t_minishell *sh, char **argv, int argc)
+int exec_export(const t_minishell *sh, char **argv, int argc)
 {
     t_var *var;
     (void) argc;
@@ -87,7 +87,7 @@ int export(const t_minishell *sh, char **argv, int argc)
     return (0);
 }
 
-int unset(t_minishell *sh, char **argv, int argc)
+int exec_unset(t_minishell *sh, char **argv, int argc)
 {
     (void) argc;
     if (argv[1] == NULL)
@@ -97,7 +97,7 @@ int unset(t_minishell *sh, char **argv, int argc)
     return (0);
 }
 
-int exit_builtin(t_minishell *sh, char **argv, int argc)
+int exec_exit(t_minishell *sh, char **argv, int argc)
 {
     int code;
 
@@ -110,29 +110,46 @@ int exit_builtin(t_minishell *sh, char **argv, int argc)
     exit(code);
 }
 
-int echo(char **argv, int argc)
+int exec_echo(char **argv, int argc)
 {
     size_t i;
+    bool    n;
 
     i = 1;
+    n = false;
     while (i < (size_t) argc)
     {
-        printf ("%s%.*s", argv[i], i != (size_t) argc - 1, " ");
+        if (!ft_strcmp(argv[i], "-n"))
+            printf("%s%.*s", argv[i], i != (size_t) argc - 1, " ");
+        else
+            n = true;
         i++;
     }
-    printf("\n");
+    printf("%.*s", n, "\n");
     return (1);
 }
+
+int exec_pwd(char **argv, int argc);
+
+int exec_env(char **argv, int argc);
+
+int exec_cd(char **argv, int argc);
 
 int exec_builtin(t_minishell *sh, char **argv, int argc)
 {
     if (ft_strcmp("export", argv[0]) == 0)
-        return (export(sh, argv, argc));
+        return (exec_export(sh, argv, argc));
     if (ft_strcmp("unset", argv[0]) == 0)
-        return (unset(sh, argv, argc));
+        return (exec_unset(sh, argv, argc));
     if (ft_strcmp("exit", argv[0]) == 0)
-        return (exit_builtin(sh, argv, argc));
+        return (exec_exit(sh, argv, argc));
     if (ft_strcmp("echo", argv[0]) == 0)
-        return (echo(argv, argc));
+        return (exec_echo(argv, argc));
+    if (ft_strcmp("pwd", argv[0]) == 0)
+        return (exec_pwd(argv, argc));
+    if (ft_strcmp("env", argv[0]) == 0)
+        return (exec_env(argv, argc));
+    if (ft_strcmp("cd", argv[0]) == 0)
+        return (exec_cd(argv, argc));
     return (1);
 }
