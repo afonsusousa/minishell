@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include "../../includes/minishell.h"
 #include <fcntl.h>
+
+#include "libft.h"
 #include "../../includes/globbing.h"
 #include "../../includes/executor.h"
 
@@ -52,7 +54,10 @@ static int handle_redir_node(const t_ast *node)
     {
         fd = open_redir_file(node->as.redir.kind, filename);
         if (fd < 0)
-            return (print_open_error(filename), 1);
+        {
+            write(2, "minishell: ", 11);
+            return (perror(filename), 1); //check return code later
+        }
     }
     else
         fd = node->as.redir.target.heredoc[0];
