@@ -1,11 +1,6 @@
-expansions
-substitutions
-syntax error logging
+more syntax error logging
 graceful exit
 assignment is_valid
-builtins
-exit code expansion and number expansion $? $3
-history
 assignment do not go to env
 export only exports non-empty variables
 ctrl-d on non empty line
