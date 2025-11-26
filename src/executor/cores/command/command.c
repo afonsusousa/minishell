@@ -38,7 +38,8 @@ int execve_wrapper(t_minishell* sh, char** argv, int argc)
     argv[0] = find_path(argv[0], env_arr);
     minishell_free(sh);
     execve(argv[0], argv, env_arr);
-    perror("execve");
+    write(2, "execve: ", 8);
+    perror(*argv);
     exit(127);
 }
 

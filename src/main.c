@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <linux/limits.h>
 #include <readline/readline.h>
+#include    <readline/history.h>
 #include "../includes/sig.h"
 #include "../includes/tokens.h"
 #include "../includes/parser.h"
@@ -17,6 +18,7 @@ int     exec_line(t_minishell *sh)
 {
     sh->aborted_parse = false;
     token_stream_init(sh);
+    add_history(sh->line);
     free(sh->line);
     parse(sh);
     token_stream_free(sh->ts);

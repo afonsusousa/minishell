@@ -8,3 +8,6 @@ exit code expansion and number expansion $? $3
 history
 assignment do not go to env
 export only exports non-empty variables
+ctrl-d on non empty line
+joinjoin coupled with double_From_Str = leaks (inevitable)
+ASSIGNMENTS
