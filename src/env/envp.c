@@ -54,6 +54,19 @@ t_var   *new_var(const char *assign, const bool export)
     return (var);
 }
 
+t_var   *new_var_pair(const char *name, const char *value, const bool export)
+{
+    t_var *var;
+    var = ft_calloc(sizeof(t_var), 1);
+    if (!var)
+        return NULL;
+    var->name = ft_strdup(name);
+    var->value = ft_strdup(value);
+    var->export = export;
+    var->len = key_len(name);
+    return (var);
+}
+
 t_var *envp_push(t_envp *env, t_var *node)
 {
     t_var *iter;
@@ -112,9 +125,33 @@ t_var     *envp_setvar(t_envp *env, const char *var, bool export)
             free(new->value);
         if (var[klen] == '=')
             new->value = expanded_gambiarra(env, &var[klen + 1], CONSUME_QUOTES & EXPAND_VARS);
+        new->export = export;
         return (new);
     }
     new = new_var(var, export);
+    envp_push(env, new);
+    return (new);
+}
+
+t_var     *envp_setvar_pair(t_envp *env, const char *name, const char *value, bool export)
+{
+    t_var *new;
+
+    if (!env || !name)
+        return NULL;
+    new = envp_getvar(env, name);
+    if (new)
+    {
+        if (new->value)
+            free(new->value);
+        if (value)
+            new->value = expanded_gambiarra(env, value, CONSUME_QUOTES & EXPAND_VARS);
+        else
+            new->value = NULL;
+        new->export = export;
+        return (new);
+    }
+    new = new_var_pair(name, value, export);
     envp_push(env, new);
     return (new);
 }
@@ -197,6 +234,7 @@ t_var *envp_append_var(t_envp *env, const char *append, bool export)
     return (var);
 }
 
+//review every single export
 char    **get_envp_array(const t_envp *env, bool export)
 {
     char **ret;
@@ -213,10 +251,13 @@ char    **get_envp_array(const t_envp *env, bool export)
     while (var && (size_t)(pos - ret) < env->count)
     {
         if (export && !var->export)
-            continue;
+        {
+            var = var->next;
+            continue ;
+        }
         if (var->value)
             *pos++ = strjoin_three(var->name, "=", var->value);
-        else
+        else if (!export)
             *pos++ = strjoin_three(var->name, "", "");
         var = var->next;
     }

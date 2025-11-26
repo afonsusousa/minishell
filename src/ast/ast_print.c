@@ -29,7 +29,7 @@ static void print_strs(const char **strs)
         printf("[N/A]\n");
         return ;
     }
-    for (auto s = strs; s && *s; s++)
+for (const char **s = strs; s && *s; s++)
     {
         printf("[\"%s\"]", *s);
         if (s[1])

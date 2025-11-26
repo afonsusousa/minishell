@@ -36,6 +36,7 @@ char        **get_envp_array(const t_envp *env, bool export);
 
 // Setters
 t_var       *envp_setvar(t_envp *env, const char *var, bool export);
+t_var       *envp_setvar_pair(t_envp *env, const char *name, const char *value, bool export);
 char        *envp_getvar_value(const t_minishell *sh, const char *name);
 bool        envp_unsetvar(t_envp *env, const char *name);
 t_var       *envp_append_var(t_envp *env, const char *append, bool export);

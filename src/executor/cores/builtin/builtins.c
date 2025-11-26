@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <linux/limits.h>
 #include "libft.h"
 //tira +
 // char    *sanitize_assignment(const char *str)
@@ -116,24 +117,79 @@ int exec_echo(char **argv, int argc)
     bool    n;
 
     i = 1;
-    n = false;
+    n = true;
     while (i < (size_t) argc)
     {
-        if (!ft_strcmp(argv[i], "-n"))
+        if (ft_strcmp(argv[i], "-n") != 0)
             printf("%s%.*s", argv[i], i != (size_t) argc - 1, " ");
         else
-            n = true;
+            n = false;
         i++;
     }
     printf("%.*s", n, "\n");
     return (1);
 }
 
-int exec_pwd(char **argv, int argc);
+int exec_pwd(t_minishell *sh, char **argv, int argc)
+{
+    char pwd[ARG_MAX];
 
-int exec_env(char **argv, int argc);
+    (void)sh;
+    (void)argv;
+    (void)argc;
+    getcwd(pwd, ARG_MAX);
+    printf("%s\n", pwd);
+    return (0);
+}
 
-int exec_cd(char **argv, int argc);
+int exec_env(t_minishell *sh, char **argv, int argc)
+{
+    (void) argv;
+    (void) argc;
+    char **env;
+
+    //review export later
+    env = get_envp_array(sh->env, false);
+    while (env && *env)
+        printf("%s\n", *env++);
+    return (0);
+}
+
+int exec_cd(t_minishell *sh, char **argv, int argc)
+{
+    int ret;
+    char path[ARG_MAX];
+    char oldpwd[ARG_MAX];
+    char *home;
+
+    if (argc > 2)
+    {
+        write(2, "minishell: cd: too many arguments\n", 34);
+        return (1);
+    }
+    else if (argc == 1)
+    {
+        home = envp_getvar_value(sh, "HOME");
+        if (home)
+            ft_strlcpy(path, home, ARG_MAX);
+        else
+        {
+            write(2, "bash: cd: HOME not set\n", 24);
+            return (1);
+        }
+    }
+    else if (!*argv[1])
+        ft_strlcpy(path, ".", 2);
+    else
+        ft_strlcpy(path, argv[1], ARG_MAX);
+    getcwd(oldpwd, ARG_MAX);
+    ret = chdir(path);
+    if (ret == -1)
+        return (perror("cd:"), 1);
+    envp_setvar_pair(sh->env, "OLDPWD", oldpwd, true);
+    envp_setvar_pair(sh->env, "PWD", getcwd(path, ARG_MAX), true);
+    return (0);
+}
 
 int exec_builtin(t_minishell *sh, char **argv, int argc)
 {
@@ -146,10 +202,10 @@ int exec_builtin(t_minishell *sh, char **argv, int argc)
     if (ft_strcmp("echo", argv[0]) == 0)
         return (exec_echo(argv, argc));
     if (ft_strcmp("pwd", argv[0]) == 0)
-        return (exec_pwd(argv, argc));
+        return (exec_pwd(sh, argv, argc));
     if (ft_strcmp("env", argv[0]) == 0)
-        return (exec_env(argv, argc));
+        return (exec_env(sh, argv, argc));
     if (ft_strcmp("cd", argv[0]) == 0)
-        return (exec_cd(argv, argc));
+        return (exec_cd(sh, argv, argc));
     return (1);
 }
