@@ -31,7 +31,13 @@ SRCS := \
 	$(SRC_DIR)/executor/redirs.c \
 	$(SRC_DIR)/executor/error.c \
 	$(SRC_DIR)/executor/cores/builtin/builtins.c \
+	$(SRC_DIR)/executor/cores/builtin/cd.c \
+	$(SRC_DIR)/executor/cores/builtin/echo.c \
 	$(SRC_DIR)/executor/cores/builtin/export.c \
+	$(SRC_DIR)/executor/cores/builtin/env.c \
+	$(SRC_DIR)/executor/cores/builtin/exit.c \
+	$(SRC_DIR)/executor/cores/builtin/pwd.c \
+	$(SRC_DIR)/executor/cores/builtin/unset.c \
 	$(SRC_DIR)/executor/cores/command/command.c \
 	$(SRC_DIR)/executor/cores/command/setup.c \
 	$(SRC_DIR)/executor/cores/command/utils.c \
