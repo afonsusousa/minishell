@@ -22,7 +22,7 @@ int     exec_line(t_minishell *sh)
     free(sh->line);
     parse(sh);
     token_stream_free(sh->ts);
-    //print_ast(sh->ast, 0);
+    print_ast(sh->ast, 0);
     if (sh->aborted_parse || !sh->ast)
         return (sh->last_status);
     exec_ast(sh);

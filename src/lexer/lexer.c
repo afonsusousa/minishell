@@ -120,12 +120,6 @@ void	lexer_read_word(t_lexer *lexer, t_token *token)
                     lexer->position - start);
 }
 
-void lexer_skip_space(t_lexer *lexer)
-{
-    while (is_space(lexer->ch))
-        lexer_read_char(lexer);
-}
-
 t_token   *token_new(const t_token_type type)
 {
     t_token *token;
@@ -178,7 +172,8 @@ bool    lexer_next_smeta(t_lexer *lexer)
 
 t_token *lexer_next_token(t_lexer *lexer)
 {
-    lexer_skip_space(lexer);
+    while (is_space(lexer->ch))
+        lexer_read_char(lexer);
     if (lexer->ch == '\0')
         lexer->tk = token_new(TOK_EOF);
     else if (lexer_next_dmeta(lexer) || lexer_next_smeta(lexer))

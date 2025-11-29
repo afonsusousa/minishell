@@ -19,7 +19,6 @@ static int exec_assignments(t_minishell* sh, const char **a, bool context)
     if (context)
         env = sh->ctx;
     while (a && *a)
-        //sub??
         if (envp_setvar(env, *a++, context) == NULL)
             return (1);
     return (0);
@@ -59,6 +58,7 @@ int exec_command(t_minishell* sh, const t_ast* core)
     if (!argv)
         return (0);
     status = execve_wrapper(sh, argv, core->as.command.argc);
+    free_envp(sh->ctx);
     free_argv(argv);
     sh->last_status = status;
     return (status);

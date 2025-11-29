@@ -97,7 +97,10 @@ bool token_stream_fill(t_token_stream *ts, t_lexer *lexer)
     }
     ts->position = 0;
     ts->read_position = 0;
-    ts->tk = NULL;
+    if (ts->count > 0)
+        ts->tk = &ts->tokens[ts->read_position];
+    else
+        ts->tk = NULL;
     return (true);
 }
 

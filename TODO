@@ -2,7 +2,6 @@ more syntax error logging
 graceful exit
 assignment is_valid
 assignment do not go to env
-export only exports non-empty variables
-ctrl-d on non empty line
+ :) export only exports non-empty variables
 joinjoin coupled with double_From_Str = leaks (inevitable)
-ASSIGNMENTS
+ :) ASSIGNMENTS

@@ -235,7 +235,7 @@ t_var *envp_append_var(t_envp *env, const char *append, bool export)
 }
 
 //review every single export
-char    **get_envp_array(const t_envp *env, bool export)
+char    **get_envp_array(const t_envp *env, bool populated_only)
 {
     char **ret;
     char **pos;
@@ -250,14 +250,14 @@ char    **get_envp_array(const t_envp *env, bool export)
     var = env->head;
     while (var && (size_t)(pos - ret) < env->count)
     {
-        if (export && !var->export)
+        if (!var->export)
         {
             var = var->next;
             continue ;
         }
         if (var->value)
             *pos++ = strjoin_three(var->name, "=", var->value);
-        else if (!export)
+        else if (populated_only)
             *pos++ = strjoin_three(var->name, "", "");
         var = var->next;
     }
