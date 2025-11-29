@@ -13,7 +13,7 @@ int exec_exit(t_minishell *sh, char **argv, const int argc)
     if (argc == 2)
         code = ft_atoi(argv[1]);
     else if (argc > 2)
-        write(2, "minishell: exit: too many arguments\n", 36);
+        return ((write(2, "minishell: exit: too many arguments\n", 36) | 0) & 2);
     minishell_free(sh);
     exit(code);
 }

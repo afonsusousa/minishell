@@ -2,7 +2,7 @@
 
 #include "../../../../includes/minishell.h"
 #include "../../../../includes/executor.h"
-#include "utils.h"
+#include "../../../../includes/utils.h"
 
 int exec_env(const t_minishell *sh, char **argv, const int argc)
 {
@@ -15,6 +15,7 @@ int exec_env(const t_minishell *sh, char **argv, const int argc)
     env =  strjoinjoin(env, get_envp_array(sh->ctx, true));
     while (env && *env)
         printf("%s\n", *env++);
+    free_until_null(&env);
     return (0);
 }
 

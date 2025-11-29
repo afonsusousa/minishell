@@ -109,10 +109,10 @@ char *expanded(const t_minishell *sh, const char *str, int flags)
         else if (sm.curr == IN_VAR)
         {
             //TODO: check this !is_valid behaviour, ? has to come with a leading space
-            if (!is_valid(sm.ch) && sm.ch != '?')
+            if (sm.ch != '?' || isspace(sm.ch))
             {
                 sm_cat(&sm, "$");
-                while (!isspace(sm.ch) && sm.ch)
+                while (!isspace(sm.ch) && sm.ch && sm.ch != '"' && sm.ch != '\'') //review this later
                     sm_consume(&sm);
                 sm_laststate(&sm);
                 continue ;

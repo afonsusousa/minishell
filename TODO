@@ -5,3 +5,4 @@ assignment do not go to env
  :) export only exports non-empty variables
 joinjoin coupled with double_From_Str = leaks (inevitable)
  :) ASSIGNMENTS
+builtin argument check;
