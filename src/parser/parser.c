@@ -14,7 +14,7 @@ t_ast	*parse_command_line(t_minishell *sh)
     int		term;
     t_ast	*list_node;
 
-    if (sh->aborted_parse)
+    if (sh->aborted_parse || ts_match(sh->ts, TOK_EOF))
         return (NULL);
     list_node = parse_or_list(sh);
     if (!list_node || sh->aborted_parse)

@@ -80,5 +80,6 @@ void    parser_abort(t_minishell *sh)
 void    parser_abort_error(t_minishell *sh)
 {
     get_token_name(ts_peek(sh->ts));
+    sh->last_status = 2;
     parser_abort(sh);
 }

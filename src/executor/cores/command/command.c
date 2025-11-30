@@ -6,10 +6,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #include "../../../../includes/minishell.h"
 #include "../../../../includes/executor.h"
 #include "../../../../includes/utils.h"
+#include "../../../../lib/libft/libft.h"
 
 static int exec_assignments(t_minishell* sh, const char **a, bool context)
 {
@@ -27,6 +29,7 @@ static int exec_assignments(t_minishell* sh, const char **a, bool context)
 int execve_wrapper(t_minishell* sh, char** argv, int argc)
 {
     char** env_arr;
+    struct stat path_stat;
 
     if (!argv || !argv[0])
         return (0);
@@ -37,8 +40,15 @@ int execve_wrapper(t_minishell* sh, char** argv, int argc)
     argv[0] = find_path(argv[0], env_arr);
     minishell_free(sh);
     execve(argv[0], argv, env_arr);
-    write(2, "execve: ", 8);
-    perror(*argv);
+    write(2, "minishell: ", 11);
+    write(2, argv[0], ft_strlen(argv[0]));
+    if (stat(argv[0], &path_stat) == 0 && S_ISDIR(path_stat.st_mode))
+    {
+        write(2, ": Is a directory\n", 17);
+        exit(126);
+    }
+    write(2, ": ", 2);
+    perror(NULL);
     exit(127);
 }
 

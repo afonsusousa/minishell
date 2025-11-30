@@ -163,7 +163,7 @@ char     *envp_getvar_value(const t_minishell *sh, const char *name)
     if (!sh->env || !name)
         return NULL;
     var = envp_getvar(sh->env, name);
-    if (!var && ft_strcmp(name, "?") == 0)
+    if (!var && *name == '?' && !is_valid(name[1]))
         return (ft_itoa(sh->last_status));
     if (!var)
         return (NULL);

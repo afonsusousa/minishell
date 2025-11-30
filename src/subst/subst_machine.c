@@ -109,7 +109,7 @@ char *expanded(const t_minishell *sh, const char *str, int flags)
         else if (sm.curr == IN_VAR)
         {
             //TODO: check this !is_valid behaviour, ? has to come with a leading space
-            if (sm.ch != '?' || isspace(sm.ch))
+            if ((sm.ch != '?' && !is_valid(sm.str[sm.str_pos + 1])) || isspace(sm.ch))
             {
                 sm_cat(&sm, "$");
                 while (!isspace(sm.ch) && sm.ch && sm.ch != '"' && sm.ch != '\'') //review this later

@@ -81,6 +81,14 @@ char *find_path(char *cmd, char **envp)
     char *try;
 
     i = 0;
+    if (ft_strchr(cmd, '/'))
+    {
+        if (access(cmd, F_OK) == 0 && access(cmd, X_OK) != 0)
+            return (ft_strdup(cmd));
+        if (access(cmd, F_OK) == 0)
+            return (ft_strdup(cmd));
+        return (ft_strdup(cmd));
+    }
     while (*envp && (ft_strncmp("PATH=", *envp, 5)))
         envp++;
     if (!*envp)

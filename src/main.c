@@ -18,9 +18,9 @@ int     exec_line(t_minishell *sh)
 {
     sh->aborted_parse = false;
     token_stream_init(sh);
+    parse(sh);
     add_history(sh->line);
     free(sh->line);
-    parse(sh);
     token_stream_free(sh->ts);
     //print_ast(sh->ast, 0);
     if (sh->aborted_parse || !sh->ast)
@@ -47,23 +47,31 @@ int     rl_loop(t_minishell *sh)
     return (true);
 }
 
-static void notty_line(t_minishell *sh)
+static int notty_line(t_minishell *sh)
 {
     ssize_t  rd;
     char     c;
     char     *cursor;
+    char     *line;
 
-    sh->line = ft_calloc(ARG_MAX, sizeof(char));
-    cursor = sh->line;
+    line = ft_calloc(ARG_MAX, sizeof(char));
+    if (!line)
+        return (0);
+    cursor = line;
     while (true)
     {
         rd = read(0, &c, 1);
         if (rd < 0)
-            perror("read:");
-        else if (rd)
-            *cursor++ = c;
-        else
-            break;
+            return (free(line), perror("read:"), 0);
+        if (rd == 0 || c == '\n')
+        {
+            if (cursor == line && rd == 0)
+                return (free(line), 0);
+            *cursor = '\0';
+            sh->line = line;
+            return (1);
+        }
+        *cursor++ = c;
     }
 }
 
@@ -92,8 +100,12 @@ int main(int argc, char **argv, char **envp)
     i = 0;
     if (!isatty(STDIN_FILENO))
     {
-        notty_line(&sh);
-        exec_line(&sh);
+        while (notty_line(&sh))
+        {
+            if (sh.line && *sh.line != '\0')
+                exec_line(&sh);
+            sh.line = NULL;
+        }
         minishell_free(&sh);
         return (sh.last_status);
     }

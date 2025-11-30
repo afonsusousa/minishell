@@ -13,7 +13,7 @@ int exec_cd(const t_minishell *sh, char **argv, const int argc)
     char *home;
 
     if (argc > 2)
-        return ((write(2, "minishell: cd: too many arguments\n", 34) & 0) | 1);
+        return ((write(2, "minishell: cd: too many arguments\n", 34) & 0) | 2);
     if (argc == 1)
     {
         home = envp_getvar_value(sh, "HOME");

@@ -11,15 +11,20 @@ int exec_echo(char **argv, const int argc)
 
     i = 1;
     n = true;
+    if (argc > 1 && ft_strcmp(argv[1], "-n") == 0)
+    {
+        n = false;
+        i = 2;
+    }
     while (i < (size_t) argc)
     {
-        if (ft_strcmp(argv[i], "-n") != 0)
-            printf("%s%.*s", argv[i], i != (size_t) argc - 1, " ");
-        else
-            n = false;
+        printf("%s", argv[i]);
+        if (i != (size_t) argc - 1)
+            printf(" ");
         i++;
     }
-    printf("%.*s", n, "\n");
-    return (1);
+    if (n)
+        printf("\n");
+    return (0);
 }
 
