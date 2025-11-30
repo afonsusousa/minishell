@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <unistd.h>
+#include <ctype.h>
 #include "../../../../includes/minishell.h"
 #include "../../../../includes/executor.h"
 #include "../../../../includes/utils.h"
@@ -30,7 +31,7 @@ static char **expand_argv_word(const t_minishell *sh, const char *word)
         matches = expand_cwd_wildcards(exp);
     else
         matches = NULL;
-    if (!matches)
+    if (!matches || !*matches)
         result = strjoinjoin(result, get_double_from_str(exp));
     else
     {
@@ -40,24 +41,41 @@ static char **expand_argv_word(const t_minishell *sh, const char *word)
         merge_sort_strings(matches, 0, size - 1);
         result = strjoinjoin(result, matches);
     }
-    free(exp);
     if (!result)
-        return (get_double_from_str(word));
-    return (result);
+        return (free(exp), get_double_from_str(word));
+    return (free(exp), result);
 }
 
 char **argv_to_arr(const t_minishell *sh, const char **words)
 {
     char **argv;
     char **expanded_part;
+    char **split;
+    int i;
 
     argv = NULL;
     if (!words)
         return (NULL);
     while (words && *words)
     {
-        expanded_part = expand_argv_word(sh, *words++);
+        expanded_part = expand_argv_word(sh, *words);
+        if (!ft_strchr(*words, '"') && !ft_strchr(*words, '\''))
+        {
+            if (expanded_part && expanded_part[0] && ft_strchr(expanded_part[0], ' '))
+            {
+                split = ft_split(expanded_part[0], ' ');
+                i = 1;
+                while (expanded_part[i])
+                {
+                    split = strjoinjoin(split, get_double_from_str(expanded_part[i]));
+                    i++;
+                }
+                free_until_null(&expanded_part);
+                expanded_part = split;
+            }
+        }
         argv = strjoinjoin(argv, expanded_part);
+        words++;
     }
     return (argv);
 }

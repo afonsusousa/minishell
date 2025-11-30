@@ -18,6 +18,11 @@ int exec_echo(char **argv, const int argc)
     }
     while (i < (size_t) argc)
     {
+        if (ft_strcmp(argv[i], "-n") == 0)
+        {
+            i++;
+            continue;
+        }
         printf("%s", argv[i]);
         if (i != (size_t) argc - 1)
             printf(" ");

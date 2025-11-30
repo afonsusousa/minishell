@@ -45,7 +45,7 @@ int execve_wrapper(t_minishell* sh, char** argv, int argc)
     if (stat(argv[0], &path_stat) == 0 && S_ISDIR(path_stat.st_mode))
     {
         write(2, ": Is a directory\n", 17);
-        exit(126);
+        exit(127);
     }
     write(2, ": ", 2);
     perror(NULL);

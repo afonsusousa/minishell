@@ -4,6 +4,7 @@
 
 #include <ctype.h>
 #include <stdlib.h>
+#include <readline/readline.h>
 
 #include "../../includes/envp.h"
 #include "../../includes/utils.h"
@@ -77,7 +78,7 @@ char *expanded(const t_minishell *sh, const char *str, int flags)
     char *var;
 
     sm_init(&sm, str);
-    while (sm.ch)
+    while (sm.ch || sm.curr == IN_VAR)
     {
         if (sm.curr == DEFAULT)
         {
@@ -108,22 +109,24 @@ char *expanded(const t_minishell *sh, const char *str, int flags)
         }
         else if (sm.curr == IN_VAR)
         {
-            //TODO: check this !is_valid behaviour, ? has to come with a leading space
-            if ((sm.ch != '?' && !is_valid(sm.str[sm.str_pos + 1])) || isspace(sm.ch))
+            if (is_valid(sm.ch) || sm.ch == '?')
+            {
+                var = envp_getvar_value(sh, &sm.str[sm.str_pos]);
+                sm_cat(&sm, var);
+                if (var)
+                    free(var);
+                while (is_valid(sm.ch) || sm.ch == '?')
+                    sm_advance(&sm);
+                sm_laststate(&sm);
+            }
+            else if ((sm.ch == '"' && sm.prev != IN_DQ)
+                || (sm.ch == '\'' && sm.prev != IN_SQ))
+                sm_laststate(&sm);
+            else
             {
                 sm_cat(&sm, "$");
-                while (!isspace(sm.ch) && sm.ch && sm.ch != '"' && sm.ch != '\'') //review this later
-                    sm_consume(&sm);
                 sm_laststate(&sm);
-                continue ;
             }
-            var = envp_getvar_value(sh, &sm.str[sm.str_pos]);
-            sm_cat(&sm, var);
-            if (var)
-                free(var);
-            while (is_valid(sm.ch) || sm.ch == '?')
-                sm_advance(&sm);
-            sm_laststate(&sm);
         }
     }
     return (ft_strdup(sm.buffer));
