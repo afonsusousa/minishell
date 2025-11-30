@@ -37,7 +37,7 @@ int execve_wrapper(t_minishell* sh, char** argv, int argc)
         return (exec_builtin(sh, argv, argc));
     env_arr = get_envp_array(sh->env, true);
     env_arr = strjoinjoin(env_arr, get_envp_array(sh->ctx, true));
-    argv[0] = find_path(argv[0], env_arr);
+    argv[0] = find_path(sh, argv[0]);
     minishell_free(sh);
     execve(argv[0], argv, env_arr);
     write(2, "minishell: ", 11);
@@ -45,7 +45,7 @@ int execve_wrapper(t_minishell* sh, char** argv, int argc)
     if (stat(argv[0], &path_stat) == 0 && S_ISDIR(path_stat.st_mode))
     {
         write(2, ": Is a directory\n", 17);
-        exit(127);
+        exit(126);
     }
     write(2, ": ", 2);
     perror(NULL);

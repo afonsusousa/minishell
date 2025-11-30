@@ -36,7 +36,7 @@ int     exec_redirs(t_minishell* sh, const t_ast_list* r);
 int     get_redir_fd(t_token_type r);
 
 // Commands execution helpers
-char    *find_path(char* cmd, char** envp);
+char    *find_path(t_minishell *sh, char* cmd);
 char	**argv_to_arr(const t_minishell *sh, const char **iter);
 void	free_argv(char **argv);
 int     execve_wrapper(t_minishell* sh, char** argv, int argc);

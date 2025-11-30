@@ -18,5 +18,7 @@ int exec_builtin(t_minishell *sh, char **argv, int argc)
         return (exec_pwd(sh, argv, argc));
     if (ft_strcmp("unset", *argv) == 0)
         return (exec_unset(sh, argv, argc));
+    if (ft_strcmp("..", *argv) == 0)
+        return (exec_cd(sh, argv, argc));
     return (1);
 }

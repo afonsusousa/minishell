@@ -17,5 +17,6 @@ bool is_builtin (const char *word)
         || ft_strcmp("env", word) == 0
         || ft_strcmp("pwd", word) == 0
         || ft_strcmp("exit", word) == 0
+        || ft_strcmp("..", word) == 0
         );
 }

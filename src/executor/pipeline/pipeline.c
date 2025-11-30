@@ -79,7 +79,7 @@ int exec_pipeline(t_minishell *sh, const t_ast_list *cores)
         return (exec_core(sh, cores->node, false));
     curr = cores;
     sh->pipeline.io[READ_END] = STDIN_FILENO;
-    while (curr && sh->pipeline.count < 256)
+    while (curr && sh->pipeline.count < 128)
     {
         if (exec_pipeline_core(sh, curr) != 0)
             return (1);
