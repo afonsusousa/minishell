@@ -1,0 +1,80 @@
+//
+// Created by afonsusousa on 11/30/25.
+//
+
+#include <stdlib.h>
+#include <unistd.h>
+#include "../../../../includes/minishell.h"
+#include "../../../../includes/executor.h"
+#include "../../../../includes/utils.h"
+#include "../../../../lib/libft/libft.h"
+
+char *expand_tilde(const t_minishell *sh, char *cmd)
+{
+    char *home;
+    char *expanded;
+
+    if (cmd[0] != '~')
+        return (NULL);
+    home = envp_getvar_value(sh, "HOME");
+    if (!home)
+        return (ft_strdup(cmd));
+    if (cmd[1] == '\0')
+        expanded = ft_strdup(home);
+    else if (cmd[1] == '/')
+        expanded = strjoin_three(home, "", &cmd[1]);
+    else
+        expanded = ft_strdup(cmd);
+    free(home);
+    if (!expanded)
+        return (ft_strdup(cmd));
+    return (expanded);
+}
+
+static char *search_path(t_minishell *sh, char *cmd)
+{
+    size_t i;
+    char **split_path;
+    char *try;
+    char *path;
+
+    path = envp_getvar_value(sh, "PATH");
+    if (!path)
+        return (NULL);
+    split_path = ft_split(path, ':');
+    free(path);
+    if (!split_path)
+        return (NULL);
+    i = 0;
+    while (split_path[i] && ft_strcmp(cmd, ".") != 0)
+    {
+        try = strjoin_three(split_path[i++], "/", cmd);
+        if (!try)
+            return (free_until_null(&split_path), NULL);
+        if (access(try, X_OK) == 0)
+            return (free_until_null(&split_path), try);
+        free(try);
+    }
+    return (free_until_null(&split_path), ft_strdup(cmd));
+}
+
+char *find_path(t_minishell *sh, char *cmd)
+{
+    char *expanded_cmd;
+
+    expanded_cmd = expand_tilde(sh, cmd);
+    if (!expanded_cmd)
+        expanded_cmd = cmd;
+    if (ft_strchr(expanded_cmd, '/'))
+    {
+        if (access(expanded_cmd, F_OK) == 0)
+            return (expanded_cmd);
+        if (expanded_cmd != cmd)
+            free(expanded_cmd);
+        return (ft_strdup(cmd));
+    }
+    if (expanded_cmd != cmd)
+        free(expanded_cmd);
+    return (search_path(sh, cmd));
+}
+

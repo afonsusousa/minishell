@@ -40,6 +40,7 @@ SRCS := \
 	$(SRC_DIR)/executor/cores/builtin/unset.c \
 	$(SRC_DIR)/executor/cores/command/command.c \
 	$(SRC_DIR)/executor/cores/command/setup.c \
+	$(SRC_DIR)/executor/cores/command/path_finding.c \
 	$(SRC_DIR)/executor/cores/command/utils.c \
 	$(SRC_DIR)/executor/pipeline/pipeline.c \
 	$(SRC_DIR)/executor/pipeline/utils.c \
