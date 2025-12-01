@@ -9,27 +9,7 @@
 #include "../../../../includes/utils.h"
 #include "../../../../lib/libft/libft.h"
 
-char *expand_tilde(const t_minishell *sh, char *cmd)
-{
-    char *home;
-    char *expanded;
 
-    if (cmd[0] != '~')
-        return (NULL);
-    home = envp_getvar_value(sh, "HOME");
-    if (!home)
-        return (ft_strdup(cmd));
-    if (cmd[1] == '\0')
-        expanded = ft_strdup(home);
-    else if (cmd[1] == '/')
-        expanded = strjoin_three(home, "", &cmd[1]);
-    else
-        expanded = ft_strdup(cmd);
-    free(home);
-    if (!expanded)
-        return (ft_strdup(cmd));
-    return (expanded);
-}
 
 static char *search_path(t_minishell *sh, char *cmd)
 {
@@ -46,7 +26,7 @@ static char *search_path(t_minishell *sh, char *cmd)
     if (!split_path)
         return (NULL);
     i = 0;
-    while (split_path[i] && ft_strcmp(cmd, ".") != 0)
+    while (split_path[i] && ft_strcmp(cmd, ".") != 0 && *cmd)
     {
         try = strjoin_three(split_path[i++], "/", cmd);
         if (!try)

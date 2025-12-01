@@ -20,7 +20,7 @@ int exec_cd(const t_minishell *sh, char **argv, const int argc)
         if (home)
             ft_strlcpy(path, home, ARG_MAX);
         else
-            return ((write(2, "bash: cd: HOME not set\n", 24)  & 0) | 1);
+            return ((write(2, "minishell: cd: HOME not set\n", 24)  & 0) | 1);
     }
     else if (!*argv[1])
         ft_strlcpy(path, ".", 2);
@@ -28,7 +28,12 @@ int exec_cd(const t_minishell *sh, char **argv, const int argc)
         ft_strlcpy(path, argv[1], ARG_MAX);
     getcwd(oldpwd, ARG_MAX);
     if (chdir(path) == -1)
-        return (perror("cd:"), 1);
+    {
+        write(2, "minishell: cd: ", 15);
+        write(2, path, ft_strlen(path));
+        write(2, ": ", 2);
+        return (perror(NULL), 1);
+    }
     envp_setvar_pair(sh->env, "OLDPWD", oldpwd, true);
     envp_setvar_pair(sh->env, "PWD", getcwd(path, ARG_MAX), true);
     return (0);

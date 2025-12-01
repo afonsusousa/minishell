@@ -18,8 +18,6 @@ typedef enum s_state
     IN_VAR
 } t_state ;
 
-
-
 size_t	needed_space(const t_envp *env, const char *str);
 size_t	check_copy(const t_envp *env, char *dest, const char *src_elem);
 char    *expanded_str(const t_envp *env, const char *str, bool follow_dq);
@@ -29,6 +27,7 @@ char    **expand_cwd_wildcards(const char *wild_string);
 int     heredoc_fd(t_minishell *sh, const char *delimiter);
 char    *expanded(const t_minishell *sh, const char *str, int flags);
 char    *expanded_gambiarra(t_envp *env, const char *str, int flags);
+char    **expand_argv_word(const t_minishell *sh, const char *word);
 
 #endif
 

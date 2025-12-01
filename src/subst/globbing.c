@@ -10,10 +10,8 @@
 #include "../../includes/globbing.h"
 #include "../../includes/utils.h"
 #include "../../lib/libft/libft.h"
-
 #include <stdio.h>
 #include <unistd.h>
-
 
 bool match_wildcard(const char *exp, const char *str)
 {
@@ -136,4 +134,3 @@ char    **expand_cwd_wildcards(const char *wild_string)
         return (get_double_from_str(wild_string));
     return (matches);
 }
-

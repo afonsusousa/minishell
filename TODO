@@ -1,7 +1,7 @@
 more syntax error logging
 graceful exit
 assignment is_valid
-assignment do not go to env
+assignment do not go to env -- it does, but stays invisible for printing
  :) export only exports non-empty variables
 joinjoin coupled with double_From_Str = leaks (inevitable)
  :) ASSIGNMENTS

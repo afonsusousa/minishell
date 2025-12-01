@@ -9,6 +9,7 @@
 #include <fcntl.h>
 
 #include "libft.h"
+#include "utils.h"
 #include "../../includes/globbing.h"
 #include "../../includes/executor.h"
 
@@ -33,47 +34,64 @@ static int open_redir_file(const t_token_type kind, const char *filename)
     return (fd);
 }
 
-static int apply_redir(const int fd, const t_token_type kind)
+static int handle_heredoc_redir(const t_ast *node)
 {
-    if (dup2(fd, get_redir_fd(kind)) < 0)
+    int fd;
+
+    fd = node->as.redir.target.heredoc[0];
+    if (fd < 0)
+        return (0);
+    if (dup2(fd, get_redir_fd(node->as.redir.kind)) < 0)
     {
         print_dup2_error();
         close(fd);
         return (1);
     }
+    close(fd);
     return (0);
 }
 
-static int handle_redir_node(const t_ast *node)
+static int handle_file_redir(t_minishell *sh, const t_ast *node)
 {
     int fd;
-    char *filename;
+    char **filename;
 
-    filename = (char *)node->as.redir.target.file_name;
-    if (node->as.redir.kind != TOK_HEREDOC)
+    filename = expand_argv_word(sh, (char *)node->as.redir.target.file_name);
+    if (filename && *filename && filename[1] != NULL)
     {
-        fd = open_redir_file(node->as.redir.kind, filename);
-        if (fd < 0)
-        {
-            write(2, "minishell: ", 11);
-            return (perror(filename), 1); //check return code later
-        }
+        write(2, "minishell: ", 11);
+        write(2, node->as.redir.target.file_name, ft_strlen(node->as.redir.target.file_name));
+        write(2, ": ambiguous redirect\n", 21);
+        return (1);
     }
-    else
-        fd = node->as.redir.target.heredoc[0];
-    if (fd >= 0 && apply_redir(fd, node->as.redir.kind) != 0)
-            return (1);
-    if (fd >= 0)
+    if (!filename)
+        return (0);
+    fd = open_redir_file(node->as.redir.kind, *filename);
+    if (fd < 0)
+        return (perror(*filename),
+            (write(2, "minishell: ", 11) & 0) | 1);
+    if (dup2(fd, get_redir_fd(node->as.redir.kind)) < 0)
+    {
+        print_dup2_error();
         close(fd);
+        return (1);
+    }
+    close(fd);
     return (0);
 }
 
 int exec_redirs(t_minishell* sh, const t_ast_list* r)
 {
+    int result;
+
     memset(&sh->heredoc, 0, sizeof(t_heredoc));
     while (r)
     {
-        if (handle_redir_node(r->node) != 0)
+        if (r->node->as.redir.kind == TOK_HEREDOC)
+            result = handle_heredoc_redir(r->node);
+        else
+            result = handle_file_redir(sh, r->node);
+        if (result != 0)
             return (1);
         r = r->next;
     }

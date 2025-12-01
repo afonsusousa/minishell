@@ -45,8 +45,9 @@ SRCS := \
 	$(SRC_DIR)/executor/pipeline/pipeline.c \
 	$(SRC_DIR)/executor/pipeline/utils.c \
 	$(SRC_DIR)/signal/signal.c \
-	$(SRC_DIR)/subst/subst_machine.c \
+	$(SRC_DIR)/subst/expansions.c \
 	$(SRC_DIR)/subst/globbing.c \
+	$(SRC_DIR)/subst/subst_machine.c \
 	$(SRC_DIR)/utils/sort.c \
 	$(SRC_DIR)/utils/utils.c
 
