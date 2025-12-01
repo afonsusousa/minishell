@@ -75,6 +75,8 @@ static char **process_entry(struct dirent *entry, t_word **wildstr, const char *
     char **ret;
 
     ret = NULL;
+    if ((ft_strcmp(entry->d_name, ".") == 0 || ft_strcmp(entry->d_name, "..") == 0))
+        return (NULL);
     if ((entry->d_name[0] != '.' || (*wildstr)->content[0] == '.')
         && match_wildcard(*wildstr, entry->d_name))
     {

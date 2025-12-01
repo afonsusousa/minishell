@@ -12,19 +12,19 @@
 t_ast	*parse_command_line(t_minishell *sh)
 {
     int		term;
-    t_ast	*list_node;
+    t_ast	*node;
 
     if (sh->aborted_parse || ts_match(sh->ts, TOK_EOF))
         return (NULL);
-    list_node = parse_or_list(sh);
-    if (!list_node || sh->aborted_parse)
+    node = parse_logical(sh);
+    if (!node || sh->aborted_parse)
         return (NULL);
     term = 0;
     if (ts_match(sh->ts, TOK_SEMI))
         term = ';';
     else if (ts_match(sh->ts, TOK_AMP))
         term = '&';
-    return (ast_make_command_line_node(list_node, term));
+    return (ast_make_command_line_node(node, term));
 }
 
 void parse(t_minishell *sh)

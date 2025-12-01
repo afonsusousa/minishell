@@ -8,9 +8,7 @@
 // Recursive Descent Parser
 void        parse(t_minishell *sh);
 t_ast		*parse_command_line(t_minishell *sh);
-t_ast		*parse_list(t_minishell *s);
-t_ast		*parse_or_list(t_minishell *sh);
-t_ast		*parse_and_list(t_minishell *sh);
+t_ast       *parse_logical(t_minishell *sh);
 t_ast		*parse_pipeline(t_minishell *sh);
 t_ast       *parse_core(t_minishell *sh);
 t_ast		*parse_command(t_minishell *sh);
