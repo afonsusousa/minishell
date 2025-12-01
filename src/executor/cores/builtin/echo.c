@@ -4,31 +4,39 @@
 #include "../../../../includes/utils.h"
 #include "../../../../lib/libft/libft.h"
 
+static bool is_n_flag(const char *arg)
+{
+    size_t j;
+
+    if (!arg || arg[0] != '-' || arg[1] != 'n')
+        return (false);
+    j = 1;
+    while (arg[j])
+    {
+        if (arg[j] != 'n')
+            return (false);
+        j++;
+    }
+    return (true);
+}
+
 int exec_echo(char **argv, const int argc)
 {
     size_t i;
-    bool    n;
+    bool    newline;
 
-    i = 1;
-    n = true;
-    if (argc > 1 && ft_strcmp(argv[1], "-n") == 0)
+    i = 0;
+    newline = true;
+    while (++i < (size_t)argc && is_n_flag(argv[i]))
+        newline = false;
+    while (i < (size_t)argc)
     {
-        n = false;
-        i = 2;
-    }
-    while (i < (size_t) argc)
-    {
-        if (ft_strcmp(argv[i], "-n") == 0)
-        {
-            i++;
-            continue;
-        }
         printf("%s", argv[i]);
-        if (i != (size_t) argc - 1)
+        if (i != (size_t)argc - 1)
             printf(" ");
         i++;
     }
-    if (n)
+    if (newline)
         printf("\n");
     return (0);
 }
