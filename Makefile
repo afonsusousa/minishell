@@ -50,7 +50,9 @@ SRCS := \
 	$(SRC_DIR)/subst/sm.c \
 	$(SRC_DIR)/subst/sm_operations.c \
 	$(SRC_DIR)/utils/sort.c \
-	$(SRC_DIR)/utils/utils.c
+	$(SRC_DIR)/utils/utils.c \
+	$(SRC_DIR)/utils/word_split.c \
+	$(SRC_DIR)/utils/word_utils.c
 
 OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)

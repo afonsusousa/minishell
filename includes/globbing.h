@@ -1,7 +1,6 @@
 #ifndef MINISHELL_SUBST_H
 # define MINISHELL_SUBST_H
 
-# include <linux/limits.h>
 # include "minishell.h"
 # include <stddef.h>
 # include "envp.h"
@@ -10,14 +9,16 @@
 #define ECHO 0x02
 #define EXPAND_VARS 0x04
 
+// Forward declaration
+typedef struct s_word t_word;
+
 size_t	needed_space(const t_envp *env, const char *str);
 size_t	check_copy(const t_envp *env, char *dest, const char *src_elem);
 char    *expanded_str(const t_envp *env, const char *str, bool follow_dq);
-bool    match_wildcard(const char *exp, const char *str);
-char    **get_matches(char *cwd, char **wildstr);
-char    **expand_cwd_wildcards(const char *wild_string);
+char    **get_matches(char *cwd, t_word **wildstr);
+char    **expand_cwd_wildcards(t_word *word);
 int     heredoc_fd(t_minishell *sh, const char *delimiter);
-char    *expanded(const t_minishell *sh, const char *str, int flags);
+t_word  *expanded(const t_minishell *sh, const char *str, int flags);
 char    *expanded_gambiarra(t_envp *env, const char *str, int flags);
 char    **expand_argv_word(const t_minishell *sh, const char *word);
 

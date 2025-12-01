@@ -32,20 +32,31 @@ void sm_laststate(t_quote_machine *sm)
 
 void sm_consume(t_quote_machine *sm)
 {
-    sm->buffer[sm->buff_pos++] = sm->ch;
+    sm->buffer[sm->buff_pos] = sm->ch;
+    sm->quoted_map[sm->buff_pos] = (sm->curr == IN_SQ || sm->curr == IN_DQ);
+    sm->buff_pos++;
     sm_advance(sm);
 }
 
 void sm_cat(t_quote_machine *sm, const char *str)
 {
+    bool quoted;
+
     if (!str)
         return ;
+    quoted = (sm->prev == IN_DQ || sm->prev == IN_SQ);
     while (*str && sm->buff_pos < ARG_MAX)
-        sm->buffer[sm->buff_pos++] = *str++;
+    {
+        sm->buffer[sm->buff_pos] = *str++;
+        sm->quoted_map[sm->buff_pos] = quoted;
+        sm->buff_pos++;
+    }
 }
 
 void    sm_init(t_quote_machine *sm, const char *str)
 {
+    size_t i;
+
     sm->str = str;
     sm->ch = *str;
     sm->str_pos = 0;
@@ -54,5 +65,8 @@ void    sm_init(t_quote_machine *sm, const char *str)
     sm->prev = DEFAULT;
     sm->str_len = ft_strlen(str);
     ft_bzero(sm->buffer, ARG_MAX);
+    i = 0;
+    while (i < ARG_MAX)
+        sm->quoted_map[i++] = false;
 }
 

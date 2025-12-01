@@ -1,9 +1,9 @@
 #ifndef MINISHELL_SUBST_MACHINE_H
 #define MINISHELL_SUBST_MACHINE_H
 
+#include <linux/limits.h>
 #include <stddef.h>
-#include "globbing.h"
-#include "utils.h"
+#include <stdbool.h>
 
 typedef enum s_sm_state
 {
@@ -22,8 +22,16 @@ typedef struct s_quote_machine
     size_t      str_len;
     char        ch;
     char        buffer[ARG_MAX];
+    bool        quoted_map[ARG_MAX];
     size_t      buff_pos;
 } t_quote_machine;
+
+typedef struct s_word
+{
+    char    *content;
+    bool    *quoted_map;
+    size_t  len;
+} t_word;
 
 void    sm_init(t_quote_machine *sm, const char *str);
 void    sm_advance(t_quote_machine *sm);

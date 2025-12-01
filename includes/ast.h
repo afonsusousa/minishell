@@ -4,8 +4,6 @@
 #include "lexer.h"
 
 struct s_ast;
-struct s_redir;
-struct s_word;
 
 typedef enum e_ast_type {
     AST_COMMAND_LINE,

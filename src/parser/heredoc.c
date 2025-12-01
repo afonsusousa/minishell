@@ -13,45 +13,59 @@
 #include <sys/types.h>
 #include "minishell.h"
 #include "sig.h"
+#include "sm.h"
 #include "utils.h"
 
-static int is_quoted(const char *delimiter)
+static bool has_quotes(const t_word *delimiter)
 {
-    while (*delimiter)
+    size_t i;
+
+    if (!delimiter || !delimiter->quoted_map)
+        return (false);
+    i = 0;
+    while (i < delimiter->len)
     {
-        if (*delimiter == '\'' || *delimiter == '"')
-            return (1);
-        delimiter++;
+        if (delimiter->quoted_map[i])
+            return (true);
+        i++;
     }
-    return (0);
+    return (false);
 }
 
 // TODO: checkout assign heredoc interplay
 static char *expand_heredoc_line(t_minishell *sh, char **line, bool expand)
 {
+    t_word *tracked;
     char *ret;
 
     if (!expand || !*line)
         return (*line);
-    ret = expanded(sh, *line, EXPAND_VARS);
+    tracked = expanded(sh, *line, EXPAND_VARS);
+    if (!tracked)
+        return (*line);
+    ret = ft_strdup(tracked->content);
+    word_free(tracked);
     free(*line);
     *line = ret;
     return (ret);
 }
+
 static void run_heredoc_child(t_minishell *sh)
 {
     char    *line;
     int     write_fd;
+    bool    should_expand;
 
     write_fd = sh->heredoc.fd[1];
     signal(SIGINT, SIG_DFL);
+    should_expand = !has_quotes(sh->heredoc.del);
     while (1)
     {
         line = readline("heredoc> ");
-        expand_heredoc_line(sh, &line, !sh->heredoc.quoted);
+        expand_heredoc_line(sh, &line, should_expand);
         if (!line)
-            break;
-        if (ft_strcmp(line, sh->heredoc.del) == 0)
+            break ;
+        if (ft_strcmp(line, sh->heredoc.del->content) == 0)
         {
             free(line);
             break ;
@@ -60,10 +74,8 @@ static void run_heredoc_child(t_minishell *sh)
         write(write_fd, "\n", 1);
         free(line);
     }
-    if (sh->heredoc.quoted)
-        free(sh->heredoc.del);
     close(write_fd);
-    minishell_free(sh);
+    word_free(sh->heredoc.del);
     exit(0);
 }
 
@@ -73,8 +85,7 @@ static void handle_heredoc_parent(t_minishell *sh, int heredoc[2])
     signal(SIGINT, SIG_IGN);
     waitpid(sh->heredoc.pid, &sh->heredoc.status, 0);
     signal(SIGINT, sigint_handler);
-    if (sh->heredoc.quoted == 1)
-        free(sh->heredoc.del);
+    word_free(sh->heredoc.del);
     if (WIFSIGNALED(sh->heredoc.status) && WTERMSIG(sh->heredoc.status) == SIGINT)
     {
         write(1, "\n", 1);
@@ -90,19 +101,20 @@ static void handle_heredoc_parent(t_minishell *sh, int heredoc[2])
 
 void heredoc_setup(t_minishell *sh, int heredoc[2])
 {
-    sh->heredoc.del = (char *) sh->ts->tk->lexeme;
-    sh->heredoc.quoted = is_quoted(sh->heredoc.del);
-    if (sh->heredoc.quoted)
-        sh->heredoc.del = expanded(sh, sh->heredoc.del, CONSUME_QUOTES);
-    if (pipe(sh->heredoc.fd) != 0)
+    sh->heredoc.del = expanded(sh,  sh->ts->tk->lexeme, CONSUME_QUOTES);
+    if (!sh->heredoc.del)
         return ;
+    if (pipe(sh->heredoc.fd) != 0)
+    {
+        word_free(sh->heredoc.del);
+        return ;
+    }
     sh->heredoc.pid = fork();
     if (sh->heredoc.pid < 0)
     {
         close(sh->heredoc.fd[0]);
         close(sh->heredoc.fd[1]);
-        if (sh->heredoc.quoted == 1)
-            free(sh->heredoc.del);
+        word_free(sh->heredoc.del);
         return;
     }
     if (sh->heredoc.pid == 0)

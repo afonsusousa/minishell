@@ -8,6 +8,9 @@
 #include "ast.h"
 #include "tokens.h"
 #include "envp.h"
+#include "globbing.h"
+
+typedef struct s_word t_word;
 
 typedef struct s_pipeline
 {
@@ -19,11 +22,10 @@ typedef struct s_pipeline
 
 typedef struct s_heredoc
 {
-    int     fd[2];
-    char    *del;
-    int     quoted;
-    pid_t   pid;
-    int     status;
+    int             fd[2];
+    t_word          *del;
+    pid_t           pid;
+    int             status;
 }   t_heredoc;
 
 typedef struct s_minishell

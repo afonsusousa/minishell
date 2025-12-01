@@ -2,44 +2,50 @@
 // Created by afonsusousa on 9/29/25.
 //
 
+#include <linux/limits.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
 #include "../../includes/minishell.h"
+#include "../../includes/sm.h"
 #include "../../includes/globbing.h"
 #include "../../includes/utils.h"
 #include "../../lib/libft/libft.h"
 #include <stdio.h>
 #include <unistd.h>
 
-bool match_wildcard(const char *exp, const char *str)
+static bool match_wildcard(const t_word *pattern, const char *str)
 {
     const char *star = NULL;
     const char *ss = NULL;
+    size_t     i = 0;
 
-    while (*str) {
-        if (*exp == '*')
+    if (!pattern || !pattern->content || !str)
+        return (false);
+    while (*str)
+    {
+        if (pattern->content[i] == '*' && !pattern->quoted_map[i])
         {
-            star = exp++;
+            star = &pattern->content[i++];
             ss = str;
         }
-        else if (*exp == *str)
+        else if (pattern->content[i] == *str)
         {
-            exp++;
+            i++;
             str++;
         }
         else if (star)
         {
-            exp = star + 1;
+            i = (star - pattern->content) + 1;
             str = ++ss;
         }
         else
             return false;
     }
-    while (*exp == '*')
-        exp++;
-    return *exp == '\0';
+    while (pattern->content[i] == '*' && !pattern->quoted_map[i])
+        i++;
+    return pattern->content[i] == '\0';
 }
 
 //WALLAÇOOOOO CARA DE PAU E PAU DE AÇO MEU ORGULHO
@@ -62,15 +68,14 @@ static DIR *setup_get_matches(char *cwd, char *path, struct dirent **entry)
     return (dir);
 }
 
-// maybe there'll be an issue with hidden files
-static char **process_entry(struct dirent *entry, char **wildstr, const char *path)
+static char **process_entry(struct dirent *entry, t_word **wildstr, const char *path)
 {
     char *next_call;
     DIR *dir;
     char **ret;
 
     ret = NULL;
-    if ((entry->d_name[0] != '.' || (*wildstr)[0] == '.')
+    if ((entry->d_name[0] != '.' || (*wildstr)->content[0] == '.')
         && match_wildcard(*wildstr, entry->d_name))
     {
         next_call = ft_strjoin(path, entry->d_name);
@@ -87,50 +92,28 @@ static char **process_entry(struct dirent *entry, char **wildstr, const char *pa
     return (ret);
 }
 
-char    **get_matches(char *cwd, char **wildstr)
+char    **get_matches(char *cwd, t_word **wildstr)
 {
     char            **ret;
     char            path[PATH_MAX];
-    DIR         	*dir[2];
+    DIR         	*dir;
     struct dirent   *entry;
 
-    ret = NULL;
-    dir[0] = setup_get_matches(cwd, path, &entry);
     if (!wildstr || !*wildstr)
     {
-        if (access(cwd, F_OK) == 0)
+        if (cwd && access(cwd, F_OK) == 0)
             return (get_double_from_str(cwd));
         return (NULL);
     }
+    ret = NULL;
+    dir = setup_get_matches(cwd, path, &entry);
+    if (!dir)
+        return (NULL);
     while (entry)
     {
         ret = strjoinjoin(ret, process_entry(entry, wildstr, path));
-        entry = readdir(dir[0]);
+        entry = readdir(dir);
     }
-    closedir(dir[0]);
+    closedir(dir);
     return (ret);
-}
-
-char    **expand_cwd_wildcards(const char *wild_string)
-{
-    char **splt;
-    char **matches;
-    bool has_wild;
-
-    if (!wild_string)
-        return (NULL);
-    has_wild = ft_strchr(wild_string, '*');
-    if (!has_wild)
-        return (get_double_from_str(wild_string));
-    splt = ft_split(wild_string, '/');
-    if (!splt)
-        return (NULL);
-    if (splt[1])
-        matches = get_matches(splt[0], &splt[1]);
-    else
-        matches = get_matches("", &splt[0]);
-    free_until_null(&splt);
-    if (!matches)
-        return (get_double_from_str(wild_string));
-    return (matches);
 }

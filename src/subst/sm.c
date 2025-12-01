@@ -21,19 +21,17 @@ static void handle_default_state(t_quote_machine *sm, int flags)
         sm_consume(sm);
 }
 
-static void handle_double_quote_state(t_quote_machine *sm, int flags)
+static void handle_quote_state(t_quote_machine *sm, int flags)
 {
-    if (flags & EXPAND_VARS && sm->ch == '$')
-        sm_trasition(sm, IN_VAR);
-    else if (sm->ch == '"')
-        sm_trasition(sm, DEFAULT);
-    else
-        sm_consume(sm);
-}
+    char quote_char;
 
-static void handle_single_quote_state(t_quote_machine *sm)
-{
-    if (sm->ch == '\'')
+    if (sm->curr == IN_SQ)
+        quote_char = '\'';
+    else
+        quote_char = '"';
+    if (sm->curr == IN_DQ && flags & EXPAND_VARS && sm->ch == '$')
+        sm_trasition(sm, IN_VAR);
+    else if (sm->ch == quote_char)
         sm_trasition(sm, DEFAULT);
     else
         sm_consume(sm);
@@ -67,29 +65,45 @@ static void handle_variable_state(t_quote_machine *sm, const t_minishell *sh)
 }
 
 //TODO: is_valid needs fixing (allows much more characters!!)
-char *expanded(const t_minishell *sh, const char *str, int flags)
+t_word *expanded(const t_minishell *sh, const char *str, int flags)
 {
     t_quote_machine sm;
+    t_word *result;
 
     sm_init(&sm, str);
     while (sm.ch || sm.curr == IN_VAR)
     {
         if (sm.curr == DEFAULT)
             handle_default_state(&sm, flags);
-        else if (sm.curr == IN_DQ)
-            handle_double_quote_state(&sm, flags);
-        else if (sm.curr == IN_SQ)
-            handle_single_quote_state(&sm);
+        else if (sm.curr == IN_DQ || sm.curr == IN_SQ)
+            handle_quote_state(&sm, flags);
         else if (sm.curr == IN_VAR)
             handle_variable_state(&sm, sh);
     }
-    return (ft_strdup(sm.buffer));
+    result = malloc(sizeof(t_word));
+    if (!result)
+        return (NULL);
+    result->content = ft_strdup(sm.buffer);
+    result->len = sm.buff_pos;
+    result->quoted_map = malloc(sizeof(bool) * (result->len + 1));
+    if (!result->quoted_map)
+        return (free(result->content), free(result), NULL);
+    ft_memcpy(result->quoted_map, sm.quoted_map, result->len * sizeof(bool));
+    result->quoted_map[result->len] = false;
+    return (result);
 }
 
 char *expanded_gambiarra(t_envp *env, const char *str, int flags)
 {
     t_minishell gambiarra;
+    t_word *tracked;
+    char *result;
 
     gambiarra.env = env;
-    return (expanded(&gambiarra, str, flags));
+    tracked = expanded(&gambiarra, str, flags);
+    if (!tracked)
+        return (NULL);
+    result = ft_strdup(tracked->content);
+    word_free(tracked);
+    return (result);
 }
