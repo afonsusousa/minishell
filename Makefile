@@ -47,7 +47,8 @@ SRCS := \
 	$(SRC_DIR)/signal/signal.c \
 	$(SRC_DIR)/subst/expansions.c \
 	$(SRC_DIR)/subst/globbing.c \
-	$(SRC_DIR)/subst/subst_machine.c \
+	$(SRC_DIR)/subst/sm.c \
+	$(SRC_DIR)/subst/sm_operations.c \
 	$(SRC_DIR)/utils/sort.c \
 	$(SRC_DIR)/utils/utils.c
 

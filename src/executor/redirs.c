@@ -68,8 +68,10 @@ static int handle_file_redir(t_minishell *sh, const t_ast *node)
         return (0);
     fd = open_redir_file(node->as.redir.kind, *filename);
     if (fd < 0)
-        return (perror(*filename),
-            (write(2, "minishell: ", 11) & 0) | 1);
+    {
+        write(2, "minishell: ", 11);
+        return (perror(*filename), 1);
+    }
     if (dup2(fd, get_redir_fd(node->as.redir.kind)) < 0)
     {
         print_dup2_error();

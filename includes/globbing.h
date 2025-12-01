@@ -10,14 +10,6 @@
 #define ECHO 0x02
 #define EXPAND_VARS 0x04
 
-typedef enum s_state
-{
-    DEFAULT = 0,
-    IN_DQ,
-    IN_SQ,
-    IN_VAR
-} t_state ;
-
 size_t	needed_space(const t_envp *env, const char *str);
 size_t	check_copy(const t_envp *env, char *dest, const char *src_elem);
 char    *expanded_str(const t_envp *env, const char *str, bool follow_dq);
