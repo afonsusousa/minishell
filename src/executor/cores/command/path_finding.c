@@ -9,8 +9,6 @@
 #include "../../../../includes/utils.h"
 #include "../../../../lib/libft/libft.h"
 
-
-
 static char *search_path(t_minishell *sh, char *cmd)
 {
     size_t i;

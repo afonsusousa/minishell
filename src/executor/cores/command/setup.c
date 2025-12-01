@@ -2,7 +2,6 @@
 // Created by afonsusousa on 10/18/25.
 //
 
-
 #include <stdlib.h>
 #include <unistd.h>
 #include "../../../../includes/minishell.h"
@@ -29,12 +28,9 @@ char **argv_to_arr(const t_minishell *sh, const char **words)
             if (expanded_part && expanded_part[0] && ft_strchr(expanded_part[0], ' '))
             {
                 split = ft_split(expanded_part[0], ' ');
-                i = 1;
-                while (expanded_part[i])
-                {
+                i = 0;
+                while (expanded_part[++i])
                     split = strjoinjoin(split, get_double_from_str(expanded_part[i]));
-                    i++;
-                }
                 free_until_null(&expanded_part);
                 expanded_part = split;
             }
