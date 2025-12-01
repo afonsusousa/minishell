@@ -60,11 +60,9 @@ static void run_heredoc_child(t_minishell *sh)
         write(write_fd, "\n", 1);
         free(line);
     }
-    if (sh->heredoc.quoted == 1)
-        free(sh->heredoc.del);
-    close(write_fd);
     if (sh->heredoc.quoted)
         free(sh->heredoc.del);
+    close(write_fd);
     minishell_free(sh);
     exit(0);
 }
