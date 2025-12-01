@@ -10,6 +10,26 @@
 #include "../../../../includes/globbing.h"
 #include "../../../../lib/libft/libft.h"
 
+static bool has_unquoted_var(const char *word)
+{
+    bool in_sq;
+    bool in_dq;
+
+    in_sq = false;
+    in_dq = false;
+    while (*word)
+    {
+        if (*word == '\'' && !in_dq)
+            in_sq = !in_sq;
+        else if (*word == '"' && !in_sq)
+            in_dq = !in_dq;
+        else if (*word == '$' && !in_sq && !in_dq && *(word + 1))
+            return (true);
+        word++;
+    }
+    return (false);
+}
+
 char **argv_to_arr(const t_minishell *sh, const char **words)
 {
     char **argv;
@@ -23,7 +43,7 @@ char **argv_to_arr(const t_minishell *sh, const char **words)
     while (words && *words)
     {
         expanded_part = expand_argv_word(sh, *words);
-        if (!ft_strchr(*words, '"') && !ft_strchr(*words, '\''))
+        if (has_unquoted_var(*words))
         {
             if (expanded_part && expanded_part[0] && ft_strchr(expanded_part[0], ' '))
             {
