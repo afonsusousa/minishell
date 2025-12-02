@@ -37,7 +37,7 @@ t_ast	*parse_grouping(t_minishell *sh)
         return (NULL);
     if (!ts_match(sh->ts, TOK_LPAREN))
         return (parser_abort_error(sh), NULL);
-    list = parse_command_line(sh);
+    list = parse_command_line(sh, true);
     if (!list || sh->aborted_parse)
         return (NULL);
     if (!ts_match(sh->ts, TOK_RPAREN))
