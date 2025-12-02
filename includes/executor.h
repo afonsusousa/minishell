@@ -38,7 +38,7 @@ int     get_redir_fd(t_token_type r);
 // Commands execution helpers
 char    *find_path(t_minishell *sh, char* cmd);
 char    *expand_tilde(const t_minishell *sh, char *cmd);
-char	**argv_to_arr(const t_minishell *sh, const char **iter);
+char	**argv_to_arr(const t_minishell *sh, const char **iter, int *argc);
 void	free_argv(char **argv);
 int     execve_wrapper(t_minishell* sh, char** argv, int argc);
 bool    is_builtin(const char *word);

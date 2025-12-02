@@ -15,15 +15,16 @@ typedef enum s_sm_state
 
 typedef struct s_quote_machine
 {
-    t_sm_state     curr;
-    t_sm_state     prev;
-    const char  *str;
-    size_t      str_pos;
-    size_t      str_len;
-    char        ch;
-    char        buffer[ARG_MAX];
-    bool        quoted_map[ARG_MAX];
-    size_t      buff_pos;
+    t_sm_state      curr;
+    t_sm_state      prev;
+    const char      *str;
+    size_t          str_pos;
+    size_t          str_len;
+    char            ch;
+    char            buffer[ARG_MAX];
+    bool            quoted_map[ARG_MAX];
+    size_t          buff_pos;
+    bool            nulled;
 } t_quote_machine;
 
 typedef struct s_word

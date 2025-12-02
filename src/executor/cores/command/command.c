@@ -73,7 +73,7 @@ int exec_command(t_minishell* sh, const t_ast* core)
     memset(sh->ctx, 0, sizeof(t_envp));
     if (!core || core->type != AST_COMMAND)
         return (1);
-    argv = argv_to_arr(sh, core->as.command.argv);
+    argv = argv_to_arr(sh, core->as.command.argv, (int *)&core->as.command.argc);
     if (exec_redirs(sh, core->as.command.redirs))
         return (1);
     if (exec_assignments(sh, core->as.command.assignments, argv != NULL))

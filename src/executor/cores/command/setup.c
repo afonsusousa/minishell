@@ -30,7 +30,7 @@ static bool has_unquoted_var(const char *word)
     return (false);
 }
 
-char **argv_to_arr(const t_minishell *sh, const char **words)
+char **argv_to_arr(const t_minishell *sh, const char **words, int *argc)
 {
     char **argv;
     char **expanded_part;
@@ -38,6 +38,7 @@ char **argv_to_arr(const t_minishell *sh, const char **words)
     int i;
 
     argv = NULL;
+    *argc = 0;
     if (!words)
         return (NULL);
     while (words && *words)
@@ -55,6 +56,7 @@ char **argv_to_arr(const t_minishell *sh, const char **words)
                 expanded_part = split;
             }
         }
+        *argc += expanded_part != NULL;
         argv = strjoinjoin(argv, expanded_part);
         words++;
     }
