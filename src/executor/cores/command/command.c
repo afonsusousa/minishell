@@ -32,19 +32,17 @@ static void execve_error(const char *cmd)
     struct stat path_stat;
 
     write(2, "minishell: ", 11);
+    write(2, cmd, ft_strlen(cmd));
+    write(2, ": ", 2);
+    if (!ft_strchr(cmd, '/'))
+        exit((write(2, "command not found\n", 18) & 0) | 127);
     if (stat(cmd, &path_stat) == 0 && S_ISDIR(path_stat.st_mode))
-    {
-        write(2, cmd, ft_strlen(cmd));
-        write(2, ": Is a directory\n", 17);
-        exit(126);
-    }
-    if (errno == ENOENT || (errno == 13 && !ft_strchr(cmd, '/')))
-    {
-        write(2, cmd, ft_strlen(cmd));
-        write(2, ": command not found\n", 20);
-        exit(127);
-    }
-    perror(cmd);
+        exit((write(2, "Is a directory\n", 15) & 0) | 126);
+    if (errno == EACCES)
+        exit((write(2, "Permission denied\n", 18) & 0) | 126);
+    if (errno == ENOENT)
+        exit((write(2, "No such file or directory\n", 26) & 0) | 127);
+    perror("");
     exit(126);
 }
 
