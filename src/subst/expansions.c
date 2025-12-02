@@ -60,17 +60,20 @@ static t_word **build_result(t_word *exp_result, t_word **matches)
         if (!cstr_array)
             return (NULL);
         merge_sort_strings(cstr_array, 0, size - 1);
-        result = malloc(sizeof(t_word *) * (size + 1));
-        if (!result)
-            return (NULL);
+        result = NULL;
         i = 0;
         while (i < size)
         {
-            result[i] = word_new(cstr_array[i], false);
-            free(cstr_array[i]);
+            result = word_array_append(result, cstr_array[i]);
+            if (!result)
+            {
+                while (i < size)
+                    free(cstr_array[i++]);
+                return (free(cstr_array), NULL);
+            }
             i++;
         }
-        result[i] = NULL;
+        free(cstr_array);
         word_free_until_null(matches);
     }
     else
@@ -124,5 +127,5 @@ t_word **expand_argv_word(const t_minishell *sh, const char *word)
     ret = build_result(exp_word, matches);
     if (ret)
         return (word_free(exp_word), ret);
-    return (word_free(exp_word), word_array_from_word(word_new(word, false)));
+    return (word_free(exp_word), word_array_append(NULL, ft_strdup(word)));
 }

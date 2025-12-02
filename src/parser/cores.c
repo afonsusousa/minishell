@@ -69,7 +69,7 @@ t_ast		*parse_command(t_minishell *sh)
     {
         if ((ts_match(sh->ts, TOK_WORD) || ts_match(sh->ts, TOK_ASSIGNMENT_WORD))
             && ++argc)
-            argv = strjoinjoin(argv, get_double_from_str(sh->ts->tk->lexeme));
+            argv = str_arr_append(argv, sh->ts->tk->lexeme);
         else if (is_redir_ahead(sh->ts))
             ast_list_push_list(&redirs, parse_core_redirs(sh));
         else
@@ -89,7 +89,7 @@ const char	**parse_assignments(t_minishell *sh)
     {
         if (!sh->ts->tk || !ts_match(sh->ts, TOK_ASSIGNMENT_WORD))
             break;
-        assignments = strjoinjoin(assignments, get_double_from_str(sh->ts->tk->lexeme));
+        assignments = str_arr_append(assignments, sh->ts->tk->lexeme);
     }
     return ((const char **) assignments);
 }

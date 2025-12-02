@@ -19,28 +19,6 @@ bool is_slash(char c)
     return (c == '/');
 }
 
-int count_words(const char* str, const char sep)
-{
-    int count;
-    bool in_word;
-
-    count = 0;
-    in_word = false;
-    while (*str)
-    {
-        if (!in_word && *str != sep)
-        {
-            in_word = true;
-            count++;
-        }
-        else if (*str == sep)
-            in_word = false;
-        str++;
-    }
-    return (count);
-}
-
-
 void free_until_null(char*** str_v)
 {
     size_t i;
@@ -140,15 +118,27 @@ bool is_valid(char c)
         || c == '_');
 }
 
-char **get_double_from_str(const char *str)
+char **str_arr_append(char **arr, const char *s)
 {
-    char **ret;
+    size_t len = 0;
+    char **res;
 
-    ret = ft_calloc(2, sizeof(char *));
-    if (!ret)
-        return (NULL);
-    ret[0] = ft_strdup(str);
-    return ret;
+    if (!s)
+        return arr;
+    while (arr && arr[len])
+            len++;
+    res = ft_calloc(len + 2, sizeof(char *));
+    if (!res)
+        return NULL;
+    for (size_t i = 0; i < len; i++)
+        res[i] = arr[i];
+    res[len] = ft_strdup(s);
+    if (!res[len])
+        return (free(res), NULL);
+    res[len + 1] = NULL;
+    if (arr)
+        free(arr);
+    return (res);
 }
 
 int ft_strcmp(const char *s1, const char *s2)

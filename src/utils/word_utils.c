@@ -138,6 +138,40 @@ char **word_to_cstr_array(t_word **words)
     return (result);
 }
 
+t_word **word_array_append(t_word **arr, char *content)
+{
+    t_word  **result;
+    t_word  *word;
+    size_t  len;
+    size_t  i;
+
+    if (!content)
+        return (arr);
+    word = malloc(sizeof(t_word));
+    if (!word)
+        return (NULL);
+    word->content = ft_strdup(content);
+    word->quoted_map = NULL;
+    word->len = ft_strlen(content);
+    len = 0;
+    while (arr && arr[len])
+        len++;
+    result = malloc(sizeof(t_word *) * (len + 2));
+    if (!result)
+        return (free(word), NULL);
+    i = 0;
+    while (i < len)
+    {
+        result[i] = arr[i];
+        i++;
+    }
+    result[len] = word;
+    result[len + 1] = NULL;
+    if (arr)
+        free(arr);
+    return (result);
+}
+
 t_word *word_new(const char *content, bool all_quoted)
 {
     t_word *word;

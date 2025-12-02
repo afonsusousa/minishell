@@ -81,6 +81,8 @@ static t_word **process_entry(struct dirent *entry, t_word **wildstr, const char
         && match_wildcard(*wildstr, entry->d_name))
     {
         next_call = ft_strjoin(path, entry->d_name);
+        if (!next_call)
+            return (NULL);
         dir = opendir(next_call);
         if (dir)
         {
@@ -88,7 +90,7 @@ static t_word **process_entry(struct dirent *entry, t_word **wildstr, const char
             closedir(dir);
         }
         else if (access(next_call, F_OK) == 0 && !wildstr[1])
-            ret = word_array_join(ret, word_array_from_word(word_new(next_call, false)));
+            ret = word_array_append(ret, next_call);
         free(next_call);
     }
     return (ret);
@@ -104,7 +106,7 @@ t_word  **get_matches(char *cwd, t_word **wildstr)
     if (!wildstr || !*wildstr)
     {
         if (cwd && access(cwd, F_OK) == 0)
-            return (word_array_from_word(word_new(cwd, false)));
+            return (word_array_append(NULL, ft_strdup(cwd)));
         return (NULL);
     }
     ret = NULL;

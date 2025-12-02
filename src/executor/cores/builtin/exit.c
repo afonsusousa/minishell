@@ -57,6 +57,7 @@ int exec_exit(t_minishell *sh, char **argv, const int argc)
         }
         return ((write(2, "minishell: exit: too many arguments\n", 36) & 0) | 2);
     }
+    free_argv(argv);
     minishell_free(sh);
     exit(code);
 }

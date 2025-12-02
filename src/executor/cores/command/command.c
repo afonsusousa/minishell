@@ -60,7 +60,7 @@ static void execve_error(char ***argv, char *orig_cmd)
     exit_wrapper(argv, orig_cmd, 126);
 }
 
-int execve_wrapper(t_minishell* sh, char*** argv, int argc)
+int execve_wrapper(t_minishell* sh, char*** argv)
 {
     char** env_arr;
     char    *orig_cmd;
@@ -68,8 +68,6 @@ int execve_wrapper(t_minishell* sh, char*** argv, int argc)
 
     if (!argv || !*argv || !**argv)
         return (0);
-    if (is_builtin(**argv))
-        return (exec_builtin(sh, *argv, argc));
     orig_cmd = ft_strdup(**argv);
     env_arr = get_envp_array(sh->env, true);
     env_arr = strjoinjoin(env_arr, get_envp_array(sh->ctx, true));
@@ -94,12 +92,19 @@ int exec_command(t_minishell* sh, const t_ast* core)
         return (1);
     argv = argv_to_arr(sh, core->as.command.argv, (int *)&core->as.command.argc);
     if (exec_redirs(sh, core->as.command.redirs))
-        return (free_argv(argv),1);
+        return (free_argv(argv), 1);
     if (exec_assignments(sh, core->as.command.assignments, argv != NULL))
         return (free_argv(argv), 1);
     if (!argv)
         return (0);
-    status = execve_wrapper(sh, &argv, core->as.command.argc);
+    if (is_builtin(argv[0]))
+    {
+        status = exec_builtin(sh, argv, core->as.command.argc);
+        free_argv(argv);
+        sh->last_status = status;
+        return (status);
+    }
+    status = execve_wrapper(sh, &argv);
     sh->last_status = status;
     return (status);
 }
