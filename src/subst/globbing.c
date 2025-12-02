@@ -68,11 +68,11 @@ static DIR *setup_get_matches(char *cwd, char *path, struct dirent **entry)
     return (dir);
 }
 
-static char **process_entry(struct dirent *entry, t_word **wildstr, const char *path)
+static t_word **process_entry(struct dirent *entry, t_word **wildstr, const char *path)
 {
     char *next_call;
     DIR *dir;
-    char **ret;
+    t_word **ret;
 
     ret = NULL;
     if ((ft_strcmp(entry->d_name, ".") == 0 || ft_strcmp(entry->d_name, "..") == 0))
@@ -84,19 +84,19 @@ static char **process_entry(struct dirent *entry, t_word **wildstr, const char *
         dir = opendir(next_call);
         if (dir)
         {
-            ret = strjoinjoin(ret, get_matches(next_call, wildstr + 1));
+            ret = word_array_join(ret, get_matches(next_call, wildstr + 1));
             closedir(dir);
         }
         else if (access(next_call, F_OK) == 0 && !wildstr[1])
-            ret = strjoinjoin(ret, get_double_from_str(next_call));
+            ret = word_array_join(ret, word_array_from_word(word_new(next_call, false)));
         free(next_call);
     }
     return (ret);
 }
 
-char    **get_matches(char *cwd, t_word **wildstr)
+t_word  **get_matches(char *cwd, t_word **wildstr)
 {
-    char            **ret;
+    t_word          **ret;
     char            path[PATH_MAX];
     DIR         	*dir;
     struct dirent   *entry;
@@ -104,7 +104,7 @@ char    **get_matches(char *cwd, t_word **wildstr)
     if (!wildstr || !*wildstr)
     {
         if (cwd && access(cwd, F_OK) == 0)
-            return (get_double_from_str(cwd));
+            return (word_array_from_word(word_new(cwd, false)));
         return (NULL);
     }
     ret = NULL;
@@ -113,7 +113,7 @@ char    **get_matches(char *cwd, t_word **wildstr)
         return (NULL);
     while (entry)
     {
-        ret = strjoinjoin(ret, process_entry(entry, wildstr, path));
+        ret = word_array_join(ret, process_entry(entry, wildstr, path));
         entry = readdir(dir);
     }
     closedir(dir);

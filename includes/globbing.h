@@ -15,12 +15,12 @@ typedef struct s_word t_word;
 size_t	needed_space(const t_envp *env, const char *str);
 size_t	check_copy(const t_envp *env, char *dest, const char *src_elem);
 char    *expanded_str(const t_envp *env, const char *str, bool follow_dq);
-char    **get_matches(char *cwd, t_word **wildstr);
-char    **expand_cwd_wildcards(t_word *word);
+t_word  **get_matches(char *cwd, t_word **wildstr);
+t_word  **expand_cwd_wildcards(t_word *word);
 int     heredoc_fd(t_minishell *sh, const char *delimiter);
 t_word  *expanded(const t_minishell *sh, const char *str, int flags);
 char    *expanded_gambiarra(t_envp *env, const char *str, int flags);
-char    **expand_argv_word(const t_minishell *sh, const char *word);
+t_word  **expand_argv_word(const t_minishell *sh, const char *word);
 
 #endif
 

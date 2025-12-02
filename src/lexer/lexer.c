@@ -37,11 +37,6 @@ char	lexer_peek_char(const t_lexer *lexer)
     return (lexer->input[lexer->read_position]);
 }
 
-static int	is_space(char c)
-{
-    return (c == ' ' || c == '\t' || c == '\n');
-}
-
 static int	is_meta(char c)
 {
     return (c == '|' || c == '&' || c == ';'
@@ -130,6 +125,7 @@ t_token   *token_new(const t_token_type type)
     token->type = type;
     return (token);
 }
+// >| is a valid redirection, but not posix... review later
 bool    lexer_next_dmeta(t_lexer *lexer)
 {
     char peek;
@@ -141,6 +137,8 @@ bool    lexer_next_dmeta(t_lexer *lexer)
         lexer->tk = token_new(TOK_AND);
     else if (lexer->ch == '>' && peek == '>')
         lexer->tk = token_new(TOK_REDIR_APPEND);
+    else if (lexer->ch == '>' && peek == '|')
+        lexer->tk = token_new(TOK_REDIR_OUT);
     else if (lexer->ch == '<' && peek == '<')
         lexer->tk = token_new(TOK_HEREDOC);
     else 

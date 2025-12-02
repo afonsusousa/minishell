@@ -80,7 +80,7 @@ t_word *expanded(const t_minishell *sh, const char *str, int flags)
         else if (sm.curr == IN_VAR)
             handle_variable_state(&sm, sh);
     }
-    if (sm.nulled)
+    if (!*sm.buffer && *sm.quoted_map)
         return (NULL);
     result = malloc(sizeof(t_word));
     if (!result)

@@ -24,7 +24,6 @@ typedef struct s_quote_machine
     char            buffer[ARG_MAX];
     bool            quoted_map[ARG_MAX];
     size_t          buff_pos;
-    bool            nulled;
 } t_quote_machine;
 
 typedef struct s_word

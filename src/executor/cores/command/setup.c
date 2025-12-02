@@ -8,6 +8,7 @@
 #include "../../../../includes/executor.h"
 #include "../../../../includes/utils.h"
 #include "../../../../includes/globbing.h"
+#include "../../../../includes/sm.h"
 #include "../../../../lib/libft/libft.h"
 
 static bool has_unquoted_var(const char *word)
@@ -32,12 +33,13 @@ static bool has_unquoted_var(const char *word)
 
 char **argv_to_arr(const t_minishell *sh, const char **words, int *argc)
 {
-    char **argv;
-    char **expanded_part;
-    char **split;
-    int i;
+    t_word  **argv_words;
+    t_word  **expanded_part;
+    t_word  **split;
+    char    **argv;
+    int     i;
 
-    argv = NULL;
+    argv_words = NULL;
     *argc = 0;
     if (!words)
         return (NULL);
@@ -46,20 +48,22 @@ char **argv_to_arr(const t_minishell *sh, const char **words, int *argc)
         expanded_part = expand_argv_word(sh, *words);
         if (has_unquoted_var(*words))
         {
-            if (expanded_part && expanded_part[0] && ft_strchr(expanded_part[0], ' '))
+            if (expanded_part && expanded_part[0] && has_char_fn(expanded_part[0]->content, is_space))
             {
-                split = ft_split(expanded_part[0], ' ');
+                split = word_split(expanded_part[0], is_space, true);
                 i = 0;
                 while (expanded_part[++i])
-                    split = strjoinjoin(split, get_double_from_str(expanded_part[i]));
-                free_until_null(&expanded_part);
+                    split = word_array_join(split, word_array_from_word(word_dup(expanded_part[i])));
+                word_free_until_null(expanded_part);
                 expanded_part = split;
             }
         }
         *argc += expanded_part != NULL;
-        argv = strjoinjoin(argv, expanded_part);
+        argv_words = word_array_join(argv_words, expanded_part);
         words++;
     }
+    argv = word_to_cstr_array(argv_words);
+    word_free_until_null(argv_words);
     return (argv);
 }
 

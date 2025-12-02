@@ -8,6 +8,17 @@
 #include "../../includes/utils.h"
 #include "../../lib/libft/libft.h"
 
+bool is_space(char c)
+{
+    return (c == ' ' || c == '\t' || c == '\n' || c == '\r'
+        || c == '\v' || c == '\f');
+}
+
+bool is_slash(char c)
+{
+    return (c == '/');
+}
+
 int count_words(const char* str, const char sep)
 {
     int count;
@@ -158,3 +169,15 @@ int ft_strcmp(const char *s1, const char *s2)
     return (*s1 - *s2);
 }
 
+bool has_char_fn(const char *s, bool (*predicate)(char))
+{
+    if (!s || !predicate)
+        return (NULL);
+    while (*s)
+    {
+        if (predicate(*s))
+            return ((char *)s);
+        s++;
+    }
+    return (NULL);
+}

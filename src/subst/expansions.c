@@ -44,34 +44,50 @@ static bool has_unquoted_wildcard(const t_word *ts)
     return (star != NULL);
 }
 
-static char **build_result(t_word *exp_result, char **matches)
+static t_word **build_result(t_word *exp_result, t_word **matches)
 {
-    char **result;
-    int size;
+    t_word  **result;
+    int     size;
+    int     i;
+    char    **cstr_array;
 
     if (matches && *matches)
     {
         size = 0;
         while (matches[size])
             size++;
-        merge_sort_strings(matches, 0, size - 1);
-        result = strjoinjoin(NULL, matches);
+        cstr_array = word_to_cstr_array(matches);
+        if (!cstr_array)
+            return (NULL);
+        merge_sort_strings(cstr_array, 0, size - 1);
+        result = malloc(sizeof(t_word *) * (size + 1));
+        if (!result)
+            return (NULL);
+        i = 0;
+        while (i < size)
+        {
+            result[i] = word_new(cstr_array[i], false);
+            free(cstr_array[i]);
+            i++;
+        }
+        result[i] = NULL;
+        word_free_until_null(matches);
     }
     else
-        result = strjoinjoin(NULL, get_double_from_str(exp_result->content));
+        result = word_array_from_word(word_dup(exp_result));
     return (result);
 }
 
-char    **expand_cwd_wildcards(t_word *word)
+t_word  **expand_cwd_wildcards(t_word *word)
 {
     t_word **splits;
-    char **matches;
+    t_word **matches;
 
     if (!word || !word->content)
         return (NULL);
     if (!has_unquoted_wildcard(word))
-        return (get_double_from_str(word->content));
-    splits = word_split(word, '/');
+        return (word_array_from_word(word_dup(word)));
+    splits = word_split(word, is_slash, false);
     if (!splits)
         return (NULL);
     if (splits[1])
@@ -80,16 +96,16 @@ char    **expand_cwd_wildcards(t_word *word)
         matches = get_matches("", splits);
     word_free_until_null(splits);
     if (!matches)
-        return (get_double_from_str(word->content));
+        return (word_array_from_word(word_dup(word)));
     return (matches);
 }
 
-char **expand_argv_word(const t_minishell *sh, const char *word)
+t_word **expand_argv_word(const t_minishell *sh, const char *word)
 {
     char    *tilde_exp;
     t_word  *exp_word;
-    char    **matches;
-    char    **ret;
+    t_word  **matches;
+    t_word  **ret;
 
     if (!word)
         return (NULL);
@@ -108,5 +124,5 @@ char **expand_argv_word(const t_minishell *sh, const char *word)
     ret = build_result(exp_word, matches);
     if (ret)
         return (word_free(exp_word), ret);
-    return (word_free(exp_word), get_double_from_str(word));
+    return (word_free(exp_word), word_array_from_word(word_new(word, false)));
 }

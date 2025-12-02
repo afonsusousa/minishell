@@ -14,10 +14,12 @@ int exec_cd(const t_minishell *sh, char **argv, const int argc)
     char path[ARG_MAX];
     char oldpwd[ARG_MAX];
     char *subst;
+    bool no_op_follow;
 
-    if (argc > 2)
+    no_op_follow = (argc >= 2) && ft_strcmp(argv[1], "--") == 0;
+    if (argc > 2 + no_op_follow)
         return ((write(2, "minishell: cd: too many arguments\n", 34) & 0) | 2);
-    if (argc == 1)
+    if (argc == 1 || (argc == 2 && no_op_follow))
     {
         subst = envp_getvar_value(sh, "HOME");
         if (subst)
@@ -38,7 +40,7 @@ int exec_cd(const t_minishell *sh, char **argv, const int argc)
         free(subst);
     }
     else
-        ft_strlcpy(path, argv[1], ARG_MAX);
+        ft_strlcpy(path, argv[1 + no_op_follow], ARG_MAX);
     getcwd(oldpwd, ARG_MAX);
     if (chdir(path) == -1)
     {

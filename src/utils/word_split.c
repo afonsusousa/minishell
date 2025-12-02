@@ -6,17 +6,58 @@
 #include "../../includes/sm.h"
 #include "../../includes/utils.h"
 
-static size_t skip_separators(const char *str, size_t pos, char sep)
+static size_t count_words_fn(const t_word *ts, bool (*is_sep)(char), bool quote_aware)
 {
-    while (str[pos] && str[pos] == sep)
+    size_t count;
+    size_t i;
+    bool in_word;
+
+    count = 0;
+    i = 0;
+    in_word = false;
+    while (ts->content[i])
+    {
+        if (is_sep(ts->content[i]) && (!quote_aware || !ts->quoted_map[i]))
+        {
+            if (in_word)
+            {
+                count++;
+                in_word = false;
+            }
+        }
+        else
+            in_word = true;
+        i++;
+    }
+    if (in_word)
+        count++;
+    return (count);
+}
+
+static size_t skip_separators(const t_word *ts, size_t pos,
+    bool (*is_sep)(char), bool quote_aware)
+{
+    while (ts->content[pos] && is_sep(ts->content[pos]))
+    {
+        if (quote_aware && ts->quoted_map[pos])
+            break;
         pos++;
+    }
     return (pos);
 }
 
-static size_t find_word_end(const char *str, size_t pos, char sep)
+static size_t find_word_end(const t_word *ts, size_t pos,
+    bool (*is_sep)(char), bool quote_aware)
 {
-    while (str[pos] && str[pos] != sep)
+    while (ts->content[pos])
+    {
+        if (is_sep(ts->content[pos]))
+        {
+            if (!quote_aware || !ts->quoted_map[pos])
+                break;
+        }
         pos++;
+    }
     return (pos);
 }
 
@@ -52,7 +93,7 @@ static void free_partial(t_word **result, size_t count)
     free(result);
 }
 
-t_word **word_split(t_word *ts, char sep)
+t_word **word_split(t_word *ts, bool (*is_separator)(char), bool quote_aware)
 {
     t_word **ret;
     size_t split_count;
@@ -60,9 +101,9 @@ t_word **word_split(t_word *ts, char sep)
     size_t j;
     size_t start;
 
-    if (!ts || !ts->content)
+    if (!ts || !ts->content || !is_separator)
         return (NULL);
-    split_count = count_words(ts->content, sep);
+    split_count = count_words_fn(ts, is_separator, quote_aware);
     ret = malloc(sizeof(t_word*) * (split_count + 1));
     if (!ret)
         return (NULL);
@@ -70,9 +111,9 @@ t_word **word_split(t_word *ts, char sep)
     j = 0;
     while (i < split_count)
     {
-        j = skip_separators(ts->content, j, sep);
+        j = skip_separators(ts, j, is_separator, quote_aware);
         start = j;
-        j = find_word_end(ts->content, j, sep);
+        j = find_word_end(ts, j, is_separator, quote_aware);
         ret[i] = create_split_part(ts, start, j - start);
         if (!ret[i])
             return (free_partial(ret, i), NULL);

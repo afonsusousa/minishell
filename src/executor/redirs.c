@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "../../includes/minishell.h"
 #include <fcntl.h>
 
@@ -12,6 +13,7 @@
 #include "utils.h"
 #include "../../includes/globbing.h"
 #include "../../includes/executor.h"
+#include "../../includes/sm.h"
 
 int get_redir_fd(const t_token_type r)
 {
@@ -53,33 +55,36 @@ static int handle_heredoc_redir(const t_ast *node)
 
 static int handle_file_redir(t_minishell *sh, const t_ast *node)
 {
-    int fd;
-    char **filename;
+    int     fd;
+    t_word  **filename_words;
+    char    *filename;
 
-    filename = expand_argv_word(sh, (char *)node->as.redir.target.file_name);
-    if (filename && *filename && filename[1] != NULL)
+    filename_words = expand_argv_word(sh, (char *)node->as.redir.target.file_name);
+    if (filename_words && *filename_words && filename_words[1] != NULL)
     {
         write(2, "minishell: ", 11);
         write(2, node->as.redir.target.file_name, ft_strlen(node->as.redir.target.file_name));
         write(2, ": ambiguous redirect\n", 21);
-        return (1);
+        return (word_free_until_null(filename_words), 1);
     }
-    if (!filename)
+    if (!filename_words)
         return (0);
-    fd = open_redir_file(node->as.redir.kind, *filename);
+    filename = word_to_cstr(*filename_words);
+    fd = open_redir_file(node->as.redir.kind, filename);
     if (fd < 0)
     {
         write(2, "minishell: ", 11);
-        return (perror(*filename), 1);
+        perror(filename);
+        return (free(filename), word_free_until_null(filename_words), 1);
     }
     if (dup2(fd, get_redir_fd(node->as.redir.kind)) < 0)
     {
         print_dup2_error();
         close(fd);
-        return (1);
+        return (free(filename), word_free_until_null(filename_words), 1);
     }
     close(fd);
-    return (0);
+    return (free(filename), word_free_until_null(filename_words), 0);
 }
 
 int exec_redirs(t_minishell* sh, const t_ast_list* r)
