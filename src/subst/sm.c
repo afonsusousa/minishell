@@ -11,7 +11,12 @@
 
 static void handle_default_state(t_quote_machine *sm, int flags)
 {
-    if (flags & CONSUME_QUOTES && sm->ch == '\'')
+    if (sm->ch == '\\')
+    {
+        sm_advance(sm);
+        sm_consume(sm);
+    }
+    else if (flags & CONSUME_QUOTES && sm->ch == '\'')
         sm_trasition(sm, IN_SQ);
     else if (flags & CONSUME_QUOTES && sm->ch == '"')
         sm_trasition(sm, IN_DQ);
@@ -29,7 +34,18 @@ static void handle_quote_state(t_quote_machine *sm, int flags)
         quote_char = '\'';
     else
         quote_char = '"';
-    if (sm->curr == IN_DQ && flags & EXPAND_VARS && sm->ch == '$')
+    if (sm->curr == IN_DQ && sm->ch == '\\')
+    {
+        sm_advance(sm);
+        if (sm->ch == '$' || sm->ch == '"' || sm->ch == '\\' || sm->ch == '`')
+            sm_consume(sm);
+        else
+        {
+            sm_cat(sm, "\\");
+            sm_consume(sm);
+        }
+    }
+    else if (sm->curr == IN_DQ && flags & EXPAND_VARS && sm->ch == '$')
         sm_trasition(sm, IN_VAR);
     else if (sm->ch == quote_char)
         sm_trasition(sm, DEFAULT);

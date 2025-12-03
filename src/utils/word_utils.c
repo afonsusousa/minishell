@@ -156,18 +156,15 @@ t_word **word_array_append_cstr(t_word **arr, const char *content)
 
     if (!content)
         return (arr);
-    word = malloc(sizeof(t_word));
+    word = word_new(content, false);
     if (!word)
         return (NULL);
-    word->content = ft_strdup(content);
-    word->quoted_map = NULL;
-    word->len = ft_strlen(content);
     len = 0;
     while (arr && arr[len])
         len++;
     result = malloc(sizeof(t_word *) * (len + 2));
     if (!result)
-        return (free(word), NULL);
+        return (word_free(word), NULL);
     i = 0;
     while (i < len)
     {

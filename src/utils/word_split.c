@@ -70,11 +70,11 @@ static t_word *create_split_part(t_word *ts, size_t start, size_t len)
     if (!ret->content)
         return (free(ret), NULL);
     ret->len = len;
-    ret->quoted_map = malloc(sizeof(bool) * (len + 1));
+    ret->quoted_map = ft_calloc(sizeof(bool), (len + 1));
     if (!ret->quoted_map)
         return (free(ret->content), free(ret), NULL);
     k = 0;
-    while (k < len)
+    while (k < len && ts->quoted_map)
     {
         ret->quoted_map[k] = ts->quoted_map[start + k];
         k++;
