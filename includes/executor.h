@@ -55,5 +55,10 @@ int     wait_pids(const t_pipeline *pipeline);
 void    print_open_error(const char *filename);
 void    print_dup2_error(void);
 
+// Redirection utils
+int     get_redir_fd(t_token_type r);
+int     handle_ambiguous_redirect(const char *filename, t_word **words);
+int     handle_open_error(const char *filename, t_word **words);
+int     handle_dup2_error(int fd, const char *filename, t_word **words);
 
 #endif /* MINISHELL_EXECUTOR_H */

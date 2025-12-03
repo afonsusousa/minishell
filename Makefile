@@ -28,7 +28,8 @@ SRCS := \
 	$(SRC_DIR)/executor/executor.c \
 	$(SRC_DIR)/executor/logical.c \
 	$(SRC_DIR)/executor/cores.c \
-	$(SRC_DIR)/executor/redirs.c \
+	$(SRC_DIR)/executor/redir/redirs.c \
+	$(SRC_DIR)/executor/redir/utils.c \
 	$(SRC_DIR)/executor/error.c \
 	$(SRC_DIR)/executor/cores/builtin/builtins.c \
 	$(SRC_DIR)/executor/cores/builtin/cd.c \

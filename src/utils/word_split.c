@@ -9,6 +9,8 @@ static size_t count_words_fn(const t_word *ts, bool (*is_sep)(char), bool quote_
     size_t i;
     bool in_word;
 
+    if (quote_aware && ts->len == 1 && ts->content[0] == '\0')
+        return (1);
     count = 0;
     i = 0;
     in_word = false;

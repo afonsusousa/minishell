@@ -102,7 +102,7 @@ t_word *expanded(const t_minishell *sh, const char *str, int flags)
     if (!result)
         return (NULL);
     result->content = ft_strdup(sm.buffer);
-    result->len = sm.buff_pos;
+    result->len = sm.buff_pos + (sm.prev == IN_DQ || sm.prev == IN_SQ);
     result->quoted_map = malloc(sizeof(bool) * (result->len + 1));
     if (!result->quoted_map)
         return (free(result->content), free(result), NULL);

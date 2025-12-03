@@ -6,28 +6,28 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../includes/minishell.h"
+#include "../../../includes/minishell.h"
 #include <fcntl.h>
 
-#include "libft.h"
 #include "utils.h"
-#include "../../includes/globbing.h"
-#include "../../includes/executor.h"
-#include "../../includes/sm.h"
-
-int get_redir_fd(const t_token_type r)
-{
-    if (r == TOK_REDIR_OUT || r == TOK_REDIR_APPEND)
-        return (STDOUT_FILENO);
-    return (STDIN_FILENO);
-}
+#include "../../../includes/globbing.h"
+#include "../../../includes/executor.h"
 
 static int open_redir_file(const t_token_type kind, const char *filename)
 {
     int fd;
 
     fd = -1;
-    if (kind == TOK_REDIR_OUT)
+    if ((kind == TOK_REDIR_OUT || kind == TOK_REDIR_APPEND)
+        && ft_strcmp(filename, "&0") == 0)
+        fd = STDIN_FILENO;
+    else if ((kind == TOK_REDIR_OUT || kind == TOK_REDIR_APPEND)
+        && ft_strcmp(filename, "&1") == 0)
+        fd = STDOUT_FILENO;
+    else if ((kind == TOK_REDIR_OUT || kind == TOK_REDIR_APPEND)
+        && ft_strcmp(filename, "&2") == 0)
+        fd = STDERR_FILENO;
+    else if (kind == TOK_REDIR_OUT)
         fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
     else if (kind == TOK_REDIR_IN)
         fd = open(filename, O_RDONLY);
@@ -61,30 +61,20 @@ static int handle_file_redir(t_minishell *sh, const t_ast *node)
 
     filename_words = expand_argv_word(sh, (char *)node->as.redir.target.file_name);
     if (filename_words && *filename_words && filename_words[1] != NULL)
-    {
-        write(2, "minishell: ", 11);
-        write(2, node->as.redir.target.file_name, ft_strlen(node->as.redir.target.file_name));
-        write(2, ": ambiguous redirect\n", 21);
-        return (word_free_until_null(filename_words), 1);
-    }
+        return (handle_ambiguous_redirect(node->as.redir.target.file_name, filename_words));
     if (!filename_words)
         return (0);
     filename = word_to_cstr(*filename_words);
     fd = open_redir_file(node->as.redir.kind, filename);
     if (fd < 0)
-    {
-        write(2, "minishell: ", 11);
-        perror(filename);
-        return (free(filename), word_free_until_null(filename_words), 1);
-    }
+        return (handle_open_error(filename, filename_words));
     if (dup2(fd, get_redir_fd(node->as.redir.kind)) < 0)
-    {
-        print_dup2_error();
+        return (handle_dup2_error(fd, filename, filename_words));
+    if (fd > 2)
         close(fd);
-        return (free(filename), word_free_until_null(filename_words), 1);
-    }
-    close(fd);
-    return (free(filename), word_free_until_null(filename_words), 0);
+    free(filename);
+    word_free_until_null(filename_words);
+    return (0);
 }
 
 int exec_redirs(t_minishell* sh, const t_ast_list* r)

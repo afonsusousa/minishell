@@ -64,7 +64,7 @@ static t_word **build_result(t_word *exp_result, t_word **matches)
         i = 0;
         while (i < size)
         {
-            result = word_array_append_cstr(result, cstr_array[i]);
+            result = word_array_append_cstr(result, cstr_array[i], true);
             if (!result)
                free_until_null(&cstr_array);
             i++;
@@ -123,5 +123,5 @@ t_word **expand_argv_word(const t_minishell *sh, const char *word)
     ret = build_result(exp_word, matches);
     if (ret)
         return (word_free(exp_word), ret);
-    return (word_free(exp_word), word_array_append_cstr(NULL, word));
+    return (word_free(exp_word), word_array_append_cstr(NULL, word, false));
 }

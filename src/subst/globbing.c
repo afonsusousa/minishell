@@ -90,7 +90,7 @@ static t_word **process_entry(struct dirent *entry, t_word **wildstr, const char
             closedir(dir);
         }
         else if (access(next_call, F_OK) == 0 && !wildstr[1])
-            ret = word_array_append_cstr(ret, next_call);
+            ret = word_array_append_cstr(ret, next_call, true);
         free(next_call);
     }
     return (ret);
@@ -106,7 +106,7 @@ t_word  **get_matches(char *cwd, t_word **wildstr)
     if (!wildstr || !*wildstr)
     {
         if (cwd && access(cwd, F_OK) == 0)
-            return (word_array_append_cstr(NULL, ft_strdup(cwd)));
+            return (word_array_append_cstr(NULL, cwd, true));
         return (NULL);
     }
     ret = NULL;

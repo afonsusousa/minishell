@@ -147,7 +147,7 @@ t_word **word_array_append_word(t_word **arr, const t_word *word)
     return (result);
 }
 
-t_word **word_array_append_cstr(t_word **arr, const char *content)
+t_word **word_array_append_cstr(t_word **arr, const char *content, bool all_quoted)
 {
     t_word  **result;
     t_word  *word;
@@ -156,7 +156,7 @@ t_word **word_array_append_cstr(t_word **arr, const char *content)
 
     if (!content)
         return (arr);
-    word = word_new(content, false);
+    word = word_new(content, all_quoted);
     if (!word)
         return (NULL);
     len = 0;
