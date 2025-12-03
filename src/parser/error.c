@@ -30,6 +30,18 @@ static const char   *get_redir_token_name(const t_token_type type)
         return (">");
     if (type == TOK_REDIR_APPEND)
         return (">>");
+    if (type == TOK_REDIR_0_IN)
+        return ("0<");
+    if (type == TOK_REDIR_1_IN)
+        return ("1<");
+    if (type == TOK_REDIR_2_IN)
+        return ("2<");
+    if (type == TOK_REDIR_0_OUT)
+        return ("0>");
+    if (type == TOK_REDIR_1_OUT)
+        return ("1>");
+    if (type == TOK_REDIR_2_OUT)
+        return ("2>");
     if (type == TOK_HEREDOC)
         return ("<<");
     return (NULL);

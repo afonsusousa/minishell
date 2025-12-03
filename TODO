@@ -6,3 +6,4 @@ assignment do not go to env -- it does, but stays invisible for printing
 joinjoin coupled with double_From_Str = leaks (inevitable)
  :) ASSIGNMENTS
 builtin argument check;
+MOVE HEREDOC TO AFTER FIRST TREE;

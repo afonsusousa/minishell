@@ -41,10 +41,11 @@ static void execve_error(char ***argv, char *orig_cmd)
     char *cmd;
 
     cmd = **argv;
-    if (!*cmd)
-        cmd = "''";
     write(2, "minishell: ", 11);
-    write(2, cmd, ft_strlen(cmd));
+    if (*cmd)
+        write(2, cmd, ft_strlen(cmd));
+    else
+        write(2, "''", 2);
     write(2, ": ", 2);
     if (!ft_strchr(cmd, '/'))
         exit_wrapper(argv, orig_cmd,

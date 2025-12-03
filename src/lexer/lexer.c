@@ -125,7 +125,36 @@ t_token   *token_new(const t_token_type type)
     token->type = type;
     return (token);
 }
+
 // >| is a valid redirection, but not posix... review later
+bool    lexer_next_redir(t_lexer *lexer)
+{
+    char peek;
+
+    peek = lexer_peek_char(lexer);
+    if (lexer->ch == '>' && peek == '>')
+        lexer->tk = token_new(TOK_REDIR_APPEND);
+    else if (lexer->ch == '>' && peek == '|')
+        lexer->tk = token_new(TOK_REDIR_OUT);
+    else if (lexer->ch == '<' && peek == '<')
+        lexer->tk = token_new(TOK_HEREDOC);
+    else if (lexer->ch == '0' && peek == '<')
+        lexer->tk = token_new(TOK_REDIR_0_IN);
+    else if (lexer->ch == '1' && peek == '<')
+        lexer->tk = token_new(TOK_REDIR_1_IN);
+    else if (lexer->ch == '2' && peek == '<')
+        lexer->tk = token_new(TOK_REDIR_2_IN);
+    else if (lexer->ch == '0' && peek == '>')
+        lexer->tk = token_new(TOK_REDIR_0_OUT);
+    else if (lexer->ch == '1' && peek == '>')
+        lexer->tk = token_new(TOK_REDIR_1_OUT);
+    else if (lexer->ch == '2' && peek == '>')
+        lexer->tk = token_new(TOK_REDIR_2_OUT);
+    else
+        return (false);
+    return (lexer_read_char(lexer), true);
+}
+
 bool    lexer_next_dmeta(t_lexer *lexer)
 {
     char peek;
@@ -135,13 +164,7 @@ bool    lexer_next_dmeta(t_lexer *lexer)
         lexer->tk = token_new(TOK_OR);
     else if (lexer->ch == '&' && peek == '&')
         lexer->tk = token_new(TOK_AND);
-    else if (lexer->ch == '>' && peek == '>')
-        lexer->tk = token_new(TOK_REDIR_APPEND);
-    else if (lexer->ch == '>' && peek == '|')
-        lexer->tk = token_new(TOK_REDIR_OUT);
-    else if (lexer->ch == '<' && peek == '<')
-        lexer->tk = token_new(TOK_HEREDOC);
-    else 
+    else
         return (false);
     lexer_read_char(lexer);
     return (true);
@@ -174,7 +197,9 @@ t_token *lexer_next_token(t_lexer *lexer)
         lexer_read_char(lexer);
     if (lexer->ch == '\0')
         lexer->tk = token_new(TOK_EOF);
-    else if (lexer_next_dmeta(lexer) || lexer_next_smeta(lexer))
+    else if (lexer_next_dmeta(lexer)
+        || lexer_next_redir(lexer)
+        || lexer_next_smeta(lexer))
         lexer_read_char(lexer);
     else
     {

@@ -9,7 +9,7 @@
 #include "../../../includes/minishell.h"
 #include <fcntl.h>
 
-#include "utils.h"
+#include "../../../includes/utils.h"
 #include "../../../includes/globbing.h"
 #include "../../../includes/executor.h"
 
@@ -18,21 +18,20 @@ static int open_redir_file(const t_token_type kind, const char *filename)
     int fd;
 
     fd = -1;
-    if ((kind == TOK_REDIR_OUT || kind == TOK_REDIR_APPEND)
-        && ft_strcmp(filename, "&0") == 0)
+    if (ft_strcmp(filename, "&0") == 0)
         fd = STDIN_FILENO;
-    else if ((kind == TOK_REDIR_OUT || kind == TOK_REDIR_APPEND)
-        && ft_strcmp(filename, "&1") == 0)
+    else if (ft_strcmp(filename, "&1") == 0)
         fd = STDOUT_FILENO;
-    else if ((kind == TOK_REDIR_OUT || kind == TOK_REDIR_APPEND)
-        && ft_strcmp(filename, "&2") == 0)
+    else if (ft_strcmp(filename, "&2") == 0)
         fd = STDERR_FILENO;
-    else if (kind == TOK_REDIR_OUT)
-        fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    else if (kind == TOK_REDIR_IN)
-        fd = open(filename, O_RDONLY);
     else if (kind == TOK_REDIR_APPEND)
         fd = open(filename, O_WRONLY | O_CREAT | O_APPEND, 0644);
+    else if (kind == TOK_REDIR_OUT || kind == TOK_REDIR_0_OUT
+        || kind == TOK_REDIR_1_OUT || kind == TOK_REDIR_2_OUT)
+        fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    else if (kind == TOK_REDIR_IN || kind == TOK_REDIR_0_IN
+        || kind == TOK_REDIR_1_IN || kind == TOK_REDIR_2_IN)
+        fd = open(filename, O_RDONLY);
     return (fd);
 }
 

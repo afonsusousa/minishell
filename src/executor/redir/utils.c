@@ -15,6 +15,12 @@
 
 int get_redir_fd(const t_token_type r)
 {
+    if (r == TOK_REDIR_0_IN || r == TOK_REDIR_0_OUT)
+        return (STDIN_FILENO);
+    if (r == TOK_REDIR_1_IN || r == TOK_REDIR_1_OUT)
+        return (STDOUT_FILENO);
+    if (r == TOK_REDIR_2_IN || r == TOK_REDIR_2_OUT)
+        return (STDERR_FILENO);
     if (r == TOK_REDIR_OUT || r == TOK_REDIR_APPEND)
         return (STDOUT_FILENO);
     return (STDIN_FILENO);

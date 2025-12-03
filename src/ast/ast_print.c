@@ -17,6 +17,12 @@ static const char *redir_kind_name(t_token_type k)
         case TOK_REDIR_IN: return "<";
         case TOK_REDIR_OUT: return ">";
         case TOK_REDIR_APPEND: return ">>";
+        case TOK_REDIR_0_IN: return "0<";
+        case TOK_REDIR_1_IN: return "1<";
+        case TOK_REDIR_2_IN: return "2<";
+        case TOK_REDIR_0_OUT: return "0>";
+        case TOK_REDIR_1_OUT: return "1>";
+        case TOK_REDIR_2_OUT: return "2>";
         case TOK_HEREDOC: return "<<";
         default: return "?";
     }
