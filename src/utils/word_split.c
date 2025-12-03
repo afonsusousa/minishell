@@ -1,10 +1,7 @@
-//
-// Created for tracked string split functionality
-//
-
 #include <stdlib.h>
 #include "../../includes/sm.h"
 #include "../../includes/utils.h"
+#include "../../lib/libft/libft.h"
 
 static size_t count_words_fn(const t_word *ts, bool (*is_sep)(char), bool quote_aware)
 {
@@ -86,13 +83,6 @@ static t_word *create_split_part(t_word *ts, size_t start, size_t len)
     return (ret);
 }
 
-static void free_partial(t_word **result, size_t count)
-{
-    while (count > 0)
-        word_free(result[--count]);
-    free(result);
-}
-
 t_word **word_split(t_word *ts, bool (*is_separator)(char), bool quote_aware)
 {
     t_word **ret;
@@ -104,7 +94,7 @@ t_word **word_split(t_word *ts, bool (*is_separator)(char), bool quote_aware)
     if (!ts || !ts->content || !is_separator)
         return (NULL);
     split_count = count_words_fn(ts, is_separator, quote_aware);
-    ret = malloc(sizeof(t_word*) * (split_count + 1));
+    ret = ft_calloc(sizeof(t_word*), (split_count + 1));
     if (!ret)
         return (NULL);
     i = 0;
@@ -116,7 +106,7 @@ t_word **word_split(t_word *ts, bool (*is_separator)(char), bool quote_aware)
         j = find_word_end(ts, j, is_separator, quote_aware);
         ret[i] = create_split_part(ts, start, j - start);
         if (!ret[i])
-            return (free_partial(ret, i), NULL);
+            return (word_free_until_null(ret), NULL);
         i++;
     }
     ret[split_count] = NULL;
