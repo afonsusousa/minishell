@@ -8,34 +8,31 @@
 #include "../../../../includes/executor.h"
 #include "../../../../includes/utils.h"
 #include "../../../../includes/globbing.h"
-#include "../../../../includes/sm.h"
-#include "../../../../lib/libft/libft.h"
 
-static bool has_unquoted_var(const char *word)
+static t_word **split_expanded(t_word **expanded)
 {
-    bool in_sq;
-    bool in_dq;
+    t_word **split;
+    int i;
 
-    in_sq = false;
-    in_dq = false;
-    while (*word)
-    {
-        if (*word == '\'' && !in_dq)
-            in_sq = !in_sq;
-        else if (*word == '"' && !in_sq)
-            in_dq = !in_dq;
-        else if (*word == '$' && !in_sq && !in_dq && *(word + 1))
-            return (true);
-        word++;
-    }
-    return (false);
+    if (!expanded || !expanded[0])
+        return (expanded);
+    split = word_split(expanded[0], is_space, true);
+    if (!split)
+        return (expanded);
+    if (!split[1])
+        return (word_free_until_null(split), expanded);
+    word_free(expanded[0]);
+    i = 1;
+    while (expanded[i])
+        split = word_array_append_word(split, expanded[i++]);
+    free(expanded);
+    return (split);
 }
 
 char **argv_to_arr(const t_minishell *sh, const char **words, int *argc)
 {
     t_word  **argv_words;
-    t_word  **expanded_part;
-    t_word  **split;
+    t_word  **expanded;
     char    **argv;
     int     i;
 
@@ -45,21 +42,13 @@ char **argv_to_arr(const t_minishell *sh, const char **words, int *argc)
         return (NULL);
     while (words && *words)
     {
-        expanded_part = expand_argv_word(sh, *words);
-        if (has_unquoted_var(*words))
-        {
-            if (expanded_part && expanded_part[0] && has_char_fn(expanded_part[0]->content, is_space))
-            {
-                split = word_split(expanded_part[0], is_space, true);
-                i = 0;
-                while (expanded_part[++i])
-                    split = word_array_append_word(split, expanded_part[i]);
-                word_free_until_null(expanded_part);
-                expanded_part = split;
-            }
-        }
-        *argc += expanded_part != NULL;
-        argv_words = word_array_join(argv_words, expanded_part);
+        expanded = expand_argv_word(sh, *words);
+        expanded = split_expanded(expanded);
+        i = 0;
+        while (expanded && expanded[i])
+            i++;
+        *argc += i;
+        argv_words = word_array_join(argv_words, expanded);
         words++;
     }
     argv = word_to_cstr_array(argv_words);
