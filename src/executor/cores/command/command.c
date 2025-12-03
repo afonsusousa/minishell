@@ -41,6 +41,8 @@ static void execve_error(char ***argv, char *orig_cmd)
     char *cmd;
 
     cmd = **argv;
+    if (!*cmd)
+        cmd = "''";
     write(2, "minishell: ", 11);
     write(2, cmd, ft_strlen(cmd));
     write(2, ": ", 2);

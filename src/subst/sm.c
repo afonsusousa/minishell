@@ -96,7 +96,7 @@ t_word *expanded(const t_minishell *sh, const char *str, int flags)
         else if (sm.curr == IN_VAR)
             handle_variable_state(&sm, sh);
     }
-    if (!*sm.buffer && *sm.quoted_map)
+    if (!*sm.buffer && sm.prev != IN_DQ && sm.prev != IN_SQ)
         return (NULL);
     result = malloc(sizeof(t_word));
     if (!result)
