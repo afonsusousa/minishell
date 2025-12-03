@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+#include "../../../../includes/envp.h"
 #include "../../../../includes/minishell.h"
 #include "../../../../includes/executor.h"
 #include "../../../../includes/utils.h"
@@ -13,7 +14,7 @@ int print_exported_variables(const t_minishell *sh)
     int     size;
 
     size = 0;
-    envp = get_envp_array(sh->env, false);
+    envp = get_envp_array(sh, false);
     while (envp && envp[size])
         size++;
     merge_sort_strings(envp, 0, size - 1);
@@ -83,9 +84,9 @@ int exec_export(const t_minishell *sh, char **argv, const int argc)
             continue;
         }
         if (is_append(*argv))
-            var = envp_append_var(sh->env, *argv, true);
+            var = envp_append_var(sh, *argv, EXPORT);
         else
-            var = envp_setvar(sh->env, *argv, true);
+            var = envp_setvar(sh, *argv, EXPORT);
         if (!var)
             status = 127;
     }

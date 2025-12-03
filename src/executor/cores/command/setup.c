@@ -53,7 +53,7 @@ char **argv_to_arr(const t_minishell *sh, const char **words, int *argc)
                 split = word_split(expanded_part[0], is_space, true);
                 i = 0;
                 while (expanded_part[++i])
-                    split = word_array_join(split, word_array_from_word(word_dup(expanded_part[i])));
+                    split = word_array_append_word(split, expanded_part[i]);
                 word_free_until_null(expanded_part);
                 expanded_part = split;
             }

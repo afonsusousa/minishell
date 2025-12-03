@@ -8,12 +8,16 @@
 #include <stddef.h>
 #include <stdbool.h>
 
+#define EXPORT (1 << 0)
+#define USE_CTX (1 << 1)
+
 typedef struct s_minishell t_minishell;
+typedef struct s_word t_word;
 
 typedef struct s_var
 {
     char *name;
-    char *value;
+    t_word *value;
     bool export;
     size_t len;
     struct s_var *next;
@@ -27,19 +31,20 @@ typedef struct s_envp
 } t_envp;
 
 // Node Construction
-t_var       *new_var(const char *assign, bool export);
-t_var       *envp_push(t_envp *env, t_var *node);
+t_var       *new_var(const t_minishell *sh, const char *assign, int flags);
+t_var       *envp_push(const t_minishell *sh, t_var *node);
 
 // Getters
-t_var       *envp_getvar(const t_envp *env, const char *name);
-char        **get_envp_array(const t_envp *env, bool export);
+t_var       *envp_getvar(const t_minishell *sh, const char *name);
+char        **get_envp_array(const t_minishell *sh, bool export);
 
 // Setters
-t_var       *envp_setvar(t_envp *env, const char *var, bool export);
-t_var       *envp_setvar_pair(t_envp *env, const char *name, const char *value, bool populated_only);
-char        *envp_getvar_value(const t_minishell *sh, const char *name);
-bool        envp_unsetvar(t_envp *env, const char *name);
-t_var       *envp_append_var(t_envp *env, const char *append, bool export);
+t_var       *envp_setvar(const t_minishell *sh, const char *var, int flags);
+t_var       *envp_setvar_pair(const t_minishell *sh, const char *name, const char *value, int flags);
+t_word      *envp_getvar_word(const t_minishell *sh, const char *name);
+char        *envp_getvar_cstr(const t_minishell *sh, const char *name);
+bool        envp_unsetvar(const t_minishell *sh, const char *name);
+t_var       *envp_append_var(const t_minishell *sh, const char *append, int flags);
 
 // Cleanup
 void        free_envp(t_envp *env);

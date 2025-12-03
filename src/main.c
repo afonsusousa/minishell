@@ -86,10 +86,10 @@ int main(int argc, char **argv, char **envp)
     signal_setup();
     memset(&sh, 0, sizeof(t_minishell));
     sh.ts = &ts;
-    for (i = 0; envp[i] != NULL; i++)
-        envp_append_var(&env, envp[i], true);
     sh.env = &env;
     sh.ctx = &ctx;
+    for (i = 0; envp[i] != NULL; i++)
+        envp_append_var(&sh, envp[i], EXPORT);
     if (argc > 1)
     {
         sh.line = ft_strdup(argv[1]);

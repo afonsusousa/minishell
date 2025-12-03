@@ -62,14 +62,14 @@ static void run_heredoc_child(t_minishell *sh)
     while (1)
     {
         line = readline("heredoc> ");
-        expand_heredoc_line(sh, &line, should_expand);
-        if (!line)
-            break ;
         if (ft_strcmp(line, sh->heredoc.del->content) == 0)
         {
             free(line);
             break ;
         }
+        expand_heredoc_line(sh, &line, should_expand);
+        if (!line)
+            break ;
         write(write_fd, line, ft_strlen(line));
         write(write_fd, "\n", 1);
         free(line);

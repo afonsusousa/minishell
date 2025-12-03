@@ -87,20 +87,6 @@ t_word **word_array_join(t_word **a, t_word **b)
     return (result);
 }
 
-t_word **word_array_from_word(t_word *word)
-{
-    t_word **result;
-
-    if (!word)
-        return (NULL);
-    result = malloc(sizeof(t_word *) * 2);
-    if (!result)
-        return (NULL);
-    result[0] = word;
-    result[1] = NULL;
-    return (result);
-}
-
 char *word_to_cstr(const t_word *word)
 {
     if (!word)
@@ -119,7 +105,7 @@ char **word_to_cstr_array(t_word **words)
     count = 0;
     while (words[count])
         count++;
-    result = malloc(sizeof(char *) * (count + 1));
+    result = ft_calloc(sizeof(char *), (count + 1));
     if (!result)
         return (NULL);
     i = 0;
@@ -127,18 +113,41 @@ char **word_to_cstr_array(t_word **words)
     {
         result[i] = word_to_cstr(words[i]);
         if (!result[i])
-        {
-            while (i > 0)
-                free(result[--i]);
-            return (free(result), NULL);
-        }
+           free_until_null(&result);
         i++;
     }
     result[count] = NULL;
     return (result);
 }
 
-t_word **word_array_append(t_word **arr, char *content)
+t_word **word_array_append_word(t_word **arr, const t_word *word)
+{
+    t_word  **result;
+    size_t  len;
+    size_t  i;
+
+    if (!word)
+        return (arr);
+    len = 0;
+    while (arr && arr[len])
+        len++;
+    result = malloc(sizeof(t_word *) * (len + 2));
+    if (!result)
+        return (NULL);
+    i = 0;
+    while (i < len)
+    {
+        result[i] = arr[i];
+        i++;
+    }
+    result[len] = word_dup(word);
+    result[len + 1] = NULL;
+    if (arr)
+        free(arr);
+    return (result);
+}
+
+t_word **word_array_append_cstr(t_word **arr, const char *content)
 {
     t_word  **result;
     t_word  *word;
@@ -197,3 +206,4 @@ t_word *word_new(const char *content, bool all_quoted)
     }
     return (word);
 }
+

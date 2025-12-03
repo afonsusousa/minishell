@@ -53,6 +53,25 @@ void sm_cat(t_quote_machine *sm, const char *str)
     }
 }
 
+void sm_cat_word(t_quote_machine *sm, const t_word *word)
+{
+    size_t i;
+
+    if (!word || !word->content)
+        return ;
+    i = 0;
+    while (i < word->len && sm->buff_pos < ARG_MAX)
+    {
+        sm->buffer[sm->buff_pos] = word->content[i];
+        if (word->quoted_map)
+            sm->quoted_map[sm->buff_pos] = word->quoted_map[i];
+        else
+            sm->quoted_map[sm->buff_pos] = false;
+        sm->buff_pos++;
+        i++;
+    }
+}
+
 void    sm_init(t_quote_machine *sm, const char *str)
 {
     size_t i;

@@ -12,8 +12,7 @@ int exec_env(const t_minishell *sh, char **argv, const int argc)
     char **iter;
 
     //review export later
-    env = get_envp_array(sh->env, true);
-    env =  strjoinjoin(env, get_envp_array(sh->ctx, true));
+    env = get_envp_array(sh, true);
     iter = env;
     while (iter && *iter)
         printf("%s\n", *iter++);

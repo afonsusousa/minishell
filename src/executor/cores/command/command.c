@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 
+#include "../../../../includes/envp.h"
 #include "../../../../includes/minishell.h"
 #include "../../../../includes/executor.h"
 #include "../../../../includes/utils.h"
@@ -16,17 +17,16 @@
 
 static int exec_assignments(t_minishell* sh, const char **a, bool context)
 {
-    t_envp *env;
+    int flags;
 
-    env = sh->env;
+    flags = 0;
     if (context)
-        env = sh->ctx;
+        flags = EXPORT | USE_CTX;
     while (a && *a)
-        if (envp_setvar(env, *a++, context) == NULL)
+        if (envp_setvar(sh, *a++, flags) == NULL)
             return (1);
     return (0);
 }
-
 
 static void exit_wrapper(char ***argv, char *orig_cmd, int exit_code)
 {
@@ -69,8 +69,7 @@ int execve_wrapper(t_minishell* sh, char*** argv)
     if (!argv || !*argv || !**argv)
         return (0);
     orig_cmd = ft_strdup(**argv);
-    env_arr = get_envp_array(sh->env, true);
-    env_arr = strjoinjoin(env_arr, get_envp_array(sh->ctx, true));
+    env_arr = get_envp_array(sh, true);
     exec_cmd = find_path(sh, orig_cmd);
     free(**argv);
     **argv = exec_cmd;

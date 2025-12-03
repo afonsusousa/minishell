@@ -31,8 +31,8 @@ t_word   **word_split(t_word *ts, bool (*is_separator)(char), bool quote_aware);
 void     word_free_until_null(t_word **splits);
 t_word   *word_dup(const t_word *ts);
 t_word   **word_array_join(t_word **a, t_word **b);
-t_word   **word_array_append(t_word **arr, char *content);
-t_word   **word_array_from_word(t_word *word);
+t_word   **word_array_append_cstr(t_word **arr, const char *content);
+t_word   **word_array_append_word(t_word **arr, const t_word *word);
 char     *word_to_cstr(const t_word *word);
 char     **word_to_cstr_array(t_word **words);
 

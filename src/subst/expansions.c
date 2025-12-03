@@ -17,7 +17,7 @@ char *expand_tilde(const t_minishell *sh, char *cmd)
 
     if (cmd[0] != '~')
         return (NULL);
-    home = envp_getvar_value(sh, "HOME");
+    home = envp_getvar_cstr(sh, "HOME");
     if (!home)
         return (ft_strdup(cmd));
     if (cmd[1] == '\0')
@@ -64,20 +64,16 @@ static t_word **build_result(t_word *exp_result, t_word **matches)
         i = 0;
         while (i < size)
         {
-            result = word_array_append(result, cstr_array[i]);
+            result = word_array_append_cstr(result, cstr_array[i]);
             if (!result)
-            {
-                while (i < size)
-                    free(cstr_array[i++]);
-                return (free(cstr_array), NULL);
-            }
+               free_until_null(&cstr_array);
             i++;
         }
         free(cstr_array);
         word_free_until_null(matches);
     }
     else
-        result = word_array_from_word(word_dup(exp_result));
+        result = word_array_append_word(NULL, exp_result);
     return (result);
 }
 
@@ -89,7 +85,7 @@ t_word  **expand_cwd_wildcards(t_word *word)
     if (!word || !word->content)
         return (NULL);
     if (!has_unquoted_wildcard(word))
-        return (word_array_from_word(word_dup(word)));
+        return (word_array_append_word(NULL, word));
     splits = word_split(word, is_slash, false);
     if (!splits)
         return (NULL);
@@ -99,7 +95,7 @@ t_word  **expand_cwd_wildcards(t_word *word)
         matches = get_matches("", splits);
     word_free_until_null(splits);
     if (!matches)
-        return (word_array_from_word(word_dup(word)));
+        return (word_array_append_word(NULL, word));
     return (matches);
 }
 
@@ -127,5 +123,5 @@ t_word **expand_argv_word(const t_minishell *sh, const char *word)
     ret = build_result(exp_word, matches);
     if (ret)
         return (word_free(exp_word), ret);
-    return (word_free(exp_word), word_array_append(NULL, ft_strdup(word)));
+    return (word_free(exp_word), word_array_append_cstr(NULL, word));
 }

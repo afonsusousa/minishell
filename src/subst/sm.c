@@ -39,14 +39,14 @@ static void handle_quote_state(t_quote_machine *sm, int flags)
 
 static void handle_variable_state(t_quote_machine *sm, const t_minishell *sh)
 {
-    char *var;
+    t_word *var;
 
     if (is_valid(sm->ch) || sm->ch == '?')
     {
-        var = envp_getvar_value(sh, &sm->str[sm->str_pos]);
-        sm_cat(sm, var);
+        var = envp_getvar_word(sh, &sm->str[sm->str_pos]);
+        sm_cat_word(sm, var);
         if (var)
-            free(var);
+            word_free(var);
         if (sm->ch == '?')
             sm_advance(sm);
         else
@@ -92,20 +92,5 @@ t_word *expanded(const t_minishell *sh, const char *str, int flags)
         return (free(result->content), free(result), NULL);
     ft_memcpy(result->quoted_map, sm.quoted_map, result->len * sizeof(bool));
     result->quoted_map[result->len] = false;
-    return (result);
-}
-
-char *expanded_gambiarra(t_envp *env, const char *str, int flags)
-{
-    t_minishell gambiarra;
-    t_word *tracked;
-    char *result;
-
-    gambiarra.env = env;
-    tracked = expanded(&gambiarra, str, flags);
-    if (!tracked)
-        return (NULL);
-    result = ft_strdup(tracked->content);
-    word_free(tracked);
     return (result);
 }
