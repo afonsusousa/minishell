@@ -8,15 +8,29 @@
 #include "../../../includes/minishell.h"
 #include "../../../includes/executor.h"
 
-
-static int setup_fds(const t_minishell *sh)
+// THIS IS HEAVILY LEAKING FDs
+static int setup_fds(t_minishell *sh)
 {
-    if (sh->pipeline.io[READ_END] != STDIN_FILENO &&
-        dup2(sh->pipeline.io[READ_END], STDIN_FILENO) < 0)
-            return (perror("dup2"), 1);
+    if (sh->pipeline.io[READ_END] != STDIN_FILENO
+        && sh->pipeline.io[READ_END] != -1
+        && dup2(sh->pipeline.io[READ_END], STDIN_FILENO) < 0)
+        return (perror("dup2"), 1);
+    if (sh->pipeline.io[READ_END] != STDIN_FILENO
+        && sh->pipeline.io[READ_END] != -1)
+    {
+        close(sh->pipeline.io[READ_END]);
+        sh->pipeline.io[READ_END] = -1;
+    }
     if (sh->pipeline.io[WRITE_END] != STDOUT_FILENO
+        && sh->pipeline.io[WRITE_END] != -1
         && dup2(sh->pipeline.io[WRITE_END], STDOUT_FILENO) < 0)
-            return (perror("dup2"), 1);
+        return (perror("dup2"), 1);
+    if (sh->pipeline.io[WRITE_END] != STDOUT_FILENO
+        && sh->pipeline.io[WRITE_END] != -1)
+    {
+        close(sh->pipeline.io[WRITE_END]);
+        sh->pipeline.io[WRITE_END] = -1;
+    }
     return (0);
 }
 
@@ -32,6 +46,14 @@ static int fork_core(t_minishell *sh, const t_ast *core)
     {
         if (setup_fds(sh) != 0)
             exit(1);
+        if (sh->pipeline.pipefd[READ_END] != -1)
+            close(sh->pipeline.pipefd[READ_END]);
+        if (sh->pipeline.pipefd[WRITE_END] != -1)
+            close(sh->pipeline.pipefd[WRITE_END]);
+        sh->pipeline.pipefd[READ_END] = -1;
+        sh->pipeline.pipefd[WRITE_END] = -1;
+        sh->pipeline.io[READ_END] = -1;
+        sh->pipeline.io[WRITE_END] = -1;
         sh->pipeline.count = 0;
         status = exec_core(sh, core, true);
         minishell_free(sh);
@@ -52,16 +74,21 @@ static int exec_pipeline_core(t_minishell *sh, const t_ast_list *core)
                 close(sh->pipeline.io[READ_END]);
             return (perror("pipe"), 1);
         }
-        sh->pipeline.io[WRITE_END] = sh->pipeline.pipefd[WRITE_END];
+        sh->pipeline.io[WRITE_END] = dup(sh->pipeline.pipefd[WRITE_END]);
+        if (sh->pipeline.pipefd[WRITE_END] != -1)
+            close(sh->pipeline.pipefd[WRITE_END]);
+        sh->pipeline.pipefd[WRITE_END] = -1;
     }
     if (fork_core(sh, core->node) < 0)
         return (pipeline_fork_error(sh, core));
     if (sh->pipeline.io[READ_END] != STDIN_FILENO)
         close(sh->pipeline.io[READ_END]);
+    if (sh->pipeline.io[WRITE_END] != STDOUT_FILENO)
+        close(sh->pipeline.io[WRITE_END]);
     if (core->next)
     {
-        close(sh->pipeline.pipefd[WRITE_END]);
         sh->pipeline.io[READ_END] = sh->pipeline.pipefd[READ_END];
+        sh->pipeline.pipefd[READ_END] = -1;
     }
     return (0);
 }
