@@ -89,7 +89,7 @@ int main(int argc, char **argv, char **envp)
     sh.env = &env;
     sh.ctx = &ctx;
     for (i = 0; envp[i] != NULL; i++)
-        envp_append_var(&sh, envp[i], EXPORT);
+        envp_setvar_str(sh.env, envp[i], sh.last_status, EXPORT);
     if (argc > 1)
     {
         sh.line = ft_strdup(argv[1]);

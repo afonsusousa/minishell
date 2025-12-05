@@ -3,51 +3,43 @@
 //
 
 #ifndef MINISHELL_ENVP_CLEAN_H
-#define MINISHELL_ENVP_CLEAN_H
+# define MINISHELL_ENVP_CLEAN_H
 
-#include <stddef.h>
-#include <stdbool.h>
+# include <stddef.h>
+# include <stdbool.h>
 
-#define EXPORT (1 << 0)
-#define USE_CTX (1 << 1)
-
-typedef struct s_minishell t_minishell;
+# define EXPORT (1 << 0)
 
 typedef struct s_var
 {
-    char *name;
-    char *value;
-    bool export;
-    size_t len;
-    struct s_var *next;
-    struct s_var *prev;
-} t_var;
+	char			*name;
+	char			*value;
+	bool			export;
+	size_t			len;
+	struct s_var	*next;
+	struct s_var	*prev;
+}	t_var;
 
 typedef struct s_envp
 {
-    t_var *head;
-    size_t count;
-} t_envp;
+	t_var	*head;
+	size_t	count;
+}	t_envp;
 
-// Node Construction
-t_var       *new_var(const char *assign, int flags);
-t_var       *envp_push(const t_minishell *sh, t_var *node);
+// Core operations
+t_var	*envp_getvar(t_envp *env, const char *name);
+char	*envp_getvar_value(t_envp *env, const char *name, int last_status);
+t_var	*envp_setvar(t_envp *env, const char *name, const char *value, int flags);
+t_var	*envp_appendvar(t_envp *env, const char *name, const char *value, int flags);
+bool	envp_unsetvar(t_envp *env, const char *name);
 
-// Getters
-t_var       *envp_getvar(const t_minishell *sh, const char *name);
-char        **get_envp_array(const t_minishell *sh, bool export);
-
-// Setters
-t_var       *envp_setvar(const t_minishell *sh, const char *var, int flags);
-t_var       *envp_setvar_pair(const t_minishell *sh, const char *name, const char *value, int flags);
-char        *envp_getvar_value(const t_minishell *sh, const char *name);
-bool        envp_unsetvar(const t_minishell *sh, const char *name);
-t_var       *envp_append_var(const t_minishell *sh, const char *append, int flags);
-
-// Cleanup
-void        free_envp(t_envp *env);
+// API functions
+t_var	*envp_setvar_str(t_envp *env, const char *assign, int last_status, int flags);
+t_var	*envp_appendvar_str(t_envp *env, const char *assign, int last_status, int flags);
 
 // Utils
-size_t      key_len(const char *str);
+char	**get_envp_array(t_envp *env, bool populated_only);
+void	free_envp(t_envp *env);
+size_t	key_len(const char *str);
 
-#endif //MINISHELL_ENVP_CLEAN_H
+#endif

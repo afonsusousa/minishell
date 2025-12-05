@@ -7,3 +7,4 @@ joinjoin coupled with double_From_Str = leaks (inevitable)
  :) ASSIGNMENTS
 builtin argument check;
 MOVE HEREDOC TO AFTER FIRST TREE;
+completely remove t_minishell dep from envp, expand outside of these functions

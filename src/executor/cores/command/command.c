@@ -17,13 +17,11 @@
 
 static int exec_assignments(t_minishell* sh, const char **a, bool context)
 {
-    int flags;
+    t_envp *env;
 
-    flags = 0;
-    if (context)
-        flags = EXPORT | USE_CTX;
+    env = context ? sh->ctx : sh->env;
     while (a && *a)
-        if (envp_setvar(sh, *a++, flags) == NULL)
+        if (envp_setvar_str(env, *a++, sh->last_status, EXPORT) == NULL)
             return (1);
     return (0);
 }
@@ -71,7 +69,7 @@ int execve_wrapper(t_minishell* sh, char*** argv)
     if (!argv || !*argv || !**argv)
         return (0);
     orig_cmd = ft_strdup(**argv);
-    env_arr = get_envp_array(sh, true);
+    env_arr = get_envp_array(sh->env, true);
     **argv = find_path(sh, **argv);
     minishell_free(sh);
     execve(**argv, *argv, env_arr);

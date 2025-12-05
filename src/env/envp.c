@@ -4,283 +4,266 @@
 
 #include <stddef.h>
 #include "../../includes/envp.h"
-#include "../../includes/minishell.h"
-#include <ctype.h>
+#include "../../includes/globbing.h"
 #include <stdlib.h>
 #include <string.h>
 #include "../../includes/utils.h"
 #include "../../lib/libft/libft.h"
 
-static t_envp *get_env(const t_minishell *sh, int flags)
+size_t	key_len(const char *str)
 {
-    if (!sh)
-        return (NULL);
-    if (flags & USE_CTX)
-        return (sh->ctx);
-    return (sh->env);
+	size_t	klen;
+
+	klen = 0;
+	while (is_valid(str[klen]))
+		klen++;
+	return (klen);
 }
 
-size_t key_len(const char *str)
+static t_var	*new_var(const char *name, char *value, bool export)
 {
-    size_t klen;
+	t_var	*var;
 
-    klen = 0;
-    while (is_valid(str[klen]))
-        klen++;
-    return (klen);
+	var = ft_calloc(sizeof(t_var), 1);
+	if (!var)
+		return (NULL);
+	var->name = ft_strdup(name);
+	var->value = value;
+	var->export = export;
+	var->len = ft_strlen(name);
+	return (var);
 }
 
-char    *name_from_assign(const char *assign)
+static t_var	*envp_push(t_envp *env, t_var *node)
 {
-    const char *end;
+	t_var	*iter;
 
-    end = ft_strchr(assign, '=');
-    if (!end)
-        return (ft_strdup(assign));
-    return (ft_substr(assign, 0, end - assign));
+	if (!env || !node)
+		return (NULL);
+	node->prev = NULL;
+	node->next = NULL;
+	if (!env->head)
+	{
+		env->head = node;
+		env->count = 1;
+		return (node);
+	}
+	iter = env->head;
+	while (iter->next)
+		iter = iter->next;
+	iter->next = node;
+	node->prev = iter;
+	env->count++;
+	return (node);
 }
 
-char    *value_from_assign(const char *assign)
+t_var	*envp_getvar(t_envp *env, const char *name)
 {
-    const char  *start;
+	t_var	*iter;
+	size_t	klen;
 
-    start = ft_strchr(assign, '=');
-    if (!start)
-       return (NULL);
-    return (ft_strdup(start + 1));
+	if (!env || !name)
+		return (NULL);
+	klen = key_len(name);
+	iter = env->head;
+	while (iter)
+	{
+		if (iter->len == klen && ft_strncmp(iter->name, name, klen) == 0)
+			return (iter);
+		iter = iter->next;
+	}
+	return (NULL);
 }
 
-t_var   *new_var(const char *assign, const int flags)
+char	*envp_getvar_value(t_envp *env, const char *name, int last_status)
 {
-    t_var *var;
-    var = ft_calloc(sizeof(t_var), 1);
-    if (!var)
-       return NULL;
-    var->name = name_from_assign(assign);
-    var->value = value_from_assign(assign);
-    var->export = (flags & EXPORT);
-    var->len = key_len(assign);
-    return (var);
+	t_var	*var;
+
+	if (!env || !name)
+		return (NULL);
+	if (*name == '?')
+		return (ft_itoa(last_status));
+	var = envp_getvar(env, name);
+	if (!var || !var->value)
+		return (NULL);
+	return (ft_strdup(var->value));
 }
 
-t_var   *new_var_pair(const char *name, const char *value, const bool export)
+t_var	*envp_setvar(t_envp *env, const char *name, const char *value, int flags)
 {
-    t_var *var;
-    var = ft_calloc(sizeof(t_var), 1);
-    if (!var)
-        return NULL;
-    var->name = ft_strdup(name);
-    if (value)
-        var->value = ft_strdup(value);
-    else
-        var->value = NULL;
-    var->export = export;
-    var->len = key_len(name);
-    return (var);
+	t_var	*var;
+
+	if (!env || !name)
+		return (NULL);
+	var = envp_getvar(env, name);
+	if (var)
+	{
+		free(var->value);
+		if (value)
+			var->value = ft_strdup(value);
+		else
+			var->value = NULL;
+		if (flags & EXPORT)
+			var->export = true;
+		return (var);
+	}
+	if (value)
+		var = new_var(name, ft_strdup(value), flags & EXPORT);
+	else
+		var = new_var(name, NULL, flags & EXPORT);
+	return (envp_push(env, var));
 }
 
-t_var *envp_push(const t_minishell *sh, t_var *node)
+t_var	*envp_appendvar(t_envp *env, const char *name, const char *value, int flags)
 {
-    t_var *iter;
+	t_var	*var;
+	char	*joined;
 
-    if (!sh || !sh->env || !node)
-        return (NULL);
-    node->prev = NULL;
-    node->next = NULL;
-    if (!sh->env->head)
-    {
-        sh->env->head = node;
-        sh->env->count = 1;
-        return (node);
-    }
-    iter = sh->env->head;
-    while (iter->next)
-        iter = iter->next;
-    iter->next = node;
-    node->prev = iter;
-    sh->env->count++;
-    return (node);
+	var = envp_getvar(env, name);
+	if (!var)
+		return (envp_setvar(env, name, value, flags));
+	if (!value)
+		return (var);
+	if (var->value)
+		joined = ft_strjoin(var->value, value);
+	else
+		joined = ft_strdup(value);
+	free(var->value);
+	var->value = joined;
+	return (var);
 }
 
-
-t_var *envp_getvar(const t_minishell *sh, const char *name)
+bool	envp_unsetvar(t_envp *env, const char *name)
 {
-    t_var *iter;
-    size_t klen;
+	t_var	*var;
 
-    if (!sh || !sh->env || !name)
-        return NULL;
-    klen = key_len(name);
-    iter = sh->env->head;
-    while (iter)
-    {
-        if (iter->len == klen && ft_strncmp(iter->name, name, klen) == 0)
-            return iter;
-        iter = iter->next;
-    }
-    return NULL;
+	if (!env || !name)
+		return (false);
+	var = envp_getvar(env, name);
+	if (!var)
+		return (false);
+	if (!var->prev)
+	{
+		if (var->next)
+			var->next->prev = NULL;
+		env->head = var->next;
+	}
+	else
+		var->prev->next = var->next;
+	if (var->next)
+		var->next->prev = var->prev;
+	env->count--;
+	free(var->value);
+	free(var->name);
+	free(var);
+	return (true);
 }
 
-t_var     *envp_setvar(const t_minishell *sh, const char *var, int flags)
+t_var	*envp_setvar_str(t_envp *env, const char *assign, int last_status, int flags)
 {
-    t_var *new;
-    size_t  klen;
-    t_envp *env;
+	char	*name;
+	char	*eq;
+	char	*value;
+	t_var	*var;
 
-    env = get_env(sh, flags);
-    if (!env || !var)
-        return NULL;
-    klen = key_len(var);
-    new = envp_getvar(sh, var);
-    if (new)
-    {
-        free(new->value);
-        if (var[klen] == '=')
-            new->value = ft_strdup(&var[klen + 1]);
-        else
-            new->value = NULL;
-        new->export = (flags & EXPORT);
-        return (new);
-    }
-    new = new_var(var, flags);
-    envp_push(sh, new);
-    return (new);
+	if (!env || !assign)
+		return (NULL);
+	eq = ft_strchr(assign, '=');
+	if (!eq)
+		return (envp_setvar(env, assign, NULL, flags));
+	name = ft_substr(assign, 0, eq - assign);
+	value = expanded_cstr(env, eq + 1, last_status, EXPAND_VARS | CONSUME_QUOTES);
+	var = envp_getvar(env, name);
+	if (var)
+	{
+		free(var->value);
+		var->value = value;
+		if (flags & EXPORT)
+			var->export = true;
+	}
+	else
+		var = envp_push(env, new_var(name, value, flags & EXPORT));
+	free(name);
+	return (var);
 }
 
-t_var     *envp_setvar_pair(const t_minishell *sh, const char *name, const char *value, int flags)
+t_var	*envp_appendvar_str(t_envp *env, const char *assign, int last_status, int flags)
 {
-    t_var *new;
-    t_envp *env;
+	char	*name;
+	char	*eq;
+	char	*value;
+	char	*joined;
+	t_var	*var;
 
-    env = get_env(sh, flags);
-    if (!env || !name)
-        return NULL;
-    new = envp_getvar(sh, name);
-    if (new)
-    {
-        free(new->value);
-        if (value)
-            new->value = ft_strdup(value);
-        else
-            new->value = NULL;
-        new->export = (flags & EXPORT);
-        return (new);
-    }
-    new = new_var_pair(name, value, (flags & EXPORT));
-    envp_push(sh, new);
-    return (new);
+	if (!env || !assign)
+		return (NULL);
+	eq = ft_strchr(assign, '=');
+	if (!eq)
+		return (envp_setvar(env, assign, NULL, flags));
+	name = ft_substr(assign, 0, eq - assign);
+	if (name[ft_strlen(name) - 1] == '+')
+		name[ft_strlen(name) - 1] = '\0';
+	value = expanded_cstr(env, eq + 1, last_status, EXPAND_VARS | CONSUME_QUOTES);
+	var = envp_getvar(env, name);
+	if (!var)
+		var = envp_push(env, new_var(name, value, flags & EXPORT));
+	else
+	{
+		if (var->value && value)
+			joined = ft_strjoin(var->value, value);
+		else if (value)
+			joined = value;
+		else
+			joined = NULL;
+		if (value && joined != value)
+			free(value);
+		free(var->value);
+		var->value = joined;
+	}
+	free(name);
+	return (var);
 }
 
-char     *envp_getvar_value(const t_minishell *sh, const char *name)
+void	free_envp(t_envp *env)
 {
-    t_var *var;
+	t_var	*iter;
+	t_var	*tmp;
 
-    if (!sh || !sh->env || !name)
-        return NULL;
-    var = envp_getvar(sh, name);
-    if (!var && *name == '?')
-        return (ft_itoa(sh->last_status));
-    if (!var || !var->value)
-        return (NULL);
-    return (ft_strdup(var->value));
+	if (!env)
+		return ;
+	iter = env->head;
+	while (iter)
+	{
+		free(iter->value);
+		free(iter->name);
+		tmp = iter->next;
+		free(iter);
+		iter = tmp;
+	}
+	env->head = NULL;
+	env->count = 0;
 }
 
-bool   envp_unsetvar(const t_minishell *sh, const char *name)
+char	**get_envp_array(t_envp *env, bool populated_only)
 {
-    t_var *var;
+	char	**ret;
+	char	**pos;
+	t_var	*var;
 
-    if (!sh || !sh->env || !name)
-        return (false);
-    var = envp_getvar(sh, name);
-    if (!var)
-        return (false);
-    if (!var->prev)
-    {
-        if (var->next)
-            var->next->prev = NULL;
-        sh->env->head = var->next;
-    }
-    else
-        var->prev->next = var->next;
-    if (var->next)
-        var->next->prev = var->prev;
-    free(var->value);
-    free(var->name);
-    return (free(var), true);
-}
-
-void    free_envp(t_envp *env)
-{
-    t_var *iter;
-    t_var *tmp;
-
-    if (!env)
-        return ;
-    iter = env->head;
-    tmp = NULL;
-    while (iter)
-    {
-        free(iter->value);
-        free(iter->name);
-        tmp = iter->next;
-        free(iter);
-        iter = tmp;
-    }
-    env->head = NULL;
-}
-
-t_var *envp_append_var(const t_minishell *sh, const char *append, int flags)
-{
-    t_var	*var;
-    char    *new_part;
-    char    *joined;
-    t_envp *env;
-
-    env = get_env(sh, flags);
-    if (!env || !append)
-        return (NULL);
-    var = envp_getvar(sh, append);
-    if (!var)
-        return (envp_setvar(sh, append, flags));
-    new_part = ft_strchr(append, '=');
-    if (!new_part)
-        return (var);
-    new_part++;
-    if (var->value)
-        joined = ft_strjoin(var->value, new_part);
-    else
-        joined = ft_strdup(new_part);
-    free(var->value);
-    var->value = joined;
-    return (var);
-}
-
-//review every single export
-char    **get_envp_array(const t_minishell *sh, bool populated_only)
-{
-    char **ret;
-    char **pos;
-    t_var *var;
-
-    if (!sh || !sh->env)
-        return (NULL);
-    ret = ft_calloc(sh->env->count + 1,sizeof(char *));
-    if (!ret)
-        return NULL;
-    pos = ret;
-    var = sh->env->head;
-    while (var && (size_t)(pos - ret) < sh->env->count)
-    {
-        if (!var->export)
-        {
-            var = var->next;
-            continue ;
-        }
-        if (var->value)
-            *pos++ = strjoin_three(var->name, "=", var->value);
-        else if (populated_only)
-            *pos++ = strjoin_three(var->name, "", "");
-        var = var->next;
-    }
-    return (ret);
+	if (!env)
+		return (NULL);
+	ret = ft_calloc(env->count + 1, sizeof(char *));
+	if (!ret)
+		return (NULL);
+	pos = ret;
+	var = env->head;
+	while (var)
+	{
+		if (var->export && var->value)
+			*pos++ = strjoin_three(var->name, "=", var->value);
+		else if (var->export && populated_only)
+			*pos++ = strjoin_three(var->name, "", "");
+		var = var->next;
+	}
+	return (ret);
 }
