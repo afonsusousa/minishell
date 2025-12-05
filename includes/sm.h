@@ -39,7 +39,6 @@ void    sm_trasition(t_quote_machine *sm, t_sm_state new);
 void    sm_laststate(t_quote_machine *sm);
 void    sm_consume(t_quote_machine *sm);
 void    sm_cat(t_quote_machine *sm, const char *str);
-void    sm_cat_word(t_quote_machine *sm, const t_word *word);
 
 #endif // MINISHELL_SUBST_MACHINE_H
 

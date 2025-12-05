@@ -12,12 +12,11 @@
 #define USE_CTX (1 << 1)
 
 typedef struct s_minishell t_minishell;
-typedef struct s_word t_word;
 
 typedef struct s_var
 {
     char *name;
-    t_word *value;
+    char *value;
     bool export;
     size_t len;
     struct s_var *next;
@@ -31,7 +30,7 @@ typedef struct s_envp
 } t_envp;
 
 // Node Construction
-t_var       *new_var(const t_minishell *sh, const char *assign, int flags);
+t_var       *new_var(const char *assign, int flags);
 t_var       *envp_push(const t_minishell *sh, t_var *node);
 
 // Getters
@@ -41,8 +40,7 @@ char        **get_envp_array(const t_minishell *sh, bool export);
 // Setters
 t_var       *envp_setvar(const t_minishell *sh, const char *var, int flags);
 t_var       *envp_setvar_pair(const t_minishell *sh, const char *name, const char *value, int flags);
-t_word      *envp_getvar_word(const t_minishell *sh, const char *name);
-char        *envp_getvar_cstr(const t_minishell *sh, const char *name);
+char        *envp_getvar_value(const t_minishell *sh, const char *name);
 bool        envp_unsetvar(const t_minishell *sh, const char *name);
 t_var       *envp_append_var(const t_minishell *sh, const char *append, int flags);
 

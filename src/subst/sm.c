@@ -55,14 +55,13 @@ static void handle_quote_state(t_quote_machine *sm, int flags)
 
 static void handle_variable_state(t_quote_machine *sm, const t_minishell *sh)
 {
-    t_word *var;
+    char *var;
 
     if (is_valid(sm->ch) || sm->ch == '?')
     {
-        var = envp_getvar_word(sh, &sm->str[sm->str_pos]);
-        sm_cat_word(sm, var);
-        if (var)
-            word_free(var);
+        var = envp_getvar_value(sh, &sm->str[sm->str_pos]);
+        sm_cat(sm, var);
+        free(var);
         if (sm->ch == '?')
             sm_advance(sm);
         else
@@ -102,7 +101,7 @@ t_word *expanded(const t_minishell *sh, const char *str, int flags)
     if (!result)
         return (NULL);
     result->content = ft_strdup(sm.buffer);
-    result->len = sm.buff_pos + (sm.prev == IN_DQ || sm.prev == IN_SQ);
+    result->len = sm.buff_pos + ((sm.prev == IN_DQ || sm.prev == IN_SQ) && !sm.buff_pos);
     result->quoted_map = malloc(sizeof(bool) * (result->len + 1));
     if (!result->quoted_map)
         return (free(result->content), free(result), NULL);

@@ -67,17 +67,14 @@ int execve_wrapper(t_minishell* sh, char*** argv)
 {
     char** env_arr;
     char    *orig_cmd;
-    char    *exec_cmd;
 
     if (!argv || !*argv || !**argv)
         return (0);
     orig_cmd = ft_strdup(**argv);
     env_arr = get_envp_array(sh, true);
-    exec_cmd = find_path(sh, orig_cmd);
-    free(**argv);
-    **argv = exec_cmd;
+    **argv = find_path(sh, **argv);
     minishell_free(sh);
-    execve(exec_cmd, *argv, env_arr);
+    execve(**argv, *argv, env_arr);
     free_envp(sh->ctx);
     free_until_null(&env_arr);
     execve_error(argv, orig_cmd);

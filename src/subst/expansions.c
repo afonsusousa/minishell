@@ -17,7 +17,7 @@ char *expand_tilde(const t_minishell *sh, char *cmd)
 
     if (cmd[0] != '~')
         return (NULL);
-    home = envp_getvar_cstr(sh, "HOME");
+    home = envp_getvar_value(sh, "HOME");
     if (!home)
         return (ft_strdup(cmd));
     if (cmd[1] == '\0')

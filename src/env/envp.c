@@ -4,13 +4,12 @@
 
 #include <stddef.h>
 #include "../../includes/envp.h"
+#include "../../includes/minishell.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-#include "globbing.h"
 #include "../../includes/utils.h"
 #include "../../lib/libft/libft.h"
-#include "../../includes/sm.h"
 
 static t_envp *get_env(const t_minishell *sh, int flags)
 {
@@ -41,24 +40,24 @@ char    *name_from_assign(const char *assign)
     return (ft_substr(assign, 0, end - assign));
 }
 
-t_word    *value_from_assign(const t_minishell *sh, const char *assign)
+char    *value_from_assign(const char *assign)
 {
     const char  *start;
 
     start = ft_strchr(assign, '=');
     if (!start)
        return (NULL);
-    return (expanded(sh, start + 1, CONSUME_QUOTES | EXPAND_VARS));
+    return (ft_strdup(start + 1));
 }
 
-t_var   *new_var(const t_minishell *sh, const char *assign, const int flags)
+t_var   *new_var(const char *assign, const int flags)
 {
     t_var *var;
     var = ft_calloc(sizeof(t_var), 1);
     if (!var)
        return NULL;
     var->name = name_from_assign(assign);
-    var->value = value_from_assign(sh, assign);
+    var->value = value_from_assign(assign);
     var->export = (flags & EXPORT);
     var->len = key_len(assign);
     return (var);
@@ -72,7 +71,7 @@ t_var   *new_var_pair(const char *name, const char *value, const bool export)
         return NULL;
     var->name = ft_strdup(name);
     if (value)
-        var->value = word_new(value, false);
+        var->value = ft_strdup(value);
     else
         var->value = NULL;
     var->export = export;
@@ -122,7 +121,6 @@ t_var *envp_getvar(const t_minishell *sh, const char *name)
     return NULL;
 }
 
-// expannsions here
 t_var     *envp_setvar(const t_minishell *sh, const char *var, int flags)
 {
     t_var *new;
@@ -136,14 +134,15 @@ t_var     *envp_setvar(const t_minishell *sh, const char *var, int flags)
     new = envp_getvar(sh, var);
     if (new)
     {
-        if (new->value)
-            word_free(new->value);
+        free(new->value);
         if (var[klen] == '=')
-            new->value = expanded(sh, &var[klen + 1], CONSUME_QUOTES | EXPAND_VARS);
+            new->value = ft_strdup(&var[klen + 1]);
+        else
+            new->value = NULL;
         new->export = (flags & EXPORT);
         return (new);
     }
-    new = new_var(sh, var, flags);
+    new = new_var(var, flags);
     envp_push(sh, new);
     return (new);
 }
@@ -159,10 +158,9 @@ t_var     *envp_setvar_pair(const t_minishell *sh, const char *name, const char 
     new = envp_getvar(sh, name);
     if (new)
     {
-        if (new->value)
-            word_free(new->value);
+        free(new->value);
         if (value)
-            new->value = expanded(sh, value, CONSUME_QUOTES | EXPAND_VARS);
+            new->value = ft_strdup(value);
         else
             new->value = NULL;
         new->export = (flags & EXPORT);
@@ -173,28 +171,7 @@ t_var     *envp_setvar_pair(const t_minishell *sh, const char *name, const char 
     return (new);
 }
 
-t_word     *envp_getvar_word(const t_minishell *sh, const char *name)
-{
-    t_var *var;
-    char *status_str;
-    t_word *result;
-
-    if (!sh || !sh->env || !name)
-        return NULL;
-    var = envp_getvar(sh, name);
-    if (!var && *name == '?')
-    {
-        status_str = ft_itoa(sh->last_status);
-        result = word_new(status_str, false);
-        free(status_str);
-        return (result);
-    }
-    if (!var || !var->value)
-        return (NULL);
-    return (word_dup(var->value));
-}
-
-char     *envp_getvar_cstr(const t_minishell *sh, const char *name)
+char     *envp_getvar_value(const t_minishell *sh, const char *name)
 {
     t_var *var;
 
@@ -203,9 +180,9 @@ char     *envp_getvar_cstr(const t_minishell *sh, const char *name)
     var = envp_getvar(sh, name);
     if (!var && *name == '?')
         return (ft_itoa(sh->last_status));
-    if (!var || !var->value || !var->value->content)
+    if (!var || !var->value)
         return (NULL);
-    return (ft_strdup(var->value->content));
+    return (ft_strdup(var->value));
 }
 
 bool   envp_unsetvar(const t_minishell *sh, const char *name)
@@ -227,7 +204,7 @@ bool   envp_unsetvar(const t_minishell *sh, const char *name)
         var->prev->next = var->next;
     if (var->next)
         var->next->prev = var->prev;
-    word_free(var->value);
+    free(var->value);
     free(var->name);
     return (free(var), true);
 }
@@ -243,7 +220,7 @@ void    free_envp(t_envp *env)
     tmp = NULL;
     while (iter)
     {
-        word_free(iter->value);
+        free(iter->value);
         free(iter->name);
         tmp = iter->next;
         free(iter);
@@ -255,7 +232,7 @@ void    free_envp(t_envp *env)
 t_var *envp_append_var(const t_minishell *sh, const char *append, int flags)
 {
     t_var	*var;
-    t_word  *exp_word;
+    char    *new_part;
     char    *joined;
     t_envp *env;
 
@@ -265,17 +242,16 @@ t_var *envp_append_var(const t_minishell *sh, const char *append, int flags)
     var = envp_getvar(sh, append);
     if (!var)
         return (envp_setvar(sh, append, flags));
-    exp_word = expanded(sh, ft_strchr(append, '=') + 1, CONSUME_QUOTES | EXPAND_VARS);
-    if (!exp_word)
+    new_part = ft_strchr(append, '=');
+    if (!new_part)
         return (var);
-    if (var->value && var->value->content)
-        joined = ft_strjoin(var->value->content, exp_word->content);
+    new_part++;
+    if (var->value)
+        joined = ft_strjoin(var->value, new_part);
     else
-        joined = ft_strdup(exp_word->content);
-    word_free(exp_word);
-    word_free(var->value);
-    var->value = word_new(joined, false);
-    free(joined);
+        joined = ft_strdup(new_part);
+    free(var->value);
+    var->value = joined;
     return (var);
 }
 
@@ -300,8 +276,8 @@ char    **get_envp_array(const t_minishell *sh, bool populated_only)
             var = var->next;
             continue ;
         }
-        if (var->value && var->value->content)
-            *pos++ = strjoin_three(var->name, "=", var->value->content);
+        if (var->value)
+            *pos++ = strjoin_three(var->name, "=", var->value);
         else if (populated_only)
             *pos++ = strjoin_three(var->name, "", "");
         var = var->next;

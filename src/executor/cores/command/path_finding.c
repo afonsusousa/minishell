@@ -16,7 +16,7 @@ static char *search_path(t_minishell *sh, char *cmd)
     char *try;
     char *path;
 
-    path = envp_getvar_cstr(sh, "PATH");
+    path = envp_getvar_value(sh, "PATH");
     if (!path)
         return (NULL);
     split_path = ft_split(path, ':');

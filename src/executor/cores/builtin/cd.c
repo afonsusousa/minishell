@@ -22,7 +22,7 @@ int exec_cd(const t_minishell *sh, char **argv, const int argc)
         return ((write(2, "minishell: cd: too many arguments\n", 34) & 0) | 2);
     if (argc == 1 || (argc == 2 && no_op_follow))
     {
-        subst = envp_getvar_cstr(sh, "HOME");
+        subst = envp_getvar_value(sh, "HOME");
         if (subst)
             ft_strlcpy(path, subst, ARG_MAX);
         else
@@ -33,7 +33,7 @@ int exec_cd(const t_minishell *sh, char **argv, const int argc)
         ft_strlcpy(path, ".", 2);
     else if (ft_strcmp(argv[1], "-") == 0)
     {
-        subst = envp_getvar_cstr(sh, "OLDPWD");
+        subst = envp_getvar_value(sh, "OLDPWD");
         if (!subst)
             return ((write(2, "minishell: cd: OLDPWD not set\n", 30)  & 0) | 1);
         ft_strlcpy(path, subst, ARG_MAX);

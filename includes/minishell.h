@@ -16,8 +16,7 @@ typedef struct s_pipeline
 {
     pid_t   pids[256];
     size_t  count;
-    int     pipefd[2];
-    int     io[2];
+    int     prev_read;
 } t_pipeline;
 
 typedef struct s_heredoc
