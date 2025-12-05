@@ -14,7 +14,7 @@ int print_exported_variables(const t_minishell *sh)
     int     size;
 
     size = 0;
-    envp = get_envp_array(sh, false);
+    envp = get_envp_array(sh->env, false);
     while (envp && envp[size])
         size++;
     merge_sort_strings(envp, 0, size - 1);
@@ -84,9 +84,9 @@ int exec_export(const t_minishell *sh, char **argv, const int argc)
             continue;
         }
         if (is_append(*argv))
-            var = envp_append_var(sh, *argv, EXPORT);
+            var = envp_appendvar_str(sh->env, *argv, sh->last_status, EXPORT);
         else
-            var = envp_setvar(sh, *argv, EXPORT);
+            var = envp_setvar_str(sh->env, *argv, sh->last_status, EXPORT);
         if (!var)
             status = 127;
     }

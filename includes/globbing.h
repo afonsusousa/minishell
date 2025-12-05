@@ -18,7 +18,8 @@ char    *expanded_str(const t_envp *env, const char *str, bool follow_dq);
 t_word  **get_matches(char *cwd, t_word **wildstr);
 t_word  **expand_cwd_wildcards(t_word *word);
 int     heredoc_fd(t_minishell *sh, const char *delimiter);
-t_word  *expanded(const t_minishell *sh, const char *str, int flags);
+t_word  *expanded(t_envp *env, const char *str, int last_status, int flags);
+char    *expanded_cstr(t_envp *env, const char *str, int last_status, int flags);
 char    *expanded_gambiarra(t_envp *env, const char *str, int flags);
 t_word  **expand_argv_word(const t_minishell *sh, const char *word);
 

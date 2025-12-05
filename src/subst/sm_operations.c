@@ -44,31 +44,13 @@ void sm_cat(t_quote_machine *sm, const char *str)
 
     if (!str)
         return ;
-    quoted = (sm->prev == IN_DQ || sm->prev == IN_SQ);
+    quoted = (sm->curr == IN_VAR && (sm->prev == IN_DQ || sm->prev == IN_SQ))
+    || sm->curr == IN_DQ || sm->curr == IN_SQ;
     while (*str && sm->buff_pos < ARG_MAX)
     {
         sm->buffer[sm->buff_pos] = *str++;
         sm->quoted_map[sm->buff_pos] = quoted;
         sm->buff_pos++;
-    }
-}
-
-void sm_cat_word(t_quote_machine *sm, const t_word *word)
-{
-    size_t i;
-
-    if (!word || !word->content)
-        return ;
-    i = 0;
-    while (i < word->len && sm->buff_pos < ARG_MAX)
-    {
-        sm->buffer[sm->buff_pos] = word->content[i];
-        if (word->quoted_map)
-            sm->quoted_map[sm->buff_pos] = word->quoted_map[i];
-        else
-            sm->quoted_map[sm->buff_pos] = false;
-        sm->buff_pos++;
-        i++;
     }
 }
 

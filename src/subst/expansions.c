@@ -17,7 +17,7 @@ char *expand_tilde(const t_minishell *sh, char *cmd)
 
     if (cmd[0] != '~')
         return (NULL);
-    home = envp_getvar_cstr(sh, "HOME");
+    home = envp_getvar_value(sh->env, "HOME", sh->last_status);
     if (!home)
         return (ft_strdup(cmd));
     if (cmd[1] == '\0')
@@ -110,9 +110,9 @@ t_word **expand_argv_word(const t_minishell *sh, const char *word)
         return (NULL);
     tilde_exp = expand_tilde((t_minishell *)sh, (char *)word);
     if (tilde_exp)
-        exp_word = expanded(sh, tilde_exp, EXPAND_VARS | CONSUME_QUOTES);
+        exp_word = expanded(sh->env, tilde_exp, sh->last_status, EXPAND_VARS | CONSUME_QUOTES);
     else
-        exp_word = expanded(sh, word, EXPAND_VARS | CONSUME_QUOTES);
+        exp_word = expanded(sh->env, word, sh->last_status, EXPAND_VARS | CONSUME_QUOTES);
     free(tilde_exp);
     if (!exp_word)
         return (NULL);

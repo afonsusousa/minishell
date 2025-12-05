@@ -9,23 +9,6 @@
 #include "../../includes/globbing.h"
 #include "../../includes/sm.h"
 
-static void handle_default_state(t_quote_machine *sm, int flags)
-{
-    if (sm->ch == '\\')
-    {
-        sm_advance(sm);
-        sm_consume(sm);
-    }
-    else if (flags & CONSUME_QUOTES && sm->ch == '\'')
-        sm_trasition(sm, IN_SQ);
-    else if (flags & CONSUME_QUOTES && sm->ch == '"')
-        sm_trasition(sm, IN_DQ);
-    else if (flags & EXPAND_VARS && sm->ch == '$')
-        sm_trasition(sm, IN_VAR);
-    else
-        sm_consume(sm);
-}
-
 static void handle_quote_state(t_quote_machine *sm, int flags)
 {
     char quote_char;
@@ -53,16 +36,15 @@ static void handle_quote_state(t_quote_machine *sm, int flags)
         sm_consume(sm);
 }
 
-static void handle_variable_state(t_quote_machine *sm, const t_minishell *sh)
+static void handle_variable_state(t_quote_machine *sm, t_envp *env, int last_status)
 {
-    t_word *var;
+    char *var;
 
     if (is_valid(sm->ch) || sm->ch == '?')
     {
-        var = envp_getvar_word(sh, &sm->str[sm->str_pos]);
-        sm_cat_word(sm, var);
-        if (var)
-            word_free(var);
+        var = envp_getvar_value(env, &sm->str[sm->str_pos], last_status);
+        sm_cat(sm, var);
+        free(var);
         if (sm->ch == '?')
             sm_advance(sm);
         else
@@ -80,33 +62,62 @@ static void handle_variable_state(t_quote_machine *sm, const t_minishell *sh)
     }
 }
 
-//TODO: is_valid needs fixing (allows much more characters!!)
-t_word *expanded(const t_minishell *sh, const char *str, int flags)
+static void	sm_run(t_quote_machine *sm, t_envp *env, int last_status, int flags)
+{
+    while (sm->ch || sm->curr == IN_VAR)
+    {
+        if (sm->curr == DEFAULT)
+        {
+            if (sm->ch == '\\')
+            {
+                sm_advance(sm);
+                sm_consume(sm);
+            }
+            else if (flags & CONSUME_QUOTES && sm->ch == '\'')
+                sm_trasition(sm, IN_SQ);
+            else if (flags & CONSUME_QUOTES && sm->ch == '"')
+                sm_trasition(sm, IN_DQ);
+            else if (flags & EXPAND_VARS && sm->ch == '$')
+                sm_trasition(sm, IN_VAR);
+            else
+                sm_consume(sm);
+        }
+        else if (sm->curr == IN_DQ || sm->curr == IN_SQ)
+            handle_quote_state(sm, flags);
+        else if (sm->curr == IN_VAR)
+            handle_variable_state(sm, env, last_status);
+    }
+}
+
+t_word *expanded(t_envp *env, const char *str, int last_status, int flags)
 {
     t_quote_machine sm;
     t_word *result;
 
     sm_init(&sm, str);
-    while (sm.ch || sm.curr == IN_VAR)
-    {
-        if (sm.curr == DEFAULT)
-            handle_default_state(&sm, flags);
-        else if (sm.curr == IN_DQ || sm.curr == IN_SQ)
-            handle_quote_state(&sm, flags);
-        else if (sm.curr == IN_VAR)
-            handle_variable_state(&sm, sh);
-    }
+    sm_run(&sm, env, last_status, flags);
     if (!*sm.buffer && sm.prev != IN_DQ && sm.prev != IN_SQ)
         return (NULL);
     result = malloc(sizeof(t_word));
     if (!result)
         return (NULL);
     result->content = ft_strdup(sm.buffer);
-    result->len = sm.buff_pos + (sm.prev == IN_DQ || sm.prev == IN_SQ);
+    result->len = sm.buff_pos + ((sm.prev == IN_DQ || sm.prev == IN_SQ) && !sm.buff_pos);
     result->quoted_map = malloc(sizeof(bool) * (result->len + 1));
     if (!result->quoted_map)
         return (free(result->content), free(result), NULL);
     ft_memcpy(result->quoted_map, sm.quoted_map, result->len * sizeof(bool));
     result->quoted_map[result->len] = false;
     return (result);
+}
+
+char *expanded_cstr(t_envp *env, const char *str, int last_status, int flags)
+{
+    t_quote_machine sm;
+
+    sm_init(&sm, str);
+    sm_run(&sm, env, last_status, flags);
+    if (!*sm.buffer && sm.prev != IN_DQ && sm.prev != IN_SQ)
+        return (NULL);
+    return (ft_strdup(sm.buffer));
 }

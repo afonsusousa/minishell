@@ -40,7 +40,7 @@ static char *expand_heredoc_line(t_minishell *sh, char **line, bool expand)
 
     if (!expand || !*line)
         return (*line);
-    tracked = expanded(sh, *line, EXPAND_VARS);
+    tracked = expanded(sh->env, *line, sh->last_status, EXPAND_VARS);
     if (!tracked)
         return (*line);
     ret = ft_strdup(tracked->content);
@@ -101,7 +101,7 @@ static void handle_heredoc_parent(t_minishell *sh, int heredoc[2])
 
 void heredoc_setup(t_minishell *sh, int heredoc[2])
 {
-    sh->heredoc.del = expanded(sh,  sh->ts->tk->lexeme, CONSUME_QUOTES);
+    sh->heredoc.del = expanded(sh->env, sh->ts->tk->lexeme, sh->last_status, CONSUME_QUOTES);
     if (!sh->heredoc.del)
         return ;
     if (pipe(sh->heredoc.fd) != 0)

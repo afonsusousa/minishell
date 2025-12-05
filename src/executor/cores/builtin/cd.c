@@ -22,7 +22,7 @@ int exec_cd(const t_minishell *sh, char **argv, const int argc)
         return ((write(2, "minishell: cd: too many arguments\n", 34) & 0) | 2);
     if (argc == 1 || (argc == 2 && no_op_follow))
     {
-        subst = envp_getvar_cstr(sh, "HOME");
+        subst = envp_getvar_value(sh->env, "HOME", sh->last_status);
         if (subst)
             ft_strlcpy(path, subst, ARG_MAX);
         else
@@ -33,7 +33,7 @@ int exec_cd(const t_minishell *sh, char **argv, const int argc)
         ft_strlcpy(path, ".", 2);
     else if (ft_strcmp(argv[1], "-") == 0)
     {
-        subst = envp_getvar_cstr(sh, "OLDPWD");
+        subst = envp_getvar_value(sh->env, "OLDPWD", sh->last_status);
         if (!subst)
             return ((write(2, "minishell: cd: OLDPWD not set\n", 30)  & 0) | 1);
         ft_strlcpy(path, subst, ARG_MAX);
@@ -51,7 +51,7 @@ int exec_cd(const t_minishell *sh, char **argv, const int argc)
         write(2, ": ", 2);
         return (perror(NULL), 1);
     }
-    envp_setvar_pair(sh, "OLDPWD", oldpwd, EXPORT);
-    envp_setvar_pair(sh, "PWD", getcwd(path, ARG_MAX), EXPORT);
+    envp_setvar(sh->env, "OLDPWD", oldpwd, EXPORT);
+    envp_setvar(sh->env, "PWD", getcwd(path, ARG_MAX), EXPORT);
     return (0);
 }

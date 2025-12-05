@@ -21,17 +21,16 @@ bool    is_core_builtin(const t_ast *core)
     return (false);
 }
 
-int pipeline_fork_error(t_minishell *sh, const t_ast_list *curr)
+int pipeline_fork_error(t_minishell *sh, int fd[2])
 {
     size_t  i;
 
-    if (curr && curr->next)
-    {
-        close(sh->pipeline.pipefd[0]);
-        close(sh->pipeline.pipefd[1]);
-    }
-    if (sh->pipeline.io[0] != STDIN_FILENO)
-        close(sh->pipeline.io[0]);
+    if (fd[0] != -1)
+        close(fd[0]);
+    if (fd[1] != -1)
+        close(fd[1]);
+    if (sh->pipeline.prev_read != -1)
+        close(sh->pipeline.prev_read);
     i = 0;
     while (i < sh->pipeline.count)
     {
