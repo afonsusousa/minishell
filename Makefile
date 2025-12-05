@@ -19,7 +19,8 @@ SRCS := \
 	$(SRC_DIR)/parser/cores.c \
 	$(SRC_DIR)/parser/logical.c \
 	$(SRC_DIR)/parser/helpers.c \
-	$(SRC_DIR)/parser/heredoc.c \
+	$(SRC_DIR)/parser/heredoc/capture.c \
+	$(SRC_DIR)/parser/heredoc/descent.c \
 	$(SRC_DIR)/parser/pipeline.c \
 	$(SRC_DIR)/parser/redirs.c \
 	$(SRC_DIR)/parser/utils.c \

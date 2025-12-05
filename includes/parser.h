@@ -20,7 +20,8 @@ t_ast_list	*parse_core_redirs(t_minishell *sh);
 // Utils
 t_token_type is_redir_token_type(t_token_stream *ts);
 int          is_redir_ahead(const t_token_stream *ts);
-void        heredoc_setup(t_minishell *sh, int heredoc[2]);
+int         heredoc_setup(t_minishell *sh, int heredoc[2]);
+int         heredoc_descend(t_minishell *sh, t_ast* node);
 
 // Helpers
 t_ast       *ast_make_binary_node(t_ast_type type, t_ast *left, t_ast *right);

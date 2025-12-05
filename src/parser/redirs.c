@@ -36,13 +36,7 @@ t_ast *parse_redir(t_minishell *sh)
     redir = ast_make_redir_node(redir_type);
     if (!redir)
         return (NULL);
-    if (redir_type == TOK_HEREDOC && ts_match(sh->ts, TOK_WORD))
-    {
-        heredoc_setup(sh, redir->as.redir.target.heredoc);
-        if (sh->aborted_parse || redir->as.redir.target.heredoc[1] == -1)
-            return (NULL);
-    }
-    else if (ts_match(sh->ts, TOK_WORD))
+    if (ts_match(sh->ts, TOK_WORD))
         redir->as.redir.target.file_name = ft_strdup(sh->ts->tk->lexeme);
     else
         return (parser_abort_error(sh), ast_free(redir), NULL);

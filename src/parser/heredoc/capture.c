@@ -7,8 +7,8 @@
 #include <unistd.h>
 #include <readline/readline.h>
 #include <signal.h>
-#include "../../includes/globbing.h"
-#include "../../lib/libft/libft.h"
+#include "../../../includes/globbing.h"
+#include "../../../lib/libft/libft.h"
 #include <sys/wait.h>
 #include <sys/types.h>
 #include "minishell.h"
@@ -59,7 +59,7 @@ static void run_heredoc_child(t_minishell *sh)
     write_fd = sh->heredoc.fd[1];
     signal(SIGINT, SIG_DFL);
     should_expand = !has_quotes(sh->heredoc.del);
-    while (1)
+    while (true)
     {
         line = readline("heredoc> ");
         if (ft_strcmp(line, sh->heredoc.del->content) == 0)
@@ -79,7 +79,7 @@ static void run_heredoc_child(t_minishell *sh)
     exit(0);
 }
 
-static void handle_heredoc_parent(t_minishell *sh, int heredoc[2])
+static int handle_heredoc_parent(t_minishell *sh, int heredoc[2])
 {
     close(sh->heredoc.fd[1]);
     signal(SIGINT, SIG_IGN);
@@ -92,22 +92,20 @@ static void handle_heredoc_parent(t_minishell *sh, int heredoc[2])
         close(sh->heredoc.fd[0]);
         heredoc[0] = -1;
         heredoc[1] = -1;
-        sh->aborted_parse = true;
-        sh->last_status = 130;
+        return (130);
     }
-    else
-        heredoc[0] = sh->heredoc.fd[0];
+    heredoc[0] = sh->heredoc.fd[0];
+    return (0);
 }
 
-void heredoc_setup(t_minishell *sh, int heredoc[2])
+int heredoc_setup(t_minishell *sh, int heredoc[2])
 {
-    sh->heredoc.del = expanded(sh->env, sh->ts->tk->lexeme, sh->last_status, CONSUME_QUOTES);
     if (!sh->heredoc.del)
-        return ;
+        return (1);
     if (pipe(sh->heredoc.fd) != 0)
     {
         word_free(sh->heredoc.del);
-        return ;
+        return (1);
     }
     sh->heredoc.pid = fork();
     if (sh->heredoc.pid < 0)
@@ -115,12 +113,12 @@ void heredoc_setup(t_minishell *sh, int heredoc[2])
         close(sh->heredoc.fd[0]);
         close(sh->heredoc.fd[1]);
         word_free(sh->heredoc.del);
-        return;
+        return (1);
     }
     if (sh->heredoc.pid == 0)
     {
         close(sh->heredoc.fd[0]);
         run_heredoc_child(sh);
     }
-    handle_heredoc_parent(sh, heredoc);
+    return (handle_heredoc_parent(sh, heredoc));
 }

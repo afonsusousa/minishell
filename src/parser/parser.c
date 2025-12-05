@@ -31,6 +31,9 @@ t_ast	*parse_command_line(t_minishell *sh, bool subshell)
 
 void parse(t_minishell *sh)
 {
+    int here_status;
+
+    here_status = 0;
     if (sh->aborted_parse)
     {
         ast_free(sh->ast);
@@ -38,4 +41,10 @@ void parse(t_minishell *sh)
         return ;
     }
     sh->ast = parse_command_line(sh, false);
+    here_status = heredoc_descend(sh, sh->ast);
+    if (here_status)
+    {
+        sh->aborted_parse = true;
+        sh->last_status = here_status;
+    }
 }
