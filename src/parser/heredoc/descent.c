@@ -65,7 +65,7 @@ int heredoc_descend(t_minishell *sh, t_ast* node)
     if (node->type == AST_AND_LIST || node->type == AST_OR_LIST)
     {
         status = heredoc_descend(sh, node->as.binop.left);
-        if (heredoc_descend(sh, node->as.binop.left))
+        if (status)
             return (status);
         return (heredoc_descend(sh, node->as.binop.right));
     }

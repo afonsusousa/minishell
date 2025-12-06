@@ -13,8 +13,6 @@
 static void	minishell_init(t_minishell *sh, t_token_stream *ts,
 		t_envp *env, t_envp *ctx)
 {
-	t_var	*shlvl;
-
 	signal_setup();
 	ft_memset(ts, 0, sizeof(t_token_stream));
 	ft_memset(env, 0, sizeof(t_envp));
@@ -23,20 +21,27 @@ static void	minishell_init(t_minishell *sh, t_token_stream *ts,
 	sh->ts = ts;
 	sh->env = env;
 	sh->ctx = ctx;
+}
+
+static void	init_env(t_minishell *sh, char **envp)
+{
+	int		i;
+	t_var	*shlvl;
+	char	cwd[4096];
+
+	i = 0;
+	while (envp[i] != NULL)
+		envp_setvar_str(sh->env, envp[i++], sh->last_status, EXPORT);
 	shlvl = envp_getvar(sh->env, "SHLVL");
 	if (shlvl && shlvl->value)
 		envp_setvar(sh->env, "SHLVL", ft_itoa(ft_atoi(shlvl->value) + 1), EXPORT);
 	else
 		envp_setvar(sh->env, "SHLVL", ft_strdup("1"), EXPORT);
-}
-
-static void	init_env(t_minishell *sh, char **envp)
-{
-	int	i;
-
-	i = 0;
-	while (envp[i] != NULL)
-		envp_setvar_str(sh->env, envp[i++], sh->last_status, EXPORT);
+	if (getcwd(cwd, sizeof(cwd)))
+	{
+		envp_setvar(sh->env, "PWD", cwd, EXPORT);
+		envp_setvar(sh->env, "OLDPWD", cwd, EXPORT);
+	}
 }
 
 int	main(int argc, char **argv, char **envp)

@@ -61,7 +61,7 @@ static void run_heredoc_child(t_minishell *sh)
     should_expand = !has_quotes(sh->heredoc.del);
     while (true)
     {
-        line = readline("heredoc> ");
+        line = readline("> ");
         if (ft_strcmp(line, sh->heredoc.del->content) == 0)
         {
             free(line);
