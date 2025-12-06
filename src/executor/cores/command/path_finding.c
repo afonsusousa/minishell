@@ -39,11 +39,14 @@ static char *search_path(t_minishell *sh, char *cmd)
 char *find_path(t_minishell *sh, char *cmd)
 {
     char *expanded_cmd;
+    const t_var *path;
 
     expanded_cmd = expand_tilde(sh, cmd);
     if (!expanded_cmd)
         expanded_cmd = cmd;
-    if (ft_strchr(expanded_cmd, '/'))
+    path = envp_getvar(sh->env, "PATH");
+    if (ft_strchr(expanded_cmd, '/')
+        || !path || !path->value || !*path->value)
     {
         if (access(expanded_cmd, F_OK) == 0)
             return (expanded_cmd);

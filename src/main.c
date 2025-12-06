@@ -82,6 +82,7 @@ int main(int argc, char **argv, char **envp)
     t_envp env = (t_envp){0};
     t_envp ctx = (t_envp){0};
     int i;
+    t_var *shlvl;
 
     signal_setup();
     memset(&sh, 0, sizeof(t_minishell));
@@ -90,6 +91,11 @@ int main(int argc, char **argv, char **envp)
     sh.ctx = &ctx;
     for (i = 0; envp[i] != NULL; i++)
         envp_setvar_str(sh.env, envp[i], sh.last_status, EXPORT);
+    shlvl = envp_getvar(sh.env, "SHLVL");
+    if (shlvl && shlvl->value)
+        envp_setvar(sh.env, "SHLVL", ft_itoa(ft_atoi(shlvl->value) + 1), EXPORT);
+    else
+        envp_setvar(sh.env, "SHLVL", ft_strdup("1"), EXPORT);
     if (argc > 1)
     {
         sh.line = ft_strdup(argv[1]);

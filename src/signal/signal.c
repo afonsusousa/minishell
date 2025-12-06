@@ -26,6 +26,5 @@ void signal_setup(void)
 
     sa.sa_handler = SIG_IGN;
     sigaction(SIGQUIT, &sa, NULL);
-    sigaction(SIGPIPE, &sa, NULL);
 }
 

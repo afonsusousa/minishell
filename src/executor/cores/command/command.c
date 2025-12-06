@@ -69,8 +69,9 @@ int execve_wrapper(t_minishell* sh, char*** argv)
     if (!argv || !*argv || !**argv)
         return (0);
     orig_cmd = ft_strdup(**argv);
-    env_arr = get_envp_array(sh->env, true);
     **argv = find_path(sh, **argv);
+    envp_setvar(sh->env, "_", **argv, EXPORT);
+    env_arr = get_envp_array(sh->env, true);
     minishell_free(sh);
     execve(**argv, *argv, env_arr);
     free_envp(sh->ctx);

@@ -14,7 +14,7 @@ typedef struct s_word t_word;
 
 typedef struct s_pipeline
 {
-    pid_t   pids[256];
+    pid_t   pids[1024];
     size_t  count;
     int     prev_read;
 } t_pipeline;

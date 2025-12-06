@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+
+#include "libft.h"
 #include "../../../includes/minishell.h"
 #include "../../../includes/executor.h"
 
@@ -82,12 +84,13 @@ int	exec_pipeline(t_minishell *sh, const t_ast_list *cores)
 
 	sh->pipeline.count = 0;
 	sh->pipeline.prev_read = -1;
+    ft_memset(sh->pipeline.pids, -1, 1024);
 	if (!cores)
 		return (0);
 	if (!cores->next && is_core_builtin(cores->node))
 		return (exec_core(sh, cores->node, false));
 	curr = cores;
-	while (curr && sh->pipeline.count < 128)
+	while (curr && sh->pipeline.count < 1024)
 	{
 		if (exec_pipeline_core(sh, curr) != 0)
 			return (1);
