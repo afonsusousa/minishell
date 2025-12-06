@@ -40,6 +40,9 @@ typedef struct s_minishell
    int            last_status;
 } t_minishell;
 
+int     rl_loop(t_minishell *sh);
+int     exec_line(t_minishell *sh);
+int     notty_line(t_minishell *sh);
 void    minishell_free(t_minishell *sh);
 
 #endif //MINISHELL_MINISHELL_H

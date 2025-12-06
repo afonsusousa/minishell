@@ -8,6 +8,7 @@ LIBFT := $(LIBFT_DIR)/libft.a
 
 SRCS := \
 	$(SRC_DIR)/main.c \
+	$(SRC_DIR)/prompt.c \
 	$(SRC_DIR)/dispose.c \
 	$(SRC_DIR)/ast/ast.c \
 	$(SRC_DIR)/ast/ast_free.c \
@@ -34,10 +35,10 @@ SRCS := \
 	$(SRC_DIR)/env/api.c \
 	$(SRC_DIR)/executor/executor.c \
 	$(SRC_DIR)/executor/logical.c \
-	$(SRC_DIR)/executor/cores.c \
 	$(SRC_DIR)/executor/redir/redirs.c \
 	$(SRC_DIR)/executor/redir/utils.c \
 	$(SRC_DIR)/executor/error.c \
+	$(SRC_DIR)/executor/cores/cores.c \
 	$(SRC_DIR)/executor/cores/builtin/builtins.c \
 	$(SRC_DIR)/executor/cores/builtin/cd.c \
 	$(SRC_DIR)/executor/cores/builtin/echo.c \

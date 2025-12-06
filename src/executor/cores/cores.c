@@ -5,8 +5,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "../../includes/minishell.h"
-#include "../../includes/executor.h"
+#include "../../../includes/minishell.h"
+#include "../../../includes/executor.h"
 
 static void save_parent_fds(int saved[2], bool in_fork)
 {
