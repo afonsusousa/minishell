@@ -11,10 +11,10 @@
 #include "../../../lib/libft/libft.h"
 #include <sys/wait.h>
 #include <sys/types.h>
-#include "minishell.h"
-#include "sig.h"
-#include "sm.h"
-#include "utils.h"
+#include "../../../includes/minishell.h"
+#include "../../../includes/sig.h"
+#include "../../../includes/sm.h"
+#include "../../../includes/utils.h"
 
 static bool has_quotes(const t_word *delimiter)
 {

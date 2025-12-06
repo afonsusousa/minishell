@@ -42,4 +42,8 @@ char	**get_envp_array(t_envp *env, bool populated_only);
 void	free_envp(t_envp *env);
 size_t	key_len(const char *str);
 
+// Internal helpers
+t_var	*new_var(const char *name, char *value, bool export);
+t_var	*envp_push(t_envp *env, t_var *node);
+
 #endif

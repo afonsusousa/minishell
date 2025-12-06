@@ -26,6 +26,15 @@ static bool is_numeric(const char *str)
     return (true);
 }
 
+static void	exit_error(t_minishell *sh, const char *arg)
+{
+    write(2, "minishell: exit: ", 17);
+    write(2, arg, ft_strlen(arg));
+    write(2, ": numeric argument required\n", 28);
+    minishell_free(sh);
+    exit(2);
+}
+
 int exec_exit(t_minishell *sh, char **argv, const int argc)
 {
     int code;
@@ -34,13 +43,7 @@ int exec_exit(t_minishell *sh, char **argv, const int argc)
     if (argc == 2)
     {
         if (!is_numeric(argv[1]))
-        {
-            write(2, "minishell: exit: ", 17);
-            write(2, argv[1], ft_strlen(argv[1]));
-            write(2, ": numeric argument required\n", 28);
-            minishell_free(sh);
-            exit(2);
-        }
+            exit_error(sh, argv[1]);
         code = ft_atoi(argv[1]) % 256;
         if (code < 0)
             code += 256;
@@ -48,13 +51,7 @@ int exec_exit(t_minishell *sh, char **argv, const int argc)
     else if (argc > 2)
     {
         if (!is_numeric(argv[1]))
-        {
-            write(2, "minishell: exit: ", 17);
-            write(2, argv[1], ft_strlen(argv[1]));
-            write(2, ": numeric argument required\n", 28);
-            minishell_free(sh);
-            exit(2);
-        }
+            exit_error(sh, argv[1]);
         return ((write(2, "minishell: exit: too many arguments\n", 36) & 0) | 2);
     }
     free_argv(argv);

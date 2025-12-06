@@ -25,7 +25,10 @@ SRCS := \
 	$(SRC_DIR)/parser/redirs.c \
 	$(SRC_DIR)/parser/utils.c \
 	$(SRC_DIR)/parser/error.c \
-	$(SRC_DIR)/env/envp.c \
+	$(SRC_DIR)/env/utils.c \
+	$(SRC_DIR)/env/getters.c \
+	$(SRC_DIR)/env/setters.c \
+	$(SRC_DIR)/env/api.c \
 	$(SRC_DIR)/executor/executor.c \
 	$(SRC_DIR)/executor/logical.c \
 	$(SRC_DIR)/executor/cores.c \
