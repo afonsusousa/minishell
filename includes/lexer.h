@@ -56,6 +56,10 @@ void    lexer_skip_space(t_lexer *lexer);
 t_token *token_new(t_token_type type);
 bool    lexer_next_dmeta(t_lexer *lexer);
 bool    lexer_next_smeta(t_lexer *lexer);
+bool    lexer_next_redir(t_lexer *lexer);
 t_token *lexer_next_token(t_lexer *lexer);
+t_token_type	evaluate_assign(const t_token *t);
+int		is_meta(char c);
+int		is_break(char c);
 
 #endif // MINISHELL_LEXER_H
