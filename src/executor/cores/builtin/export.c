@@ -64,31 +64,47 @@ bool is_append(const char *str)
     return (false);
 }
 
+static int	export_invalid_option(const char *arg)
+{
+	write(2, "minishell: export: -", 20);
+	write(2, arg + 1, 1);
+	write(2, ": invalid option\n", 17);
+	write(2, "export: usage: export [name[=value] ...]\n", 41);
+	return (2);
+}
+
+static int	export_invalid_identifier(const char *arg)
+{
+	write(2, "minishell: export: `", 20);
+	write(2, arg, ft_strlen(arg));
+	write(2, "': not a valid identifier\n", 26);
+    return (1);
+}
+
 int exec_export(const t_minishell *sh, char **argv, const int argc)
 {
-    t_var *var;
-    int status;
+	t_var	*var;
+	int		status;
 
-    (void) argc;
-    if (argv[1] == NULL)
-        return (print_exported_variables(sh));
-    status = 0;
-    while (*++argv != NULL)
-    {
-        if (!is_valid_var_name(*argv))
-        {
-            write(2, "minishell: export: `", 20);
-            write(2, *argv, ft_strlen(*argv));
-            write(2, "': not a valid identifier\n", 26);
-            status = 1;
-            continue;
-        }
-        if (is_append(*argv))
-            var = envp_appendvar_str(sh->env, *argv, sh->last_status, EXPORT);
-        else
-            var = envp_setvar_str(sh->env, *argv, sh->last_status, EXPORT);
-        if (!var)
-            status = 127;
-    }
-    return (status);
+	(void) argc;
+	if (argv[1] == NULL)
+		return (print_exported_variables(sh));
+	status = 0;
+	while (*++argv != NULL)
+	{
+		if (**argv == '-')
+			return (export_invalid_option(*argv));
+		if (!is_valid_var_name(*argv))
+		{
+			status = export_invalid_identifier(*argv);
+			continue ;
+		}
+		if (is_append(*argv))
+			var = envp_appendvar_str(sh->env, *argv, sh->last_status, EXPORT);
+		else
+			var = envp_setvar_str(sh->env, *argv, sh->last_status, EXPORT);
+		if (!var)
+			status = 127;
+	}
+	return (status);
 }
