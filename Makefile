@@ -59,11 +59,12 @@ SRCS := \
 	$(SRC_DIR)/subst/expansions.c \
 	$(SRC_DIR)/subst/globbing.c \
 	$(SRC_DIR)/subst/sm.c \
+	$(SRC_DIR)/subst/sm_init.c \
+	$(SRC_DIR)/subst/sm_operations.c \
 	$(SRC_DIR)/subst/word_utils.c \
 	$(SRC_DIR)/subst/word_array_utils.c \
 	$(SRC_DIR)/subst/word_cstr_utils.c \
 	$(SRC_DIR)/subst/word_split.c \
-	$(SRC_DIR)/subst/sm_operations.c \
 	$(SRC_DIR)/utils/arrays.c \
 	$(SRC_DIR)/utils/libftpp.c \
 	$(SRC_DIR)/utils/predicate.c \

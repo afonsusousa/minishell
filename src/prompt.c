@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:38:09 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 16:43:26 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 19:31:44 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,15 @@ int	exec_line(t_minishell *sh)
 	return (sh->last_status);
 }
 
+static void	build_prompt(const char *buffer,
+			const char *user, const char *hostname)
+{
+	ft_strlcat((char *) buffer, (char *) user, 1024);
+	ft_strlcat((char *) buffer, "@", 1024);
+	ft_strlcat((char *) buffer,(char *)  hostname, 1024);
+	ft_strlcat((char *) buffer, ":", 1024);
+}
+
 static char	*get_prompt(void)
 {
 	const char	*home;
@@ -52,11 +61,8 @@ static char	*get_prompt(void)
 	if (!user || !hostname)
 		return (ft_strdup("minishell> "));
 	ft_bzero(buffer, 1024);
+	build_prompt(buffer, user, hostname);
 	getcwd(cwd, 1024);
-	ft_strlcat(buffer, user, 1024);
-	ft_strlcat(buffer, "@", 1024);
-	ft_strlcat(buffer, hostname, 1024);
-	ft_strlcat(buffer, ":", 1024);
 	if (home && ft_strnstr(cwd, home, ft_strlen(home)) == cwd)
 	{
 		ft_strlcat(buffer, "~", 1024);
