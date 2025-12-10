@@ -2,13 +2,12 @@
 // Created by afonsusousa on 9/24/25.
 //
 
+#include "../../includes/lexer.h"
+#include "../../includes/minishell.h"
+#include "../../includes/tokens.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "../../includes/lexer.h"
-#include "../../includes/tokens.h"
-#include "../../includes/minishell.h"
 
 void	token_stream_init(const t_minishell *sh)
 {

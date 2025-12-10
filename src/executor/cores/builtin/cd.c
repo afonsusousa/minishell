@@ -1,13 +1,12 @@
+#include "../../../../includes/envp.h"
+#include "../../../../includes/executor.h"
+#include "../../../../includes/minishell.h"
+#include "../../../../lib/libft/libft.h"
+#include "utils.h"
+#include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <linux/limits.h>
-
-#include "utils.h"
-#include "../../../../includes/envp.h"
-#include "../../../../includes/minishell.h"
-#include "../../../../includes/executor.h"
-#include "../../../../lib/libft/libft.h"
 
 static int	cd_error(const char *msg, const char *path)
 {
@@ -50,7 +49,8 @@ static int	get_oldpwd_path(const t_minishell *sh, char *path)
 	return (0);
 }
 
-static int	resolve_path(const t_minishell *sh, char **argv, int argc, char *path)
+static int	resolve_path(const t_minishell *sh, char **argv, int argc,
+		char *path)
 {
 	bool	no_op_follow;
 

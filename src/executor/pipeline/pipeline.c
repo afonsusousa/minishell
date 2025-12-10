@@ -2,16 +2,15 @@
 // Created by afonsusousa on 11/4/25.
 //
 
+#include "../../../includes/executor.h"
+#include "../../../includes/minishell.h"
+#include "libft.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "libft.h"
-#include "../../../includes/minishell.h"
-#include "../../../includes/executor.h"
-
 static void	exec_pipeline_child(t_minishell *sh, const t_ast_list *core,
-				int fd[2])
+		int fd[2])
 {
 	int	status;
 
@@ -36,7 +35,7 @@ static void	exec_pipeline_child(t_minishell *sh, const t_ast_list *core,
 }
 
 static void	exec_pipeline_parent(t_minishell *sh, const t_ast_list *core,
-				int fd[2], pid_t pid)
+		int fd[2], pid_t pid)
 {
 	sh->pipeline.pids[sh->pipeline.count++] = pid;
 	if (sh->pipeline.prev_read != -1)
@@ -80,11 +79,11 @@ static int	exec_pipeline_core(t_minishell *sh, const t_ast_list *core)
 
 int	exec_pipeline(t_minishell *sh, const t_ast_list *cores)
 {
-	const t_ast_list	*curr;
+	const t_ast_list *curr;
 
 	sh->pipeline.count = 0;
 	sh->pipeline.prev_read = -1;
-    ft_memset(sh->pipeline.pids, -1, 1024);
+	ft_memset(sh->pipeline.pids, -1, 1024);
 	if (!cores)
 		return (0);
 	if (!cores->next && is_core_builtin(cores->node))

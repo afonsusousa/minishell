@@ -2,172 +2,147 @@
 // Created by wlucas-f on 10/23/25.
 //
 
+#include "../../includes/utils.h"
+#include "../../lib/libft/libft.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdlib.h>
-#include "../../includes/utils.h"
-#include "../../lib/libft/libft.h"
 
-bool is_space(char c)
+bool	is_space(char c)
 {
-    return (c == ' ' || c == '\t' || c == '\n' || c == '\r'
-        || c == '\v' || c == '\f');
+	return (c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\v'
+		|| c == '\f');
 }
 
-bool is_slash(char c)
+bool	is_slash(char c)
 {
-    return (c == '/');
+	return (c == '/');
 }
 
-void free_until_null(char*** str_v)
+void	free_until_null(char ***str_v)
 {
-    size_t i;
+	size_t	i;
 
-    i = 0;
-    if (!*str_v)
-        return;
-    while ((*str_v)[i])
-        free((*str_v)[i++]);
-    free(*str_v);
-    *str_v = NULL;
+	i = 0;
+	if (!*str_v)
+		return ;
+	while ((*str_v)[i])
+		free((*str_v)[i++]);
+	free(*str_v);
+	*str_v = NULL;
 }
 
-char* strjoin_three(char* s1, char* s2, char* s3)
+char	*strjoin_three(char *s1, char *s2, char *s3)
 {
-    int i;
-    char* ret;
+	int		i;
+	char	*ret;
 
-    i = 0;
-    ret = malloc(ft_strlen(s1) + ft_strlen(s2) + ft_strlen(s3) + 1);
-    if (!ret)
-        return (NULL);
-    if (!s1 || !s2 || !s3)
-        return (NULL);
-    while (*s1)
-        ret[i++] = *s1++;
-    while (*s2)
-        ret[i++] = *s2++;
-    while (*s3)
-        ret[i++] = *s3++;
-    ret[i] = 0;
-    return (ret);
+	i = 0;
+	ret = malloc(ft_strlen(s1) + ft_strlen(s2) + ft_strlen(s3) + 1);
+	if (!ret)
+		return (NULL);
+	if (!s1 || !s2 || !s3)
+		return (NULL);
+	while (*s1)
+		ret[i++] = *s1++;
+	while (*s2)
+		ret[i++] = *s2++;
+	while (*s3)
+		ret[i++] = *s3++;
+	ret[i] = 0;
+	return (ret);
 }
 
-char **strjoinjoin(char **a, char **b)
+char	*ft_strnjoin(const char *s1, const char *s2, size_t scnd)
 {
-    size_t len_a = 0, len_b = 0, i = 0, j = 0;
-    char **result;
+	char	*ret;
+	char	*og;
 
-    if (a)
-        while (a[len_a]) len_a++;
-    if (b)
-        while (b[len_b]) len_b++;
-    result = malloc(sizeof(char *) * (len_a + len_b + 1));
-    if (!result)
-        return NULL;
-    for (i = 0; i < len_a && a; i++)
-        result[i] = a[i];
-    if (a)
-        free(a);
-    for (j = 0; j < len_b && b; j++)
-        result[i + j] = b[j];
-    if (b)
-        free(b);
-    result[len_a + len_b] = NULL;
-    return result;
+	ret = ft_calloc(ft_strlen(s1) + scnd + 1, sizeof(char));
+	og = ret;
+	if (!ret)
+		return (NULL);
+	while (s1 && *s1)
+		*ret++ = *s1++;
+	while (s2 && *s2 && scnd--)
+		*ret++ = *s2++;
+	*ret = 0;
+	return (og);
+}
+char	*ft_strndup(const char *str, size_t size)
+{
+	char	*t;
+	char	*r;
+
+	if (!str)
+		return (NULL);
+	t = (char *)malloc(size + 1);
+	if (!t)
+		return (NULL);
+	r = t;
+	while ((size_t)(t - r) < size && *str)
+		*t++ = *str++;
+	*t = 0;
+	return (r);
 }
 
-char    *ft_strnjoin(const char *s1, const char *s2, size_t scnd)
+bool	is_valid(char c)
 {
-    char *ret;
-    char *og;
-
-    ret = ft_calloc(ft_strlen(s1) + scnd + 1, sizeof(char));
-    og = ret;
-    if (!ret)
-        return (NULL);
-    while (s1 && *s1)
-        *ret++ = *s1++;
-    while (s2 && *s2 && scnd--)
-        *ret++ = *s2++;
-    *ret = 0;
-    return (og);
-}
-char    *ft_strndup(const char *str, size_t size)
-{
-    char	*t;
-    char	*r;
-
-    if (!str)
-        return (NULL);
-    t = (char *)malloc(size + 1);
-    if (!t)
-        return (NULL);
-    r = t;
-    while ((size_t)(t - r) < size && *str)
-        *t++ = *str++;
-    *t = 0;
-    return (r);
+	return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0'
+			&& c <= '9') || c == '_');
 }
 
-bool is_valid(char c)
+char	**str_arr_append(char **arr, const char *s)
 {
-    return ((c >= 'a' && c <= 'z')
-        || (c >= 'A' && c <= 'Z')
-        || (c >= '0' && c <= '9')
-        || c == '_');
+	size_t	len;
+	char	**res;
+
+	len = 0;
+	if (!s)
+		return (arr);
+	while (arr && arr[len])
+		len++;
+	res = ft_calloc(len + 2, sizeof(char *));
+	if (!res)
+		return (NULL);
+	for (size_t i = 0; i < len; i++)
+		res[i] = arr[i];
+	res[len] = ft_strdup(s);
+	if (!res[len])
+		return (free(res), NULL);
+	res[len + 1] = NULL;
+	if (arr)
+		free(arr);
+	return (res);
 }
 
-char **str_arr_append(char **arr, const char *s)
+int	ft_strcmp(const char *s1, const char *s2)
 {
-    size_t len = 0;
-    char **res;
-
-    if (!s)
-        return arr;
-    while (arr && arr[len])
-            len++;
-    res = ft_calloc(len + 2, sizeof(char *));
-    if (!res)
-        return NULL;
-    for (size_t i = 0; i < len; i++)
-        res[i] = arr[i];
-    res[len] = ft_strdup(s);
-    if (!res[len])
-        return (free(res), NULL);
-    res[len + 1] = NULL;
-    if (arr)
-        free(arr);
-    return (res);
+	if (!s1 && !s2)
+		return (0);
+	if (!s1)
+		return (-1);
+	if (!s2)
+		return (1);
+	while (*s1 && *s2)
+	{
+		if (*s1 != *s2)
+			return (*s1 - *s2);
+		s1++;
+		s2++;
+	}
+	return (*s1 - *s2);
 }
 
-int ft_strcmp(const char *s1, const char *s2)
+bool	has_char_fn(const char *s, bool (*predicate)(char))
 {
-    if (!s1 && !s2)
-        return (0);
-    if (!s1)
-        return (-1);
-    if (!s2)
-        return (1);
-    while (*s1 && *s2)
-    {
-        if (*s1 != *s2)
-            return (*s1 - *s2);
-        s1++;
-        s2++;
-    }
-    return (*s1 - *s2);
-}
-
-bool has_char_fn(const char *s, bool (*predicate)(char))
-{
-    if (!s || !predicate)
-        return (NULL);
-    while (*s)
-    {
-        if (predicate(*s))
-            return ((char *)s);
-        s++;
-    }
-    return (NULL);
+	if (!s || !predicate)
+		return (NULL);
+	while (*s)
+	{
+		if (predicate(*s))
+			return ((char *)s);
+		s++;
+	}
+	return (NULL);
 }

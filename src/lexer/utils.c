@@ -10,18 +10,17 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stddef.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include "libft.h"
-
 #include "../../includes/lexer.h"
 #include "../../includes/utils.h"
+#include "libft.h"
+#include <ctype.h>
+#include <stddef.h>
+#include <stdlib.h>
 
 int	is_meta(char c)
 {
-	return (c == '|' || c == '&' || c == ';'
-		|| c == '(' || c == ')' || c == '<' || c == '>');
+	return (c == '|' || c == '&' || c == ';' || c == '(' || c == ')' || c == '<'
+		|| c == '>');
 }
 
 int	is_break(char c)

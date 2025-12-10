@@ -2,12 +2,12 @@
 // Created by wlucas-f on 10/21/25.
 //
 
-#include <stddef.h>
 #include "../../includes/envp.h"
 #include "../../includes/globbing.h"
 #include "../../includes/utils.h"
-#include <stdlib.h>
 #include "../../lib/libft/libft.h"
+#include <stddef.h>
+#include <stdlib.h>
 
 size_t	key_len(const char *str)
 {

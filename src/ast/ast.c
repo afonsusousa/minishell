@@ -10,8 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
 #include "ast.h"
+#include <stdlib.h>
 
 t_ast	*ast_new(const t_ast_type type)
 {
@@ -23,4 +23,3 @@ t_ast	*ast_new(const t_ast_type type)
 	n->type = type;
 	return (n);
 }
-

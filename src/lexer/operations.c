@@ -14,19 +14,19 @@
 
 void	lexer_read_char(t_lexer *lexer)
 {
-    if (lexer->read_position >= lexer->input_len)
-        lexer->ch = '\0';
-    else
-        lexer->ch = lexer->input[lexer->read_position];
-    lexer->position = lexer->read_position;
-    lexer->read_position++;
+	if (lexer->read_position >= lexer->input_len)
+		lexer->ch = '\0';
+	else
+		lexer->ch = lexer->input[lexer->read_position];
+	lexer->position = lexer->read_position;
+	lexer->read_position++;
 }
 
 char	lexer_peek_char(const t_lexer *lexer)
 {
-    if (lexer->read_position >= lexer->input_len)
-        return ('\0');
-    return (lexer->input[lexer->read_position]);
+	if (lexer->read_position >= lexer->input_len)
+		return ('\0');
+	return (lexer->input[lexer->read_position]);
 }
 
 // >| is a valid redirection, but not posix... review later
@@ -93,4 +93,3 @@ bool	lexer_next_smeta(t_lexer *lexer)
 		return (false);
 	return (true);
 }
-

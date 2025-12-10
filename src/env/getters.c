@@ -2,11 +2,11 @@
 // Created by wlucas-f on 10/21/25.
 //
 
-#include <stddef.h>
 #include "../../includes/envp.h"
 #include "../../includes/utils.h"
-#include <stdlib.h>
 #include "../../lib/libft/libft.h"
+#include <stddef.h>
+#include <stdlib.h>
 
 t_var	*envp_getvar(t_envp *env, const char *name)
 {
@@ -42,25 +42,24 @@ char	*envp_getvar_value(t_envp *env, const char *name, int last_status)
 
 char	**get_envp_array(t_envp *env, bool populated_only)
 {
-    char	**ret;
-    char	**pos;
-    t_var	*var;
+	char	**ret;
+	char	**pos;
+	t_var	*var;
 
-    if (!env)
-        return (NULL);
-    ret = ft_calloc(env->count + 1, sizeof(char *));
-    if (!ret)
-        return (NULL);
-    pos = ret;
-    var = env->head;
-    while (var)
-    {
-        if (var->export && var->value)
-            *pos++ = strjoin_three(var->name, "=", var->value);
-        else if (var->export && populated_only)
-            *pos++ = strjoin_three(var->name, "", "");
-        var = var->next;
-    }
-    return (ret);
+	if (!env)
+		return (NULL);
+	ret = ft_calloc(env->count + 1, sizeof(char *));
+	if (!ret)
+		return (NULL);
+	pos = ret;
+	var = env->head;
+	while (var)
+	{
+		if (var->export && var->value)
+			*pos++ = strjoin_three(var->name, "=", var->value);
+		else if (var->export && populated_only)
+			*pos++ = strjoin_three(var->name, "", "");
+		var = var->next;
+	}
+	return (ret);
 }
-

@@ -10,11 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "ast.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include "ast.h"
-#include "utils.h"
 
 static void	free_pipeline(const t_ast *node)
 {
@@ -49,8 +49,8 @@ void	ast_free(t_ast *node)
 	else if (node->type == AST_REDIR)
 	{
 		if (node->as.redir.kind == TOK_HEREDOC
-		    && node->as.redir.target.heredoc[0] >= 0)
-				close(node->as.redir.target.heredoc[0]);
+			&& node->as.redir.target.heredoc[0] >= 0)
+			close(node->as.redir.target.heredoc[0]);
 		else
 			free((char *)node->as.redir.target.file_name);
 	}

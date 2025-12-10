@@ -1,17 +1,17 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <readline/history.h>
-#include "../includes/sig.h"
-#include "../includes/tokens.h"
-#include "../includes/parser.h"
 #include "../includes/envp.h"
 #include "../includes/executor.h"
+#include "../includes/parser.h"
+#include "../includes/sig.h"
+#include "../includes/tokens.h"
 #include "../lib/libft/libft.h"
+#include <readline/history.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-static void	minishell_init(t_minishell *sh, t_token_stream *ts,
-		t_envp *env, t_envp *ctx)
+static void	minishell_init(t_minishell *sh, t_token_stream *ts, t_envp *env,
+		t_envp *ctx)
 {
 	signal_setup();
 	ft_memset(ts, 0, sizeof(t_token_stream));
@@ -34,7 +34,8 @@ static void	init_env(t_minishell *sh, char **envp)
 		envp_setvar_str(sh->env, envp[i++], sh->last_status, EXPORT);
 	shlvl = envp_getvar(sh->env, "SHLVL");
 	if (shlvl && shlvl->value)
-		envp_setvar(sh->env, "SHLVL", ft_itoa(ft_atoi(shlvl->value) + 1), EXPORT);
+		envp_setvar(sh->env, "SHLVL", ft_itoa(ft_atoi(shlvl->value) + 1),
+			EXPORT);
 	else
 		envp_setvar(sh->env, "SHLVL", ft_strdup("1"), EXPORT);
 	if (getcwd(cwd, sizeof(cwd)))

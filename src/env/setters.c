@@ -2,15 +2,16 @@
 // Created by wlucas-f on 10/21/25.
 //
 
-#include <stddef.h>
 #include "../../includes/envp.h"
-#include <stdlib.h>
 #include "../../lib/libft/libft.h"
+#include <stddef.h>
+#include <stdlib.h>
 
 t_var	*new_var(const char *name, char *value, bool export);
 t_var	*envp_push(t_envp *env, t_var *node);
 
-t_var	*envp_setvar(t_envp *env, const char *name, const char *value, int flags)
+t_var	*envp_setvar(t_envp *env, const char *name, const char *value,
+		int flags)
 {
 	t_var	*var;
 
@@ -35,7 +36,8 @@ t_var	*envp_setvar(t_envp *env, const char *name, const char *value, int flags)
 	return (envp_push(env, var));
 }
 
-t_var	*envp_appendvar(t_envp *env, const char *name, const char *value, int flags)
+t_var	*envp_appendvar(t_envp *env, const char *name, const char *value,
+		int flags)
 {
 	t_var	*var;
 	char	*joined;
@@ -79,4 +81,3 @@ bool	envp_unsetvar(t_envp *env, const char *name)
 	free(var);
 	return (true);
 }
-

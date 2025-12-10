@@ -2,10 +2,9 @@
 // Created by afonsusousa on 9/24/25.
 //
 
-#include <stddef.h>
-
 #include "../../includes/lexer.h"
 #include "../../includes/tokens.h"
+#include <stddef.h>
 
 static void	ts_read_token(t_token_stream *ts)
 {
@@ -37,4 +36,3 @@ int	ts_match(t_token_stream *ts, t_token_type type)
 		return (ts_read_token(ts), 1);
 	return (0);
 }
-
