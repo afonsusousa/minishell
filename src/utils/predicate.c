@@ -10,10 +10,10 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/utils.h"
 #include "../../includes/globbing.h"
-#include <stddef.h>
+#include "../../includes/utils.h"
 #include <stdbool.h>
+#include <stddef.h>
 
 bool	is_space(char c)
 {
@@ -49,5 +49,6 @@ int	word_cmp(void *a, void *b)
 {
 	if (!a || !b)
 		return (false);
-	return (ft_strcmp(((const t_word *)a)->content,((const t_word *) b)->content));
+	return (ft_strcmp(((const t_word *)a)->content,
+			((const t_word *)b)->content));
 }
