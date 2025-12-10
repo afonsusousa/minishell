@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:31:52 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:31:55 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 19:00:22 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "../../../../includes/utils.h"
 #include <stdio.h>
 
+// review export later
 int	exec_env(const t_minishell *sh, char **argv, const int argc)
 {
 	char	**env;
@@ -22,7 +23,6 @@ int	exec_env(const t_minishell *sh, char **argv, const int argc)
 
 	(void)argv;
 	(void)argc;
-	// review export later
 	env = get_envp_array(sh->env, true);
 	iter = env;
 	while (iter && *iter)

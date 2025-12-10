@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:39:53 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:55:26 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 18:59:56 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,8 @@ t_ast			*ast_make_command_node(const char **assignments, char **argv,
 					int argc, t_ast_list *redirs);
 
 // Error
-const char      *get_token_type_name(const t_token *tk);
-void            print_syntax_error(const char *token_name);
+const char		*get_token_type_name(const t_token *tk);
+void			print_syntax_error(const char *token_name);
 void			parser_abort(t_minishell *sh);
 void			parser_abort_error(t_minishell *sh);
 

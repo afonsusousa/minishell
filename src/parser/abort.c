@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 16:04:40 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 16:47:46 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 19:01:17 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	parser_abort(t_minishell *sh)
 
 void	parser_abort_error(t_minishell *sh)
 {
-    const char  *name;
+	const char	*name;
 
 	name = get_token_type_name(ts_peek(sh->ts));
 	print_syntax_error(name);

@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/sm.h"
+#include "../../includes/globbing.h"
 #include "../../lib/libft/libft.h"
 #include <linux/limits.h>
 #include <stdlib.h>

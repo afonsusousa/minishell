@@ -12,7 +12,6 @@
 
 #include "../../includes/envp.h"
 #include "../../includes/globbing.h"
-#include "../../includes/sm.h"
 #include "../../includes/utils.h"
 #include "../../lib/libft/libft.h"
 #include <stdlib.h>

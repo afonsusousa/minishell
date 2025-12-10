@@ -45,12 +45,10 @@ typedef struct s_ast
 			struct s_ast	*list;
 			int				terminator;
 		} s_command_line;
-
 		struct
 		{
 			t_ast_list		*cores;
 		} s_pipeline;
-
 		struct
 		{
 			const char		**assignments;
@@ -58,13 +56,11 @@ typedef struct s_ast
 			const char		**argv;
 			t_ast_list		*redirs;
 		} s_command;
-
 		struct
 		{
 			struct s_ast	*list;
 			t_ast_list		*redirs;
 		} s_grouping;
-
 		struct
 		{
 			t_token_type	kind;
@@ -74,13 +70,11 @@ typedef struct s_ast
 				int			heredoc[2];
 			} u_target;
 		} s_redir;
-
 		struct
 		{
 			struct s_ast	*left;
 			struct s_ast	*right;
 		} s_binop;
-
 	} u_as;
 }							t_ast;
 

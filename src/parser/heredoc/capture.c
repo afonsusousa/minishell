@@ -13,7 +13,6 @@
 #include "../../../includes/globbing.h"
 #include "../../../includes/minishell.h"
 #include "../../../includes/sig.h"
-#include "../../../includes/sm.h"
 #include "../../../includes/utils.h"
 #include "../../../lib/libft/libft.h"
 #include <readline/readline.h>

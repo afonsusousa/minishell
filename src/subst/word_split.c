@@ -6,11 +6,11 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:37:22 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 16:29:26 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 18:57:59 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/sm.h"
+#include "../../includes/globbing.h"
 #include "../../includes/utils.h"
 #include "../../lib/libft/libft.h"
 #include <stdlib.h>
@@ -41,9 +41,7 @@ static size_t	count_words_fn(const t_word *ts, bool (*is_sep)(char),
 			in_word = true;
 		i++;
 	}
-	if (in_word)
-		count++;
-	return (count);
+	return (count + in_word);
 }
 
 static size_t	skip_separators(const t_word *ts, size_t pos,

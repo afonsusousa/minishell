@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:40:10 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:56:18 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 18:34:15 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,20 +31,5 @@ bool					is_valid(char c);
 int						ft_strcmp(const char *s1, const char *s2);
 bool					merge_sort_strings(char *arr[], int left, int right);
 bool					has_char_fn(const char *s, bool (*predicate)(char));
-
-// t_tracked_str utilities
-t_word					*word_new(const char *content, bool all_quoted);
-void					word_free(t_word *ts);
-t_word					**word_split(t_word *ts, bool (*is_separator)(char),
-							bool quote_aware);
-void					word_free_until_null(t_word **splits);
-t_word					*word_dup(const t_word *ts);
-t_word					**word_array_join(t_word **a, t_word **b);
-t_word					**word_array_append_cstr(t_word **arr,
-							const char *content, bool all_quoted);
-t_word					**word_array_append_word(t_word **arr,
-							const t_word *word);
-char					*word_to_cstr(const t_word *word);
-char					**word_to_cstr_array(t_word **words);
 
 #endif // UTILS_H

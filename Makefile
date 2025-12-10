@@ -13,6 +13,8 @@ SRCS := \
 	$(SRC_DIR)/ast/ast.c \
 	$(SRC_DIR)/ast/ast_free.c \
 	$(SRC_DIR)/ast/ast_list.c \
+	$(SRC_DIR)/ast/ast_nodes_branches.c \
+	$(SRC_DIR)/ast/ast_nodes_leafs.c \
 	$(SRC_DIR)/lexer/lexer.c \
 	$(SRC_DIR)/lexer/operations.c \
 	$(SRC_DIR)/lexer/utils.c \
@@ -21,7 +23,6 @@ SRCS := \
 	$(SRC_DIR)/parser/parser.c \
 	$(SRC_DIR)/parser/cores.c \
 	$(SRC_DIR)/parser/logical.c \
-	$(SRC_DIR)/parser/helpers.c \
 	$(SRC_DIR)/parser/heredoc/capture.c \
 	$(SRC_DIR)/parser/heredoc/descent.c \
 	$(SRC_DIR)/parser/pipeline.c \
@@ -58,11 +59,15 @@ SRCS := \
 	$(SRC_DIR)/subst/expansions.c \
 	$(SRC_DIR)/subst/globbing.c \
 	$(SRC_DIR)/subst/sm.c \
+	$(SRC_DIR)/subst/word_utils.c \
+	$(SRC_DIR)/subst/word_array_utils.c \
+	$(SRC_DIR)/subst/word_cstr_utils.c \
+	$(SRC_DIR)/subst/word_split.c \
 	$(SRC_DIR)/subst/sm_operations.c \
-	$(SRC_DIR)/utils/sort.c \
-	$(SRC_DIR)/utils/utils.c \
-	$(SRC_DIR)/utils/word_split.c \
-	$(SRC_DIR)/utils/word_utils.c
+	$(SRC_DIR)/utils/arrays.c \
+	$(SRC_DIR)/utils/libftpp.c \
+	$(SRC_DIR)/utils/predicate.c \
+	$(SRC_DIR)/utils/sort.c
 
 OBJS := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 DEPS := $(OBJS:.o=.d)

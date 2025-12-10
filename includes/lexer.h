@@ -20,23 +20,23 @@ typedef enum e_token_type
 {
 	TOK_WORD = 1,
 	TOK_ASSIGNMENT_WORD,
-	TOK_PIPE,         // |
-	TOK_AND,          // &&
-	TOK_OR,           // ||
-	TOK_SEMI,         // ;
-	TOK_AMP,          // &
-	TOK_REDIR_IN,     // <
-	TOK_REDIR_OUT,    // >
-	TOK_REDIR_APPEND, // >>
-	TOK_REDIR_0_IN,   // 0<
-	TOK_REDIR_1_IN,   // 1<
-	TOK_REDIR_2_IN,   // 2<
-	TOK_REDIR_0_OUT,  // 0>
-	TOK_REDIR_1_OUT,  // 1>
-	TOK_REDIR_2_OUT,  // 2>
-	TOK_HEREDOC,      // <<
-	TOK_LPAREN,       // (
-	TOK_RPAREN,       // )
+	TOK_PIPE,
+	TOK_AND,
+	TOK_OR,
+	TOK_SEMI,
+	TOK_AMP,
+	TOK_REDIR_IN,
+	TOK_REDIR_OUT,
+	TOK_REDIR_APPEND,
+	TOK_REDIR_0_IN,
+	TOK_REDIR_1_IN,
+	TOK_REDIR_2_IN,
+	TOK_REDIR_0_OUT,
+	TOK_REDIR_1_OUT,
+	TOK_REDIR_2_OUT,
+	TOK_HEREDOC,
+	TOK_LPAREN,
+	TOK_RPAREN,
 	TOK_EOF
 }					t_token_type;
 
