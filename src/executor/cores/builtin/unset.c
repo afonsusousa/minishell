@@ -25,14 +25,6 @@ static int	unset_invalid_option(const char *arg)
 	return (2);
 }
 
-static int	unset_invalid_identifier(const char *arg)
-{
-	write(2, "minishell: unset: `", 19);
-	write(2, arg, ft_strlen(arg));
-	write(2, "': not a valid identifier\n", 26);
-	return (1);
-}
-
 int	exec_unset(const t_minishell *sh, char **argv, const int argc)
 {
 	int	status;
@@ -45,11 +37,6 @@ int	exec_unset(const t_minishell *sh, char **argv, const int argc)
 	{
 		if (**argv == '-')
 			return (unset_invalid_option(*argv));
-		if (!is_valid_var_name(*argv))
-		{
-			status = unset_invalid_identifier(*argv);
-			continue ;
-		}
 		envp_unsetvar(sh->env, *argv);
 	}
 	return (status);
