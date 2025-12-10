@@ -14,7 +14,8 @@
 # define BUILTINS_H
 
 /* Export error functions */
-int	export_invalid_option(const char *arg);
-int	export_invalid_identifier(const char *arg);
+int		export_invalid_option(const char *arg);
+int		export_invalid_identifier(const char *arg);
+bool	is_valid_var_name(const char *str);
 
 #endif /* BUILTINS_H */
