@@ -66,3 +66,8 @@ int	ft_strcmp(const char *s1, const char *s2)
 	}
 	return (*s1 - *s2);
 }
+
+int	ft_memucmp(void *s1, void *s2)
+{
+	return (ft_strcmp((const char *)s1, (const char *) s2));
+}

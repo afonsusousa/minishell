@@ -29,7 +29,7 @@ int	print_exported_variables(const t_minishell *sh)
 	envp = get_envp_array(sh->env, false);
 	while (envp && envp[size])
 		size++;
-	merge_sort_strings(envp, 0, size - 1);
+	merge_sort((void *)envp, 0, size - 1, ft_memucmp);
 	while (envp && *envp)
 	{
 		if (ft_strchr(*envp, '='))

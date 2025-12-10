@@ -55,28 +55,13 @@ static t_word	**build_result(t_word *exp_result, t_word **matches)
 {
 	t_word	**result;
 	int		size;
-	char	**cstr_array;
-	char	**ptr;
 
+	result = NULL;
 	if (matches && *matches)
 	{
-		size = 0;
-		while (matches[size])
-			size++;
-		cstr_array = word_to_cstr_array(matches);
-		if (!cstr_array)
-			return (NULL);
-		merge_sort_strings(cstr_array, 0, size - 1);
-		result = NULL;
-		ptr = cstr_array;
-		while (*ptr)
-		{
-			result = word_array_append_cstr(result, *ptr++, true);
-			if (!result)
-				free_until_null(&cstr_array);
-		}
-		free(cstr_array);
-		word_free_until_null(matches);
+		size = word_array_len(matches);
+		merge_sort((void *)matches, 0, size, word_cmp);
+		result = word_array_join(result, matches);
 	}
 	else
 		result = word_array_append_word(NULL, exp_result);
