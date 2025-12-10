@@ -77,26 +77,26 @@ void	print_ast(const t_ast *n, int d)
 	case AST_COMMAND_LINE:
 		print_indent(d);
 		printf("[command_line] terminator=%c\n",
-			n->as.command_line.terminator ? n->as.command_line.terminator : '0');
-		print_ast(n->as.command_line.list, d + 1);
+			n->u_as.s_command_line.terminator ? n->u_as.s_command_line.terminator : '0');
+		print_ast(n->u_as.s_command_line.list, d + 1);
 		break ;
 	case AST_OR_LIST:
 		print_indent(d);
 		printf("[or_list]\n");
-		print_ast(n->as.binop.left, d + 1);
-		print_ast(n->as.binop.right, d + 1);
+		print_ast(n->u_as.s_binop.left, d + 1);
+		print_ast(n->u_as.s_binop.right, d + 1);
 		break ;
 	case AST_AND_LIST:
 		print_indent(d);
 		printf("[and_list]\n");
-		print_ast(n->as.binop.left, d + 1);
-		print_ast(n->as.binop.right, d + 1);
+		print_ast(n->u_as.s_binop.left, d + 1);
+		print_ast(n->u_as.s_binop.right, d + 1);
 		break ;
 	case AST_PIPELINE:
 	{
 		print_indent(d);
 		printf("[pipeline]\n");
-		const t_ast_list *it = n->as.pipeline.cores;
+		const t_ast_list *it = n->u_as.s_pipeline.cores;
 		for (; it; it = it->next)
 			print_ast(it->node, d + 1);
 		break ;
@@ -107,11 +107,11 @@ void	print_ast(const t_ast *n, int d)
 		printf("[command]\n");
 		print_indent(d + 1);
 		printf("[assigments]\t");
-		print_strs(n->as.command.assignments);
+		print_strs(n->u_as.s_command.assignments);
 		print_indent(d + 1);
 		printf("[argv]\t\t");
-		print_strs(n->as.command.argv);
-		const t_ast_list *r = n->as.command.redirs;
+		print_strs(n->u_as.s_command.argv);
+		const t_ast_list *r = n->u_as.s_command.redirs;
 		print_indent(d + 1);
 		printf("[redirs]\t\t");
 		if (!r)
@@ -130,14 +130,14 @@ void	print_ast(const t_ast *n, int d)
 		printf("[grouping] \n");
 		print_indent(d);
 		printf("[\n");
-		print_ast(n->as.grouping.list, d + 1);
+		print_ast(n->u_as.s_grouping.list, d + 1);
 		print_indent(d);
 		printf("]\n");
 		break ;
 	case AST_REDIR:
-		printf("[%s,", redir_kind_name(n->as.redir.kind));
-		if (n->as.redir.target.file_name && n->as.redir.kind != TOK_HEREDOC)
-			printf("\"%s\"]", n->as.redir.target.file_name);
+		printf("[%s,", redir_kind_name(n->u_as.s_redir.kind));
+		if (n->u_as.s_redir.u_target.file_name && n->u_as.s_redir.kind != TOK_HEREDOC)
+			printf("\"%s\"]", n->u_as.s_redir.u_target.file_name);
 		else
 			printf("<missing>");
 		break ;

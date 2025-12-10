@@ -22,13 +22,13 @@ typedef struct s_word	t_word;
 
 typedef struct s_token_stream
 {
-	t_token					*tokens;
-	size_t					count;
-	size_t					capacity;
-	size_t					position;
-	size_t					read_position;
-	const t_token			*tk;
-}							t_token_stream;
+	t_token				*tokens;
+	size_t				count;
+	size_t				capacity;
+	size_t				position;
+	size_t				read_position;
+	const t_token		*tk;
+}						t_token_stream;
 
 typedef struct s_pipeline
 {

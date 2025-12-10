@@ -95,17 +95,17 @@ int	exec_command(t_minishell *sh, const t_ast *core)
 	memset(sh->ctx, 0, sizeof(t_envp));
 	if (!core || core->type != AST_COMMAND)
 		return (1);
-	argv = argv_to_arr(sh, core->as.command.argv,
-			(int *)&core->as.command.argc);
-	if (exec_redirs(sh, core->as.command.redirs))
+	argv = argv_to_arr(sh, core->u_as.s_command.argv,
+			(int *)&core->u_as.s_command.argc);
+	if (exec_redirs(sh, core->u_as.s_command.redirs))
 		return (free_argv(argv), 1);
-	if (exec_assignments(sh, core->as.command.assignments, argv != NULL))
+	if (exec_assignments(sh, core->u_as.s_command.assignments, argv != NULL))
 		return (free_argv(argv), 1);
 	if (!argv)
 		return (0);
 	if (is_builtin(argv[0]))
 	{
-		status = exec_builtin(sh, argv, core->as.command.argc);
+		status = exec_builtin(sh, argv, core->u_as.s_command.argc);
 		free_argv(argv);
 		sh->last_status = status;
 		return (status);

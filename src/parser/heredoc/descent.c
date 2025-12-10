@@ -21,12 +21,12 @@ static int	redir_leaf(t_minishell *sh, const t_ast_list *redir)
 	status = 0;
 	while (redir)
 	{
-		if (redir->node->as.redir.kind == TOK_HEREDOC)
+		if (redir->node->u_as.s_redir.kind == TOK_HEREDOC)
 		{
 			sh->heredoc.del = expanded(sh->env,
-					redir->node->as.redir.target.file_name, sh->last_status,
+					redir->node->u_as.s_redir.u_target.file_name, sh->last_status,
 					CONSUME_QUOTES);
-			status = heredoc_setup(sh, redir->node->as.redir.target.heredoc);
+			status = heredoc_setup(sh, redir->node->u_as.s_redir.u_target.heredoc);
 			if (status)
 				return (status);
 		}
@@ -57,24 +57,24 @@ int	heredoc_descend(t_minishell *sh, t_ast *node)
 	if (!node)
 		return (0);
 	if (node->type == AST_COMMAND_LINE)
-		return (heredoc_descend(sh, node->as.command_line.list));
+		return (heredoc_descend(sh, node->u_as.s_command_line.list));
 	if (node->type == AST_PIPELINE)
-		return (descend_pipeline(sh, node->as.pipeline.cores));
+		return (descend_pipeline(sh, node->u_as.s_pipeline.cores));
 	if (node->type == AST_COMMAND)
-		return (redir_leaf(sh, node->as.command.redirs));
+		return (redir_leaf(sh, node->u_as.s_command.redirs));
 	if (node->type == AST_GROUPING)
 	{
-		status = heredoc_descend(sh, node->as.grouping.list);
+		status = heredoc_descend(sh, node->u_as.s_grouping.list);
 		if (status)
 			return (status);
-		return (redir_leaf(sh, node->as.grouping.redirs));
+		return (redir_leaf(sh, node->u_as.s_grouping.redirs));
 	}
 	if (node->type == AST_AND_LIST || node->type == AST_OR_LIST)
 	{
-		status = heredoc_descend(sh, node->as.binop.left);
+		status = heredoc_descend(sh, node->u_as.s_binop.left);
 		if (status)
 			return (status);
-		return (heredoc_descend(sh, node->as.binop.right));
+		return (heredoc_descend(sh, node->u_as.s_binop.right));
 	}
 	return (0);
 }

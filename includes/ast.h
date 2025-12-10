@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:38:58 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:38:59 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 15:47:27 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 # include "lexer.h"
 
-struct s_ast;
+struct	s_ast;
 
 typedef enum e_ast_type
 {
@@ -44,12 +44,12 @@ typedef struct s_ast
 		{
 			struct s_ast	*list;
 			int				terminator;
-		} command_line;
+		} s_command_line;
 
 		struct
 		{
 			t_ast_list		*cores;
-		} pipeline;
+		} s_pipeline;
 
 		struct
 		{
@@ -57,13 +57,13 @@ typedef struct s_ast
 			int				argc;
 			const char		**argv;
 			t_ast_list		*redirs;
-		} command;
+		} s_command;
 
 		struct
 		{
 			struct s_ast	*list;
 			t_ast_list		*redirs;
-		} grouping;
+		} s_grouping;
 
 		struct
 		{
@@ -72,16 +72,16 @@ typedef struct s_ast
 			{
 				const char	*file_name;
 				int			heredoc[2];
-			} target;
-		} redir;
+			} u_target;
+		} s_redir;
 
 		struct
 		{
 			struct s_ast	*left;
 			struct s_ast	*right;
-		} binop;
+		} s_binop;
 
-	} as;
+	} u_as;
 }							t_ast;
 
 t_ast						*ast_new(t_ast_type type);

@@ -31,7 +31,7 @@ t_ast	*parse_pipeline(t_minishell *sh)
 		core = parse_core(sh);
 		if (!core || sh->aborted_parse)
 			return (ast_free(pipeline), NULL);
-		if (!ast_list_push(&pipeline->as.pipeline.cores, core))
+		if (!ast_list_push(&pipeline->u_as.s_pipeline.cores, core))
 			return (ast_free(core), ast_free(pipeline), NULL);
 	}
 	return (pipeline);

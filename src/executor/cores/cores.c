@@ -47,9 +47,9 @@ int	exec_grouping(t_minishell *sh, const t_ast *node)
 {
 	int	status;
 
-	if (exec_redirs(sh, node->as.grouping.redirs))
+	if (exec_redirs(sh, node->u_as.s_grouping.redirs))
 		return (1);
-	status = exec_node(sh, node->as.grouping.list);
+	status = exec_node(sh, node->u_as.s_grouping.list);
 	return (status);
 }
 

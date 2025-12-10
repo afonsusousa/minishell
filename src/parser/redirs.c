@@ -45,7 +45,7 @@ t_ast	*parse_redir(t_minishell *sh)
 	if (!redir)
 		return (NULL);
 	if (ts_match(sh->ts, TOK_WORD))
-		redir->as.redir.target.file_name = ft_strdup(sh->ts->tk->lexeme);
+		redir->u_as.s_redir.u_target.file_name = ft_strdup(sh->ts->tk->lexeme);
 	else
 		return (parser_abort_error(sh), ast_free(redir), NULL);
 	return (redir);

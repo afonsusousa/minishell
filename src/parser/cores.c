@@ -51,8 +51,8 @@ t_ast	*parse_grouping(t_minishell *sh)
 	grp = ast_new(AST_GROUPING);
 	if (!grp)
 		return (parser_abort_error(sh), ast_free(list), NULL);
-	grp->as.grouping.list = list;
-	grp->as.grouping.redirs = parse_core_redirs(sh);
+	grp->u_as.s_grouping.list = list;
+	grp->u_as.s_grouping.redirs = parse_core_redirs(sh);
 	if (sh->aborted_parse)
 		return (ast_free(grp), NULL);
 	return (grp);

@@ -22,10 +22,10 @@ bool	is_core_builtin(const t_ast *core)
 {
 	if (!core)
 		return (false);
-	if (core->type == AST_COMMAND && !core->as.command.argv)
+	if (core->type == AST_COMMAND && !core->u_as.s_command.argv)
 		return (true);
-	if (core->type == AST_COMMAND && core->as.command.argv[0])
-		return (is_builtin(core->as.command.argv[0]));
+	if (core->type == AST_COMMAND && core->u_as.s_command.argv[0])
+		return (is_builtin(core->u_as.s_command.argv[0]));
 	return (false);
 }
 

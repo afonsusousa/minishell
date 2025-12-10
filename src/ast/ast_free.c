@@ -18,20 +18,20 @@
 
 static void	free_pipeline(const t_ast *node)
 {
-	ast_list_free(node->as.pipeline.cores);
+	ast_list_free(node->u_as.s_pipeline.cores);
 }
 
 static void	free_grouping(const t_ast *node)
 {
-	ast_free(node->as.grouping.list);
-	ast_list_free(node->as.grouping.redirs);
+	ast_free(node->u_as.s_grouping.list);
+	ast_list_free(node->u_as.s_grouping.redirs);
 }
 
 static void	free_simple_command(const t_ast *node)
 {
-	free_until_null((char ***)&node->as.command.assignments);
-	free_until_null((char ***)&node->as.command.argv);
-	ast_list_free(node->as.command.redirs);
+	free_until_null((char ***)&node->u_as.s_command.assignments);
+	free_until_null((char ***)&node->u_as.s_command.argv);
+	ast_list_free(node->u_as.s_command.redirs);
 }
 
 void	ast_free(t_ast *node)
@@ -39,7 +39,7 @@ void	ast_free(t_ast *node)
 	if (node == NULL)
 		return ;
 	if (node->type == AST_COMMAND_LINE)
-		ast_free(node->as.command_line.list);
+		ast_free(node->u_as.s_command_line.list);
 	else if (node->type == AST_PIPELINE)
 		free_pipeline(node);
 	else if (node->type == AST_GROUPING)
@@ -48,16 +48,16 @@ void	ast_free(t_ast *node)
 		free_simple_command(node);
 	else if (node->type == AST_REDIR)
 	{
-		if (node->as.redir.kind == TOK_HEREDOC
-			&& node->as.redir.target.heredoc[0] >= 0)
-			close(node->as.redir.target.heredoc[0]);
+		if (node->u_as.s_redir.kind == TOK_HEREDOC
+			&& node->u_as.s_redir.u_target.heredoc[0] >= 0)
+			close(node->u_as.s_redir.u_target.heredoc[0]);
 		else
-			free((char *)node->as.redir.target.file_name);
+			free((char *)node->u_as.s_redir.u_target.file_name);
 	}
 	else if (node->type == AST_OR_LIST || node->type == AST_AND_LIST)
 	{
-		ast_free(node->as.binop.left);
-		ast_free(node->as.binop.right);
+		ast_free(node->u_as.s_binop.left);
+		ast_free(node->u_as.s_binop.right);
 	}
 	free(node);
 }
