@@ -3,63 +3,63 @@
 //
 
 #ifndef MINISHELL_LEXER_H
-#define MINISHELL_LEXER_H
+# define MINISHELL_LEXER_H
 
-#include <stddef.h>
-#include <stdbool.h>
+# include <stdbool.h>
+# include <stddef.h>
 
 typedef enum e_token_type
 {
-    TOK_WORD = 1,
-    TOK_ASSIGNMENT_WORD,
-    TOK_PIPE,         // |
-    TOK_AND,          // &&
-    TOK_OR,           // ||
-    TOK_SEMI,         // ;
-    TOK_AMP,          // &
-    TOK_REDIR_IN,     // <
-    TOK_REDIR_OUT,    // >
-    TOK_REDIR_APPEND, // >>
-    TOK_REDIR_0_IN,   // 0<
-    TOK_REDIR_1_IN,   // 1<
-    TOK_REDIR_2_IN,   // 2<
-    TOK_REDIR_0_OUT,  // 0>
-    TOK_REDIR_1_OUT,  // 1>
-    TOK_REDIR_2_OUT,  // 2>
-    TOK_HEREDOC,      // <<
-    TOK_LPAREN,       // (
-    TOK_RPAREN,       // )
-    TOK_EOF
-} t_token_type;
+	TOK_WORD = 1,
+	TOK_ASSIGNMENT_WORD,
+	TOK_PIPE,         // |
+	TOK_AND,          // &&
+	TOK_OR,           // ||
+	TOK_SEMI,         // ;
+	TOK_AMP,          // &
+	TOK_REDIR_IN,     // <
+	TOK_REDIR_OUT,    // >
+	TOK_REDIR_APPEND, // >>
+	TOK_REDIR_0_IN,   // 0<
+	TOK_REDIR_1_IN,   // 1<
+	TOK_REDIR_2_IN,   // 2<
+	TOK_REDIR_0_OUT,  // 0>
+	TOK_REDIR_1_OUT,  // 1>
+	TOK_REDIR_2_OUT,  // 2>
+	TOK_HEREDOC,      // <<
+	TOK_LPAREN,       // (
+	TOK_RPAREN,       // )
+	TOK_EOF
+}					t_token_type;
 
 typedef struct s_token
 {
-    t_token_type type;
-    char  *lexeme;
-}   t_token;
+	t_token_type	type;
+	char			*lexeme;
+}					t_token;
 
 typedef struct s_lexer
 {
-    const char *input;
-    size_t      input_len;
-    size_t      position;
-    size_t      read_position;
-    char        ch;
-    t_token     *tk;
-} t_lexer;
+	const char		*input;
+	size_t			input_len;
+	size_t			position;
+	size_t			read_position;
+	char			ch;
+	t_token			*tk;
+}					t_lexer;
 
-void    init_lexer(t_lexer *lx, char *input);
-void    lexer_read_char(t_lexer *lexer);
-char    lexer_peek_char(const t_lexer *lexer);
-void    lexer_read_word(t_lexer *lexer, t_token *token);
-void    lexer_skip_space(t_lexer *lexer);
-t_token *token_new(t_token_type type);
-bool    lexer_next_dmeta(t_lexer *lexer);
-bool    lexer_next_smeta(t_lexer *lexer);
-bool    lexer_next_redir(t_lexer *lexer);
-t_token *lexer_next_token(t_lexer *lexer);
-t_token_type	evaluate_assign(const t_token *t);
-int		is_meta(char c);
-int		is_break(char c);
+void				init_lexer(t_lexer *lx, char *input);
+void				lexer_read_char(t_lexer *lexer);
+char				lexer_peek_char(const t_lexer *lexer);
+void				lexer_read_word(t_lexer *lexer, t_token *token);
+void				lexer_skip_space(t_lexer *lexer);
+t_token				*token_new(t_token_type type);
+bool				lexer_next_dmeta(t_lexer *lexer);
+bool				lexer_next_smeta(t_lexer *lexer);
+bool				lexer_next_redir(t_lexer *lexer);
+t_token				*lexer_next_token(t_lexer *lexer);
+t_token_type		evaluate_assign(const t_token *t);
+int					is_meta(char c);
+int					is_break(char c);
 
 #endif // MINISHELL_LEXER_H
