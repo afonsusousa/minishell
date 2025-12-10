@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:36:46 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 16:45:34 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 21:12:32 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,9 @@ static t_word	**build_result(t_word *exp_result, t_word **matches)
 	if (matches && *matches)
 	{
 		size = word_array_len(matches);
-		merge_sort((void *)matches, 0, size, word_cmp);
-		result = word_array_join(result, matches);
+		merge_sort((void *)matches, 0, size - 1, word_cmp);
+		while (*matches)
+			result = word_array_append_word(result, *matches++);
 	}
 	else
 		result = word_array_append_word(NULL, exp_result);

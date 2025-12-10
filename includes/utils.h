@@ -31,7 +31,8 @@ bool					is_valid(char c);
 int						ft_strcmp(const char *s1, const char *s2);
 int						ft_memucmp(void *s1, void *s2);
 int						word_cmp(void *a, void *b);
-bool					merge_sort(void *arr[], int left, int right, int (*cmp)(void *, void *));
+bool					merge_sort(void *arr[], int left, int right,
+							int (*cmp)(void *, void *));
 bool					has_char_fn(const char *s, bool (*predicate)(char));
 
 #endif // UTILS_H

@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:37:11 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 20:58:34 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 21:26:52 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ static bool	merge(void *arr[], int *sides, int mid,
 		l[1][i] = arr[mid + 1 + i];
 	ft_memset(indices, 0, 2 * sizeof(int));
 	indices[2] = sides[0];
-	ft_memcpy(n, indices + 3, 2 * sizeof(int));
+	ft_memmove(indices + 3, n, 2 * sizeof(int));
 	merge_left(arr, l, indices, func);
 	merge_rest(arr, l, indices);
 	return (free(l[0]), free(l[1]), true);
