@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 19:16:24 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 19:23:03 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 19:35:06 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 void	sm_init(t_quote_machine *sm, const char *str)
 {
-    size_t  i;
+	size_t	i;
 
 	sm->str = str;
 	sm->ch = *str;

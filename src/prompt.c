@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:38:09 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 19:31:44 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 19:33:02 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ static void	build_prompt(const char *buffer,
 {
 	ft_strlcat((char *) buffer, (char *) user, 1024);
 	ft_strlcat((char *) buffer, "@", 1024);
-	ft_strlcat((char *) buffer,(char *)  hostname, 1024);
+	ft_strlcat((char *) buffer, (char *) hostname, 1024);
 	ft_strlcat((char *) buffer, ":", 1024);
 }
 
