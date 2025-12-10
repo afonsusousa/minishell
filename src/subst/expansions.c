@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:36:46 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:36:52 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:25:56 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,10 +109,10 @@ t_word	**expand_cwd_wildcards(t_word *word)
 
 t_word	**expand_argv_word(const t_minishell *sh, const char *word)
 {
-	char *tilde_exp;
-	t_word *exp_word;
-	t_word **matches;
-	t_word **ret;
+	char	*tilde_exp;
+	t_word	*exp_word;
+	t_word	**matches;
+	t_word	**ret;
 
 	if (!word)
 		return (NULL);

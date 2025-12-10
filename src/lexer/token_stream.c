@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:35:15 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:35:17 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:22:58 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,10 @@ bool	token_stream_reserve(t_token_stream *ts, size_t needed)
 
 	if (ts->capacity >= needed)
 		return (true);
-	to_reserve = ts->capacity ? ts->capacity : 32;
+	if (ts->capacity > 0)
+		to_reserve = ts->capacity;
+	else
+		to_reserve = 32;
 	while (to_reserve < needed)
 		to_reserve <<= 1;
 	new_data = (t_token *)calloc(to_reserve, sizeof(t_token));

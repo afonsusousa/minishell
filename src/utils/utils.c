@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:37:17 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:37:18 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:28:45 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,6 +77,7 @@ char	*ft_strnjoin(const char *s1, const char *s2, size_t scnd)
 	*ret = 0;
 	return (og);
 }
+
 char	*ft_strndup(const char *str, size_t size)
 {
 	char	*t;
@@ -104,6 +105,8 @@ char	**str_arr_append(char **arr, const char *s)
 {
 	size_t	len;
 	char	**res;
+	char	**src;
+	char	**dst;
 
 	len = 0;
 	if (!s)
@@ -113,12 +116,13 @@ char	**str_arr_append(char **arr, const char *s)
 	res = ft_calloc(len + 2, sizeof(char *));
 	if (!res)
 		return (NULL);
-	for (size_t i = 0; i < len; i++)
-		res[i] = arr[i];
-	res[len] = ft_strdup(s);
-	if (!res[len])
+	src = arr;
+	dst = res;
+	while (src && *src)
+		*dst++ = *src++;
+	*dst = ft_strdup(s);
+	if (!*dst)
 		return (free(res), NULL);
-	res[len + 1] = NULL;
 	if (arr)
 		free(arr);
 	return (res);

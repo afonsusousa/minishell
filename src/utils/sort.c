@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:37:11 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:37:12 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:27:21 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ static bool	merge(char *arr[], int left, int mid, int right)
 
 bool	merge_sort_strings(char *arr[], const int left, const int right)
 {
-	int mid;
+	int	mid;
 
 	if (left < right)
 	{

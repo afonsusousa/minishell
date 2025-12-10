@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:38:09 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:38:16 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:33:21 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ int	exec_line(t_minishell *sh)
 	add_history(sh->line);
 	free(sh->line);
 	token_stream_free(sh->ts);
-	// print_ast(sh->ast, 0);
 	if (sh->aborted_parse || !sh->ast)
 		return (sh->last_status);
 	exec_ast(sh);
@@ -91,10 +90,10 @@ int	rl_loop(t_minishell *sh)
 
 int	notty_line(t_minishell *sh)
 {
-	ssize_t rd;
-	char c;
-	char *cursor;
-	char *line;
+	ssize_t	rd;
+	char	c;
+	char	*cursor;
+	char	*line;
 
 	line = ft_calloc(ARG_MAX, sizeof(char));
 	if (!line)

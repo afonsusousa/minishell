@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:36:24 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:36:25 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:25:07 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,8 @@ t_ast_list	*parse_core_redirs(t_minishell *sh)
 
 t_ast	*parse_redir(t_minishell *sh)
 {
-	t_ast *redir;
-	t_token_type redir_type;
+	t_ast			*redir;
+	t_token_type	redir_type;
 
 	if (sh->aborted_parse)
 		return (NULL);

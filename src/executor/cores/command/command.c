@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:32:14 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:32:21 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:17:58 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,8 +89,8 @@ int	execve_wrapper(t_minishell *sh, char ***argv)
 
 int	exec_command(t_minishell *sh, const t_ast *core)
 {
-	char **argv;
-	int status;
+	char	**argv;
+	int		status;
 
 	memset(sh->ctx, 0, sizeof(t_envp));
 	if (!core || core->type != AST_COMMAND)

@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:37:54 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:37:55 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:31:51 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,33 +65,38 @@ void	word_free_until_null(t_word **splits)
 	free(splits);
 }
 
+static size_t	word_array_len(t_word **arr)
+{
+	size_t	len;
+
+	len = 0;
+	while (arr && arr[len])
+		len++;
+	return (len);
+}
+
 t_word	**word_array_join(t_word **a, t_word **b)
 {
 	t_word	**result;
 	size_t	a_len;
 	size_t	b_len;
-	size_t	i;
+	t_word	**dst;
 
-	a_len = 0;
-	while (a && a[a_len])
-		a_len++;
-	b_len = 0;
-	while (b && b[b_len])
-		b_len++;
+	a_len = word_array_len(a);
+	b_len = word_array_len(b);
 	result = malloc(sizeof(t_word *) * (a_len + b_len + 1));
 	if (!result)
 		return (NULL);
-	i = -1;
-	while (a && ++i < a_len)
-		result[i] = a[i];
-	i = -1;
-	while (b && ++i < b_len)
-		result[a_len + i] = b[i];
-	result[a_len + b_len] = NULL;
+	dst = result;
+	while (a && *a)
+		*dst++ = *a++;
+	while (b && *b)
+		*dst++ = *b++;
+	*dst = NULL;
 	if (a)
-		free(a);
+		free(a - a_len);
 	if (b)
-		free(b);
+		free(b - b_len);
 	return (result);
 }
 

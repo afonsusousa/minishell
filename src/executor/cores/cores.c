@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:29:44 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:32:53 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:20:03 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,8 @@ int	exec_grouping(t_minishell *sh, const t_ast *node)
 
 int	exec_core(t_minishell *sh, const t_ast *core, bool in_fork)
 {
-	int status;
-	int saved[2];
+	int	status;
+	int	saved[2];
 
 	if (!core || (core->type != AST_COMMAND && core->type != AST_GROUPING))
 		return (1);

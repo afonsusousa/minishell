@@ -46,6 +46,8 @@ t_ast			*ast_make_command_node(const char **assignments, char **argv,
 					int argc, t_ast_list *redirs);
 
 // Error
+const char      *get_token_type_name(const t_token *tk);
+void            print_syntax_error(const char *token_name);
 void			parser_abort(t_minishell *sh);
 void			parser_abort_error(t_minishell *sh);
 

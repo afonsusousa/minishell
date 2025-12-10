@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:33:33 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:33:35 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:21:45 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ int	exec_node(t_minishell *sh, const t_ast *node)
 
 int	exec_ast(t_minishell *sh)
 {
-	int status;
+	int	status;
 
 	status = exec_node(sh, sh->ast);
 	sh->last_status = status;

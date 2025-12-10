@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:35:49 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:35:49 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:24:18 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ static const char	*get_redir_token_name(const t_token_type type)
 	return (NULL);
 }
 
-static const char	*get_token_type_name(const t_token *tk)
+const char	*get_token_type_name(const t_token *tk)
 {
 	const char	*name;
 
@@ -75,30 +75,10 @@ static const char	*get_token_type_name(const t_token *tk)
 	return ("unknown token");
 }
 
-static void	print_syntax_error(const char *token_name)
+void	print_syntax_error(const char *token_name)
 {
 	ft_putstr_fd("minishell: syntax error near unexpected token '",
 		STDERR_FILENO);
 	ft_putstr_fd((char *)token_name, STDERR_FILENO);
 	ft_putstr_fd("'\n", STDERR_FILENO);
-}
-
-void	get_token_name(const t_token *tk)
-{
-	const char	*name;
-
-	name = get_token_type_name(tk);
-	print_syntax_error(name);
-}
-
-void	parser_abort(t_minishell *sh)
-{
-	sh->aborted_parse = true;
-}
-
-void	parser_abort_error(t_minishell *sh)
-{
-	get_token_name(ts_peek(sh->ts));
-	sh->last_status = 2;
-	parser_abort(sh);
 }

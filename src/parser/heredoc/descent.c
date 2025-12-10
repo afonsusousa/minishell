@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:35:35 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:35:39 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:03:28 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,10 @@ static int	redir_leaf(t_minishell *sh, const t_ast_list *redir)
 		if (redir->node->u_as.s_redir.kind == TOK_HEREDOC)
 		{
 			sh->heredoc.del = expanded(sh->env,
-					redir->node->u_as.s_redir.u_target.file_name, sh->last_status,
-					CONSUME_QUOTES);
-			status = heredoc_setup(sh, redir->node->u_as.s_redir.u_target.heredoc);
+					redir->node->u_as.s_redir.u_target.file_name,
+					sh->last_status, CONSUME_QUOTES);
+			status = heredoc_setup(sh,
+					redir->node->u_as.s_redir.u_target.heredoc);
 			if (status)
 				return (status);
 		}
@@ -51,9 +52,8 @@ static int	descend_pipeline(t_minishell *sh, const t_ast_list *cores)
 
 int	heredoc_descend(t_minishell *sh, t_ast *node)
 {
-	int status;
+	int	status;
 
-	status = 0;
 	if (!node)
 		return (0);
 	if (node->type == AST_COMMAND_LINE)

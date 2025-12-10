@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:32:57 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:33:02 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:20:27 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ static int	exec_pipeline_core(t_minishell *sh, const t_ast_list *core)
 
 int	exec_pipeline(t_minishell *sh, const t_ast_list *cores)
 {
-	const t_ast_list *curr;
+	const t_ast_list	*curr;
 
 	sh->pipeline.count = 0;
 	sh->pipeline.prev_read = -1;

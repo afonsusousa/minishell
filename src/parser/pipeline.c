@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:36:17 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:36:18 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:24:57 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,8 @@
 
 t_ast	*parse_pipeline(t_minishell *sh)
 {
-	t_ast *core;
-	t_ast *pipeline;
+	t_ast	*core;
+	t_ast	*pipeline;
 
 	if (sh->aborted_parse)
 		return (NULL);

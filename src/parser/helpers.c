@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:35:53 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:35:58 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:24:45 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ t_ast	*ast_make_redir_node(t_token_type type)
 t_ast	*ast_make_command_node(const char **assignments, char **argv, int argc,
 		t_ast_list *redirs)
 {
-	t_ast *n;
+	t_ast	*n;
 
 	n = ast_new(AST_COMMAND);
 	if (!n)

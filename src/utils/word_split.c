@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:37:22 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:37:24 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:29:26 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,11 +100,11 @@ static t_word	*create_split_part(t_word *ts, size_t start, size_t len)
 
 t_word	**word_split(t_word *ts, bool (*is_separator)(char), bool quote_aware)
 {
-	t_word **ret;
-	size_t split_count;
-	size_t i;
-	size_t j;
-	size_t start;
+	t_word	**ret;
+	size_t	split_count;
+	size_t	i;
+	size_t	j;
+	size_t	start;
 
 	if (!ts || !ts->content || !is_separator)
 		return (NULL);
@@ -120,9 +120,8 @@ t_word	**word_split(t_word *ts, bool (*is_separator)(char), bool quote_aware)
 		start = j;
 		j = find_word_end(ts, j, is_separator, quote_aware);
 		ret[i] = create_split_part(ts, start, j - start);
-		if (!ret[i])
+		if (!ret[i++])
 			return (word_free_until_null(ret), NULL);
-		i++;
 	}
 	ret[split_count] = NULL;
 	return (ret);

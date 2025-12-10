@@ -25,6 +25,7 @@ t_ast	*ast_new(const t_ast_type type)
 }
 /*
 #include <stdio.h>
+
 static void	print_indent(int depth)
 {
 	for (int i = 0; i < depth; ++i)
@@ -89,7 +90,7 @@ void	print_ast(const t_ast *n, int d)
 	case AST_COMMAND_LINE:
 		print_indent(d);
 		printf("[command_line] terminator=%c\n",
-			n->u_as.s_command_line.terminator 
+			n->u_as.s_command_line.terminator
 		? n->u_as.s_command_line.terminator : '0');
 		print_ast(n->u_as.s_command_line.list, d + 1);
 		break ;
@@ -149,7 +150,7 @@ void	print_ast(const t_ast *n, int d)
 		break ;
 	case AST_REDIR:
 		printf("[%s,", redir_kind_name(n->u_as.s_redir.kind));
-		if (n->u_as.s_redir.u_target.file_name 
+		if (n->u_as.s_redir.u_target.file_name
 		&& n->u_as.s_redir.kind != TOK_HEREDOC)
 			printf("\"%s\"]", n->u_as.s_redir.u_target.file_name);
 		else

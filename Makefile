@@ -28,6 +28,7 @@ SRCS := \
 	$(SRC_DIR)/parser/redirs.c \
 	$(SRC_DIR)/parser/utils.c \
 	$(SRC_DIR)/parser/error.c \
+	$(SRC_DIR)/parser/abort.c \
 	$(SRC_DIR)/env/utils.c \
 	$(SRC_DIR)/env/getters.c \
 	$(SRC_DIR)/env/setters.c \
@@ -42,6 +43,7 @@ SRCS := \
 	$(SRC_DIR)/executor/cores/builtin/cd.c \
 	$(SRC_DIR)/executor/cores/builtin/echo.c \
 	$(SRC_DIR)/executor/cores/builtin/export.c \
+	$(SRC_DIR)/executor/cores/builtin/export_error.c \
 	$(SRC_DIR)/executor/cores/builtin/env.c \
 	$(SRC_DIR)/executor/cores/builtin/exit.c \
 	$(SRC_DIR)/executor/cores/builtin/pwd.c \

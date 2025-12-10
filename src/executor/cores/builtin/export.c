@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:32:01 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:32:02 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:16:56 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "../../../../includes/minishell.h"
 #include "../../../../includes/utils.h"
 #include "../../../../lib/libft/libft.h"
+#include "builtins.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -76,27 +77,10 @@ bool	is_append(const char *str)
 	return (false);
 }
 
-static int	export_invalid_option(const char *arg)
-{
-	write(2, "minishell: export: -", 20);
-	write(2, arg + 1, 1);
-	write(2, ": invalid option\n", 17);
-	write(2, "export: usage: export [name[=value] ...]\n", 41);
-	return (2);
-}
-
-static int	export_invalid_identifier(const char *arg)
-{
-	write(2, "minishell: export: `", 20);
-	write(2, arg, ft_strlen(arg));
-	write(2, "': not a valid identifier\n", 26);
-	return (1);
-}
-
 int	exec_export(const t_minishell *sh, char **argv, const int argc)
 {
-	t_var *var;
-	int status;
+	t_var	*var;
+	int		status;
 
 	(void)argc;
 	if (argv[1] == NULL)

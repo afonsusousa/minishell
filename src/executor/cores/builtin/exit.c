@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:31:57 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:31:58 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:13:07 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ static void	exit_error(t_minishell *sh, const char *arg)
 
 int	exec_exit(t_minishell *sh, char **argv, const int argc)
 {
-	int code;
+	int	code;
 
 	code = 0;
 	if (argc == 2)

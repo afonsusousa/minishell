@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:33:15 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:33:17 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:21:35 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ static int	handle_file_redir(t_minishell *sh, const t_ast *node)
 
 int	exec_redirs(t_minishell *sh, const t_ast_list *r)
 {
-	int result;
+	int	result;
 
 	memset(&sh->heredoc, 0, sizeof(t_heredoc));
 	while (r)
