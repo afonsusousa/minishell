@@ -6,12 +6,12 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:39:48 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:41:54 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 15:55:20 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MINISHELL_MINISHELL_H
-# define MINISHELL_MINISHELL_H
+#ifndef MINISHELL_H
+# define MINISHELL_H
 # include "ast.h"
 # include "envp.h"
 # include "globbing.h"
@@ -63,4 +63,4 @@ int						exec_line(t_minishell *sh);
 int						notty_line(t_minishell *sh);
 void					minishell_free(t_minishell *sh);
 
-#endif // MINISHELL_MINISHELL_H
+#endif // MINISHELL_H

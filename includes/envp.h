@@ -1,14 +1,22 @@
-//
-// Created by wlucas-f on 10/21/25.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   envp.h                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/10 15:52:29 by amagno-r          #+#    #+#             */
+/*   Updated: 2025/12/10 15:52:51 by amagno-r         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#ifndef MINISHELL_ENVP_CLEAN_H
-# define MINISHELL_ENVP_CLEAN_H
+#ifndef ENVP_H
+# define ENVP_H
 
 # include <stdbool.h>
 # include <stddef.h>
 
-# define EXPORT (1 << 0)
+# define EXPORT 1
 
 typedef struct s_var
 {

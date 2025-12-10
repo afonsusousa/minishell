@@ -1,9 +1,17 @@
-//
-// Created by afonsusousa on 9/24/25.
-//
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lexer.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/10 15:54:01 by amagno-r          #+#    #+#             */
+/*   Updated: 2025/12/10 15:55:05 by amagno-r         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-#ifndef MINISHELL_LEXER_H
-# define MINISHELL_LEXER_H
+#ifndef LEXER_H
+# define LEXER_H
 
 # include <stdbool.h>
 # include <stddef.h>

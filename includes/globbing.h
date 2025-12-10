@@ -1,5 +1,17 @@
-#ifndef MINISHELL_SUBST_H
-# define MINISHELL_SUBST_H
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   globbing.h                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/10 15:56:30 by amagno-r          #+#    #+#             */
+/*   Updated: 2025/12/10 15:56:31 by amagno-r         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef GLOBBING_H
+# define GLOBBING_H
 
 # include "minishell.h"
 # include <stddef.h>

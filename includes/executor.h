@@ -6,12 +6,12 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/10/07 00:00:00 by executor          #+#    #+#             */
-/*   Updated: 2025/12/10 15:39:32 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 15:53:06 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MINISHELL_EXECUTOR_H
-# define MINISHELL_EXECUTOR_H
+#ifndef EXECUTOR_H
+# define EXECUTOR_H
 
 # include "ast.h"
 # include "minishell.h"
@@ -61,4 +61,4 @@ int		handle_ambiguous_redirect(const char *filename, t_word **words);
 int		handle_open_error(const char *filename, t_word **words);
 int		handle_dup2_error(int fd, const char *filename, t_word **words);
 
-#endif /* MINISHELL_EXECUTOR_H */
+#endif /* EXECUTOR_H */

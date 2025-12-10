@@ -6,12 +6,12 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:40:06 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:43:28 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 15:56:07 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MINISHELL_TOKENS_H
-# define MINISHELL_TOKENS_H
+#ifndef TOKENS_H
+# define TOKENS_H
 
 # include "lexer.h"
 # include "minishell.h"
@@ -38,4 +38,4 @@ int								ts_check(const t_token_stream *ts,
 									t_token_type type);
 int								ts_match(t_token_stream *ts, t_token_type type);
 
-#endif // MINISHELL_TOKENS_H
+#endif // TOKENS_H

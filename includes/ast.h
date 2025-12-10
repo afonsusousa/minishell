@@ -6,12 +6,12 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:38:58 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:47:27 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 15:52:08 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MINISHELL_AST_H
-# define MINISHELL_AST_H
+#ifndef AST_H
+# define AST_H
 
 # include "lexer.h"
 
@@ -92,4 +92,4 @@ void						ast_list_free(t_ast_list *lst);
 void						ast_free(t_ast *node);
 void						print_ast(const t_ast *n, int d);
 
-#endif // MINISHELL_AST_H
+#endif // AST_H

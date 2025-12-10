@@ -6,12 +6,12 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:39:53 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:39:53 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 15:55:26 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MINISHELL_PARSER_H
-# define MINISHELL_PARSER_H
+#ifndef PARSER_H
+# define PARSER_H
 
 # include "ast.h"
 # include "tokens.h"

@@ -6,12 +6,12 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:40:02 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:40:03 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 15:55:51 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MINISHELL_SUBST_MACHINE_H
-# define MINISHELL_SUBST_MACHINE_H
+#ifndef SM_H
+# define SM_H
 
 # include <linux/limits.h>
 # include <stdbool.h>

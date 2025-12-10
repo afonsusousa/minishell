@@ -6,12 +6,12 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:40:10 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:40:13 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 15:56:18 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef MINISHELL_UTILS_H
-# define MINISHELL_UTILS_H
+#ifndef UTILS_H
+# define UTILS_H
 
 # include <stdbool.h>
 # include <stddef.h>
@@ -47,4 +47,4 @@ t_word					**word_array_append_word(t_word **arr,
 char					*word_to_cstr(const t_word *word);
 char					**word_to_cstr_array(t_word **words);
 
-#endif // MINISHELL_UTILS_H
+#endif // UTILS_H
