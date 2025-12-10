@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:38:04 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:38:05 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 21:30:38 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,11 +76,8 @@ int	main(int argc, char **argv, char **envp)
 	if (!isatty(STDIN_FILENO))
 	{
 		while (notty_line(&sh))
-		{
 			if (sh.line && *sh.line != '\0')
 				exec_line(&sh);
-			sh.line = NULL;
-		}
 		minishell_free(&sh);
 		return (sh.last_status);
 	}

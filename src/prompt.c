@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:38:09 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 19:33:02 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 21:30:28 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ int	exec_line(t_minishell *sh)
 	exec_ast(sh);
 	ast_free(sh->ast);
 	sh->ast = NULL;
+	sh->line = NULL;
 	return (sh->last_status);
 }
 
