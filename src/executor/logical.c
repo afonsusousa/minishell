@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:33:38 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 16:21:52 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:39:51 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 
 int	exec_logical(t_minishell *sh, const t_ast *node)
 {
-	int left_status;
+	int	left_status;
 
 	if (!node || (node->type != AST_AND_LIST && node->type != AST_OR_LIST))
 		return (1);

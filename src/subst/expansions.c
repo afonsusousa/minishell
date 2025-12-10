@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:36:46 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 16:25:56 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:45:34 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,8 +56,8 @@ static t_word	**build_result(t_word *exp_result, t_word **matches)
 {
 	t_word	**result;
 	int		size;
-	int		i;
 	char	**cstr_array;
+	char	**ptr;
 
 	if (matches && *matches)
 	{
@@ -69,13 +69,12 @@ static t_word	**build_result(t_word *exp_result, t_word **matches)
 			return (NULL);
 		merge_sort_strings(cstr_array, 0, size - 1);
 		result = NULL;
-		i = 0;
-		while (i < size)
+		ptr = cstr_array;
+		while (*ptr)
 		{
-			result = word_array_append_cstr(result, cstr_array[i], true);
+			result = word_array_append_cstr(result, *ptr++, true);
 			if (!result)
 				free_until_null(&cstr_array);
-			i++;
 		}
 		free(cstr_array);
 		word_free_until_null(matches);

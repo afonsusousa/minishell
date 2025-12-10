@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:32:14 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 16:17:58 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:39:05 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,10 @@ static int	exec_assignments(t_minishell *sh, const char **a, bool context)
 {
 	t_envp	*env;
 
-	env = context ? sh->ctx : sh->env;
+	if (context)
+		env = sh->ctx;
+	else
+		env = sh->env;
 	while (a && *a)
 		if (envp_setvar_str(env, *a++, sh->last_status, EXPORT) == NULL)
 			return (1);

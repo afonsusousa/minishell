@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/24 03:29:15 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 16:21:56 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/10 16:40:32 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ t_token_type	evaluate_assign(const t_token *t)
 	{
 		if (first && t->lexeme[i] == '=')
 		{
-			if (i && i + 1 < len && ((!is_space(t->lexeme[i - 1]) 
+			if (i && i + 1 < len && ((!is_space(t->lexeme[i - 1])
 						|| t->lexeme[i - 1] == '+')
 					|| !is_space(t->lexeme[i + 1])))
 				return (TOK_ASSIGNMENT_WORD);
