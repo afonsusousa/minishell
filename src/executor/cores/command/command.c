@@ -25,13 +25,15 @@
 static int	exec_assignments(t_minishell *sh, const char **a, bool context)
 {
 	t_envp	*env;
+	int		flags;
 
 	if (context)
 		env = sh->ctx;
 	else
 		env = sh->env;
+	flags = EXPORT | EXPAND_VARS | CONSUME_QUOTES;
 	while (a && *a)
-		if (envp_setvar_str(env, *a++, sh->last_status, EXPORT) == NULL)
+		if (envp_setvar_str(env, *a++, sh->last_status, flags) == NULL)
 			return (1);
 	return (0);
 }

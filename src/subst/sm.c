@@ -16,6 +16,36 @@
 #include "../../lib/libft/libft.h"
 #include <stdlib.h>
 
+/**
+* @file sm.c
+* @brief Implements a state machine for shell-like string expansion.
+*
+* ### State Machine
+*
+* States:
+* - `DEFAULT`: Initial state. Handles unquoted text.
+* - `IN_SQ`: Inside single quotes. All characters are literal.
+* - `IN_DQ`: Inside double quotes. Allows variable expansion.
+* - `IN_VAR`: Handles variable expansion ($VAR).
+*
+*      +-----------+       +-------+
+*      |           |------>|       |
+* ---> |  DEFAULT  |   '   | IN_SQ |
+*      |           |<------|       |
+*      +-----------+       +-------+
+*        |   ^   ^ |   $
+*        |	 |   | +------->+--------+
+*        | " |   +----------| IN_VAR |
+*        |   |		 ^EOVAR  +--------+
+*        v   |              ^  |
+*      +-------+      $     |  |
+*      |       |------------+  |
+*      | IN_DQ |<--------------+
+*      |       |     ^EOVAR
+*      +-------+
+*
+**/
+
 static void	handle_quote_state(t_quote_machine *sm, int flags)
 {
 	char	quote_char;
@@ -70,6 +100,13 @@ static void	handle_variable_state(t_quote_machine *sm, t_envp *env,
 	}
 }
 
+/**
+ * @brief Runs the main loop of the state machine.
+ * @param sm The state machine instance.
+ * @param env The environment variables list.
+ * @param last_status The exit status of the last command.
+ * @param flags Expansion flags.
+ */
 static void	sm_run(t_quote_machine *sm, t_envp *env, int last_status, int flags)
 {
 	while (sm->ch || sm->curr == IN_VAR)
@@ -97,6 +134,20 @@ static void	sm_run(t_quote_machine *sm, t_envp *env, int last_status, int flags)
 	}
 }
 
+/**
+ * @brief Expands a string using the state machine.
+ *
+ * Hack: an empty string that was expanded from an empty quoted segment
+ * will be returned as an emtpy t_word, with a quoted_map[0] == true
+ * otherwise, return NULL; This is the purpose of those dubious conditionals;
+ *
+ * @param env The environment variables list.
+ * @param str The input string to expand.
+ * @param last_status The exit status of the last command.
+ * @param flags Expansion flags (CONSUME_QUOTES, EXPAND_VARS).
+ * @return A pointer to a new `t_word` structure with the result, NULL on
+ *         failure or empty string.
+ */
 t_word	*expanded(t_envp *env, const char *str, int last_status, int flags)
 {
 	t_quote_machine	sm;
@@ -120,6 +171,21 @@ t_word	*expanded(t_envp *env, const char *str, int last_status, int flags)
 	return (result);
 }
 
+/**
+ * @brief Expands a string and returns it as a C string.
+ *
+ * Hack: an empty string that was expanded from an empty quoted segment
+ * will be returned as an empty string, otherwise, return NULL;
+ * This is the purpose of those dubious conditionals;
+ *
+ * @param env The environment variables list.
+ * @param str The input string to expand.
+ * @param last_status The exit status of the last command.
+ * @param flags Expansion flags (CONSUME_QUOTES, EXPAND_VARS).
+ * @return A new null-terminated string with the expansion result, NULL on
+ *         failure or empty string. The caller is responsible for freeing
+ *         the returned string.
+ */
 char	*expanded_cstr(t_envp *env, const char *str, int last_status, int flags)
 {
 	t_quote_machine	sm;

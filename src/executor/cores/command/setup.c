@@ -12,11 +12,29 @@
 
 #include "../../../../includes/executor.h"
 #include "../../../../includes/globbing.h"
-#include "../../../../includes/minishell.h"
 #include "../../../../includes/utils.h"
 #include <stdlib.h>
 #include <unistd.h>
 
+/**
+ * Because lexer defines words as simply space-seperated sequences
+ * of characters (respecting quotes). The t_word type came about,
+ * containing the expansion result and its quoting metadata.
+ * This is the reason for all the shenanigans going on in the
+ * expansion state machine.
+ *
+ * This need originally emerged in the following sequence:
+ *
+ * > export X="   A    B   "  -> yes, those are multiple spaces
+ * > echo "1"$X"2" -> lexer considers "1"$X"2" as one word.
+ * 1 A B 2 -> but echo received ["1", "A", "B", "2"] as &argv[1]
+ *
+ *  but
+ *
+ *  > export X="'     A     B    '"
+ *  > echo "1"$X"2"
+ *  1' A B '2
+ **/
 static t_word	**split_expanded(t_word **expanded)
 {
 	t_word	**split;

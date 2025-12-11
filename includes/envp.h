@@ -16,7 +16,7 @@
 # include <stdbool.h>
 # include <stddef.h>
 
-# define EXPORT 1
+# define EXPORT 0x08
 
 typedef struct s_var
 {
