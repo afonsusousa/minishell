@@ -29,23 +29,23 @@ int	exec_line(t_minishell *sh)
 	parse(sh);
 	add_history(sh->line);
 	free(sh->line);
+	sh->line = NULL;
 	token_stream_free(sh->ts);
 	if (sh->aborted_parse || !sh->ast)
 		return (sh->last_status);
 	exec_ast(sh);
 	ast_free(sh->ast);
 	sh->ast = NULL;
-	sh->line = NULL;
 	return (sh->last_status);
 }
 
-static void	build_prompt(const char *buffer,
-			const char *user, const char *hostname)
+static void	build_prompt(const char *buffer, const char *user,
+		const char *hostname)
 {
-	ft_strlcat((char *) buffer, (char *) user, 1024);
-	ft_strlcat((char *) buffer, "@", 1024);
-	ft_strlcat((char *) buffer, (char *) hostname, 1024);
-	ft_strlcat((char *) buffer, ":", 1024);
+	ft_strlcat((char *)buffer, (char *)user, 1024);
+	ft_strlcat((char *)buffer, "@", 1024);
+	ft_strlcat((char *)buffer, (char *)hostname, 1024);
+	ft_strlcat((char *)buffer, ":", 1024);
 }
 
 static char	*get_prompt(void)
@@ -77,19 +77,17 @@ static char	*get_prompt(void)
 
 int	rl_loop(t_minishell *sh)
 {
-	char	*prompt;
-
 	signal_setup();
 	while (1)
 	{
-		prompt = get_prompt();
-		sh->line = readline(prompt);
+		sh->prompt = get_prompt();
+		sh->line = readline(sh->prompt);
 		if (sh->line == NULL)
 			break ;
 		if (*sh->line != '\0')
 			exec_line(sh);
-		sh->line = NULL;
-		free(prompt);
+		free(sh->prompt);
+		sh->prompt = NULL;
 	}
 	minishell_free(sh);
 	return (true);

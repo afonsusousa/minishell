@@ -45,10 +45,10 @@ static bool	merge(void *arr[], int *sides, int mid,
 
 	n[0] = mid - sides[0] + 1;
 	n[1] = sides[1] - mid;
-	l[0] = malloc(n[0] * sizeof(void *));
+	l[0] = ft_calloc(n[0], sizeof(void *));
 	if (!l[0])
 		return (false);
-	l[1] = malloc(n[1] * sizeof(void *));
+	l[1] = ft_calloc(n[1], sizeof(void *));
 	if (!l[1])
 		return (free(l[0]), false);
 	i = -1;

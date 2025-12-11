@@ -13,11 +13,20 @@
 #include "../includes/envp.h"
 #include "../includes/minishell.h"
 #include <readline/readline.h>
+#include <stdlib.h>
 
 void	minishell_free(t_minishell *sh)
 {
 	rl_clear_history();
 	ast_free(sh->ast);
+	if (sh->prompt)
+	{
+		free(sh->prompt);
+	}
+	if (sh->line)
+	{
+		free(sh->line);
+	}
 	free_envp(sh->env);
 	token_stream_free(sh->ts);
 }

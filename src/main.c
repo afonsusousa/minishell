@@ -33,12 +33,15 @@ static void	minishell_init(t_minishell *sh, t_token_stream *ts, t_envp *env,
 	sh->ts = ts;
 	sh->env = env;
 	sh->ctx = ctx;
+	sh->prompt = NULL;
+	sh->line = NULL;
 }
 
 static void	init_env(t_minishell *sh, char **envp)
 {
 	int		i;
 	t_var	*shlvl;
+	char	*shlvl_value;
 	char	cwd[4096];
 
 	i = 0;
@@ -46,10 +49,11 @@ static void	init_env(t_minishell *sh, char **envp)
 		envp_setvar_str(sh->env, envp[i++], sh->last_status, EXPORT);
 	shlvl = envp_getvar(sh->env, "SHLVL");
 	if (shlvl && shlvl->value)
-		envp_setvar(sh->env, "SHLVL", ft_itoa(ft_atoi(shlvl->value) + 1),
-			EXPORT);
+		shlvl_value = ft_itoa(ft_atoi(shlvl->value) + 1);
 	else
-		envp_setvar(sh->env, "SHLVL", ft_strdup("1"), EXPORT);
+		shlvl_value = ft_strdup("1");
+	envp_setvar(sh->env, "SHLVL", shlvl_value, EXPORT);
+	free(shlvl_value);
 	if (getcwd(cwd, sizeof(cwd)))
 	{
 		envp_setvar(sh->env, "PWD", cwd, EXPORT);

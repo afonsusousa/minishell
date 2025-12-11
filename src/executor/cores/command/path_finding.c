@@ -26,11 +26,11 @@ static char	*search_path(t_minishell *sh, char *cmd)
 
 	path = envp_getvar_value(sh->env, "PATH", sh->last_status);
 	if (!path)
-		return (NULL);
+		return (ft_strdup(cmd));
 	split_path = ft_split(path, ':');
 	free(path);
 	if (!split_path)
-		return (NULL);
+		return (ft_strdup(cmd));
 	i = 0;
 	while (split_path[i] && ft_strcmp(cmd, ".") != 0 && *cmd)
 	{
@@ -41,13 +41,15 @@ static char	*search_path(t_minishell *sh, char *cmd)
 			return (free_until_null(&split_path), try);
 		free(try);
 	}
-	return (free_until_null(&split_path), ft_strdup(cmd));
+	free_until_null(&split_path);
+	return (ft_strdup(cmd));
 }
 
 char	*find_path(t_minishell *sh, char *cmd)
 {
 	char		*expanded_cmd;
 	const t_var	*path;
+	char		*result;
 
 	expanded_cmd = expand_tilde(sh, cmd);
 	if (!expanded_cmd)
@@ -56,12 +58,14 @@ char	*find_path(t_minishell *sh, char *cmd)
 	if (ft_strchr(expanded_cmd, '/') || !path || !path->value || !*path->value)
 	{
 		if (access(expanded_cmd, F_OK) == 0)
-			return (expanded_cmd);
-		if (expanded_cmd != cmd)
-			free(expanded_cmd);
-		return (ft_strdup(cmd));
+			result = ft_strdup(expanded_cmd);
+		else
+			result = ft_strdup(cmd);
 	}
+	else
+		result = search_path(sh, cmd);
 	if (expanded_cmd != cmd)
 		free(expanded_cmd);
-	return (search_path(sh, cmd));
+	free(cmd);
+	return (result);
 }

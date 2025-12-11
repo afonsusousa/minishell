@@ -6,7 +6,7 @@
 /*   By: amagno-r <amagno-r@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/10 15:39:48 by amagno-r          #+#    #+#             */
-/*   Updated: 2025/12/10 15:55:20 by amagno-r         ###   ########.fr       */
+/*   Updated: 2025/12/11 01:46:52 by amagno-r         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ typedef struct s_minishell
 {
 	t_envp				*env;
 	t_envp				*ctx;
+	char				*prompt;
 	char				*line;
 	t_token_stream		*ts;
 	t_ast				*ast;
