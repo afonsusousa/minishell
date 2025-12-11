@@ -34,6 +34,17 @@ static void	free_simple_command(const t_ast *node)
 	ast_list_free(node->u_as.s_command.redirs);
 }
 
+static void free_redir(const t_ast *node)
+{
+    if (node->u_as.s_redir.kind == TOK_HEREDOC)
+    {
+        if (node->u_as.s_redir.u_target.heredoc >= 0)
+            close(node->u_as.s_redir.u_target.heredoc);
+    }
+    else
+        free((char *)node->u_as.s_redir.u_target.file_name);
+}
+
 void	ast_free(t_ast *node)
 {
 	if (node == NULL)
@@ -47,13 +58,7 @@ void	ast_free(t_ast *node)
 	else if (node->type == AST_COMMAND)
 		free_simple_command(node);
 	else if (node->type == AST_REDIR)
-	{
-		if (node->u_as.s_redir.kind == TOK_HEREDOC
-			&& node->u_as.s_redir.u_target.heredoc[0] >= 0)
-			close(node->u_as.s_redir.u_target.heredoc[0]);
-		else
-			free((char *)node->u_as.s_redir.u_target.file_name);
-	}
+	    free_redir(node);
 	else if (node->type == AST_OR_LIST || node->type == AST_AND_LIST)
 	{
 		ast_free(node->u_as.s_binop.left);

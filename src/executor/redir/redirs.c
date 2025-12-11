@@ -46,7 +46,7 @@ static int	handle_heredoc_redir(const t_ast *node)
 {
 	int	fd;
 
-	fd = node->u_as.s_redir.u_target.heredoc[0];
+	fd = node->u_as.s_redir.u_target.heredoc;
 	if (fd < 0)
 		return (0);
 	if (dup2(fd, get_redir_fd(node->u_as.s_redir.kind)) < 0)

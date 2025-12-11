@@ -10,6 +10,8 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdlib.h>
+
 #include "../../../includes/ast.h"
 #include "../../../includes/minishell.h"
 #include "../../../includes/parser.h"
@@ -26,8 +28,10 @@ static int	redir_leaf(t_minishell *sh, const t_ast_list *redir)
 			sh->heredoc.del = expanded(sh->env,
 					redir->node->u_as.s_redir.u_target.file_name,
 					sh->last_status, CONSUME_QUOTES);
+		    free((char *)redir->node->u_as.s_redir.u_target.file_name);
+		    redir->node->u_as.s_redir.u_target.heredoc = -1;
 			status = heredoc_setup(sh,
-					redir->node->u_as.s_redir.u_target.heredoc);
+					&redir->node->u_as.s_redir.u_target.heredoc);
 			if (status)
 				return (status);
 		}

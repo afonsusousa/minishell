@@ -67,7 +67,7 @@ typedef struct s_ast
 			union
 			{
 				const char	*file_name;
-				int			heredoc[2];
+				int			heredoc;
 			} u_target;
 		} s_redir;
 		struct

@@ -82,11 +82,12 @@ static void	run_heredoc_child(t_minishell *sh)
 		free(line);
 	}
 	close(write_fd);
+    minishell_free(sh);
 	word_free(sh->heredoc.del);
 	exit(0);
 }
 
-static int	handle_heredoc_parent(t_minishell *sh, int heredoc[2])
+static int	handle_heredoc_parent(t_minishell *sh, int *heredoc)
 {
 	close(sh->heredoc.fd[1]);
 	signal(SIGINT, SIG_IGN);
@@ -98,15 +99,14 @@ static int	handle_heredoc_parent(t_minishell *sh, int heredoc[2])
 	{
 		write(1, "\n", 1);
 		close(sh->heredoc.fd[0]);
-		heredoc[0] = -1;
-		heredoc[1] = -1;
+		*heredoc = -1;
 		return (130);
 	}
-	heredoc[0] = sh->heredoc.fd[0];
+	*heredoc = sh->heredoc.fd[0];
 	return (0);
 }
 
-int	heredoc_setup(t_minishell *sh, int heredoc[2])
+int	heredoc_setup(t_minishell *sh, int *heredoc)
 {
 	if (!sh->heredoc.del)
 		return (1);

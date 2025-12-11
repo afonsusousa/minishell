@@ -54,6 +54,8 @@ void	parse(t_minishell *sh)
 	here_status = heredoc_descend(sh, sh->ast);
 	if (here_status)
 	{
+	    ast_free(sh->ast);
+	    sh->ast = NULL;
 		sh->aborted_parse = true;
 		sh->last_status = here_status;
 	}
