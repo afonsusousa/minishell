@@ -82,7 +82,7 @@ static void	run_heredoc_child(t_minishell *sh)
 		free(line);
 	}
 	close(write_fd);
-    minishell_free(sh);
+	minishell_free(sh);
 	word_free(sh->heredoc.del);
 	exit(0);
 }
