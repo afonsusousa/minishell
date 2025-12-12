@@ -36,7 +36,7 @@
  * ^ echo received ["1     A     B    2"] as argv
  *
  * But, as the testers had spoken in the blood-red of their lines,
- * their shade forever cast onto these .c files, the quotes knew...
+ * that shade forever cast onto these .c files, the quotes knew...
  * No two of them would come to trust one another for a long time.
  *
  * So they consulted with Bash, the twice born, whom, in its cryptic
@@ -50,16 +50,16 @@
  *
  * What was that? Something about a... "refactor"? Confused and waking up
  * to a horizon threatened by command setup's light, and once again staring
- * into each other's eyes, in those eyes' reflection a new day dawned on them:
- * While Bash may have been but a fantasy, ft_split had become their reality.
- * And thus they experimented, this time daring with a touch more quotes:
+ * into the abyss between each other's eyes, in those eyes' reflections
+ * a new day had dawned upon them:
+ * While Bash may have been but a fantasy, ft_split had become their reality,
+ * and thus they experimented, this time daring with a touch more quotes:
  *
  * > export X="'     A     B    '"
  * > echo "1"$X"2"
  * "1' A B '2"
- * ^ echo received ["1'", "A", "B", "'2"]
- * This was because the word was split on spaces
- * from its expansion "1'     A     B    '2"
+ * ^ echo received ["1'", "A", "B", "'2"], this was because the word was split
+ * on spaces from its expansion "1'     A     B    '2"
  *
  * Just as in those visions, somehow it all seemed to be working!
  *
@@ -68,7 +68,7 @@
  * But then everything changed, when the quote expansion attacked:
  *
  * > export X="     A      B     "
- * > echo "1      2"$X"3     4"
+ * > echo "1      2"$X"3     4" -> still a single lexer word
  * "1      2 A B 3     4"
  * ^ echo received ["1      2", "A", "B", "3     4"],
  * but minishell would send it ["1","2","A","B","3","4"]...
@@ -82,7 +82,7 @@
  * A hundred commits had passed, and my brother and I
  * discovered the new workaround, a user-defined type, named t_word.
  * Although the data structure was promising in its quote awareness,
- * it had a lot of helpers to be written, before it could save the lexer
+ * it had a lot of helpers to be written before it could save the lexer
  * from its simplicity. But I, for one, believe. t_word... can save the Word...
  **/
 
