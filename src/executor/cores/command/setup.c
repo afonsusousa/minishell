@@ -17,23 +17,71 @@
 #include <unistd.h>
 
 /**
- * Because lexer defines words as simply space-seperated sequences
- * of characters (respecting quotes). The t_word type came about,
- * containing the expansion result and its quoting metadata.
- * This is the reason for all the shenanigans going on in the
- * expansion state machine.
+ * t_word lore:
+ * [In the beginning, there was the Word...]
  *
- * This need originally emerged in the following sequence:
+ * Because lexer defined the Word as simply space-separated sequences
+ * of characters (although respecting quotes), this story came to be.
  *
- * > export X="   A    B   "  -> yes, those are multiple spaces
- * > echo "1"$X"2" -> lexer considers "1"$X"2" as one word.
- * 1 A B 2 -> but echo received ["1", "A", "B", "2"] as &argv[1]
+ * In the first commits, expansions lived at word level, blissfully
+ * ignorant of what argv would expect of them: That it would chop them up,
+ * that it would split them from their fellow compatriots, free and realloc them,
+ * outcast them from one another... And that this would all come to pass
+ * by the cruel hand of their own, expansive, nature...
+ * And so, in that frivolous dawn, this program would do something like:
  *
- *  but
+ * > export X="     A     B    " -> yes, those are multiple spaces
+ * > echo "1"$X"2"
+ * "1     A     B    2"
+ * ^ echo received ["1     A     B    2"] as argv
  *
- *  > export X="'     A     B    '"
- *  > echo "1"$X"2"
- *  1' A B '2
+ * But, as the testers had spoken in the blood-red of their lines,
+ * forever to be painted onto these .c files... The quotes knew...
+ * No two of them would come to trust one another, for a long time:
+ *
+ * > export X="   A    B   "
+ * > echo "1"$X"2" -> lexer considers "1"$X"2" as one word...
+ * "1 A B 2"
+ * ^ but echo received ["1", "A", "B", "2"] as argv!
+ *
+ * So they consulted with Bash, the twice born, whom, in its cryptic
+ * logic, sang them tales of an unmistakable but swiftly fading sense,
+ * as if they had just woken up from a dream...
+ * Something about a... refactor? Confused and waking up to a
+ * horizon threatened by command setup's light, they once again stared
+ * into each other. In their eyes, one thing shined clear to them...
+ * While Bash could have been but a fantasy, ft_split had become their reality:
+ *
+ * > export X="'     A     B    '"
+ * > echo "1"$X"2"
+ * "1' A B '2"
+ * ^ echo received ["1'", "A", "B", "'2"]
+ * This was because the word was split on spaces
+ * from its expansion "1'     A     B    '2"
+ *
+ * It all seemed to be working...
+ * Words, Spaces, Quotes, Variables... For most of the cases,
+ * all these expansions were living together in Harmony...
+ * But then everything changed, when the quote expansion attacked:
+ *
+ * > export X="     A      B     "
+ * > echo "1      2"$X"3     4"
+ * "1      2 A B 3     4"
+ * ^ echo received ["1      2", "A", "B", "3     4"],
+ * but minishell would send it ["1","2","A","B","3","4"]...
+ *
+ * A simple ft_split wasn't going to cut it, it would split them further apart!
+ * When the word needed it the most, the expansion correctness
+ * disappeared...
+ *
+ * [...]
+ *
+ * A hundred commits had passed, and my brother and I
+ * discovered the new workaround, a user-defined type, named t_word.
+ * Although the data structure was promising in its quote awareness,
+ * it had a lot of helpers to be written, before it could save the lexer
+ * from its simplicity. But I, for one, believe! t_word... can save the Word...
+ *
  **/
 static t_word	**split_expanded(t_word **expanded)
 {
