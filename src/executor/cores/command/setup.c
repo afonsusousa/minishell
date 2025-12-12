@@ -48,11 +48,11 @@
  * "1 A B 2"
  * ^ but echo received ["1", "A", "B", "2"] as argv!
  *
- * What was that? Something about a... refactor? Confused and waking up
- * to a horizon threatened by command setup's light, they once again stared
- * into each other's eyes and, in that reflection, a new day dawned on them:
+ * What was that? Something about a... "refactor"? Confused and waking up
+ * to a horizon threatened by command setup's light, and once again staring
+ * into each other's eyes, in those eyes' reflection a new day dawned on them:
  * While Bash may have been but a fantasy, ft_split had become their reality.
- * And so they experimented, this time with even more quotes:
+ * And so they experimented, this time daring with even more quotes:
  *
  * > export X="'     A     B    '"
  * > echo "1"$X"2"
@@ -61,7 +61,7 @@
  * This was because the word was split on spaces
  * from its expansion "1'     A     B    '2"
  *
- * Somehow it all seemed to be working!
+ * Just as in those visions, somehow it all seemed to be working!
  *
  * Words, Spaces, Quotes, Variables... For most of the cases,
  * all these expansions were living together in Harmony...
@@ -74,7 +74,7 @@
  * but minishell would send it ["1","2","A","B","3","4"]...
  *
  * ft_split wasn't going to cut it, it would split them further apart!
- * When the Word needed it the most, the expansion correctness
+ * And so, when the Word needed it the most, the expansion correctness
  * disappeared...
  *
  * [...]
