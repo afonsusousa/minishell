@@ -27,7 +27,7 @@
  * ignorant of what argv would expect of them... That it would chop them up,
  * that it would split them from their fellow compatriots, free and realloc them,
  * outcast them from one another... And that this would all come to pass
- * by the cruel hand of their own, expansive, nature...
+ * by the cruel hand of their very own, expansive, nature...
  * In that frivolous dawn, this program would do something like:
  *
  * > export X="     A     B    " -> yes, those are multiple spaces
@@ -37,7 +37,7 @@
  *
  * But, as the testers had spoken in the blood-red of their lines,
  * their shade forever cast onto these .c files, the quotes knew...
- * No two of them would come to trust one another, for a long time.
+ * No two of them would come to trust one another for a long time.
  *
  * So they consulted with Bash, the twice born, whom, in its cryptic
  * logic, sang them tales of an unmistakable but swiftly fading sense,
@@ -52,7 +52,7 @@
  * to a horizon threatened by command setup's light, and once again staring
  * into each other's eyes, in those eyes' reflection a new day dawned on them:
  * While Bash may have been but a fantasy, ft_split had become their reality.
- * And so they experimented, this time daring with even more quotes:
+ * And thus they experimented, this time daring with a touch more quotes:
  *
  * > export X="'     A     B    '"
  * > echo "1"$X"2"
