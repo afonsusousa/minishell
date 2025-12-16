@@ -22,17 +22,23 @@
 #include <string.h>
 #include <unistd.h>
 
-static bool	match_pattern(char *pattern, char *str, size_t *i)
+static bool	match_pattern(const t_word *pattern, const char *str, size_t *i)
 {
+	const char	*star = NULL;
+	const char	*ss = NULL;
+
 	while (*str)
 	{
 		if (pattern->content[*i] == '*' && !pattern->quoted_map[*i])
 		{
-			star = &pattern->content[*i++];
+			star = &pattern->content[(*i)++];
 			ss = str;
 		}
-		else if (pattern->content[i] == *str && ++*i)
+		else if (pattern->content[*i] == *str)
+		{
+			(*i)++;
 			str++;
+		}
 		else if (star)
 		{
 			*i = (star - pattern->content) + 1;
@@ -46,14 +52,12 @@ static bool	match_pattern(char *pattern, char *str, size_t *i)
 
 static bool	match_wildcard(const t_word *pattern, const char *str)
 {
-	const char	*star = NULL;
-	const char	*ss = NULL;
 	size_t		i;
 
 	i = 0;
 	if (!pattern || !pattern->content || !str)
 		return (false);
-	if (!match_pattern(pattern->content, str, &i))
+	if (!match_pattern(pattern, str, &i))
 		return (false);
 	while (pattern->content[i] == '*' && !pattern->quoted_map[i])
 		i++;

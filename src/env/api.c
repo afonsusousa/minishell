@@ -42,7 +42,7 @@ t_var	*envp_setvar_str(t_envp *env, const char *assign, int last_status,
 	{
 		free(var->value);
 		var->value = value;
-		var->export = (flags & EXPORT) | (!(flags | EXPORT) && var->export));
+		var->export = (flags & EXPORT) | (!(flags & EXPORT) && var->export);
 	}
 	else
 		var = envp_push(env, new_var(name, value, flags & EXPORT));
