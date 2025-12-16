@@ -1,5 +1,5 @@
-CC := gcc
-CFLAGS := -Wall -Wextra -Werror -g
+CC := cc
+CFLAGS := -Wall -Wextra -Werror -g -fsanitize=address
 INCLUDES := -Iincludes -Ilib/libft
 SRC_DIR := src
 BUILD_DIR := build

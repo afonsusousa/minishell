@@ -57,7 +57,7 @@ static char	*expand_heredoc_line(t_minishell *sh, char **line, bool expand)
 	return (ret);
 }
 
-static void	run_heredoc_child(t_minishell *sh)
+static int	run_heredoc_child(t_minishell *sh)
 {
 	char	*line;
 	int		write_fd;
@@ -82,9 +82,7 @@ static void	run_heredoc_child(t_minishell *sh)
 		free(line);
 	}
 	close(write_fd);
-	minishell_free(sh);
-	word_free(sh->heredoc.del);
-	exit(0);
+	return (minishell_free(sh), word_free(sh->heredoc.del), 0);
 }
 
 static int	handle_heredoc_parent(t_minishell *sh, int *heredoc)
@@ -126,7 +124,7 @@ int	heredoc_setup(t_minishell *sh, int *heredoc)
 	if (sh->heredoc.pid == 0)
 	{
 		close(sh->heredoc.fd[0]);
-		run_heredoc_child(sh);
+		exit (run_heredoc_child(sh));
 	}
 	return (handle_heredoc_parent(sh, heredoc));
 }

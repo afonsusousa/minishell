@@ -42,13 +42,11 @@ t_var	*envp_setvar_str(t_envp *env, const char *assign, int last_status,
 	{
 		free(var->value);
 		var->value = value;
-		if (flags & EXPORT)
-			var->export = true;
+		var->export = (flags & EXPORT) | (!(flags | EXPORT) && var->export));
 	}
 	else
 		var = envp_push(env, new_var(name, value, flags & EXPORT));
-	free(name);
-	return (var);
+	return (free(name), var);
 }
 
 static void	append_var_value(t_var *var, char *value)

@@ -7,3 +7,4 @@ assignment do not go to env -- it does, but stays invisible for printing
 builtin argument check;
 MOVE HEREDOC TO AFTER FIRST TREE;
 completely remove t_minishell dep from envp, expand outside of these functions
+aspas lexer
