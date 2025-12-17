@@ -20,22 +20,16 @@ t_ast_list	*parse_core_redirs(t_minishell *sh)
 	t_ast		*redir_node;
 
 	redirs = NULL;
-	while (is_redir_ahead(sh->ts))
+	while (!sh->aborted_parse && is_redir_ahead(sh->ts))
 	{
 		redir_node = parse_redir(sh);
 		if (!redir_node)
-		{
-			ast_list_free(redirs);
-			break ;
-		}
+			return (ast_list_free(redirs), NULL);
 		if (ast_list_push(&redirs, redir_node) == NULL)
-			break ;
-		if (sh->aborted_parse)
-		{
-			ast_list_free(redirs);
-			break ;
-		}
+			return (ast_list_free(redirs), NULL);
 	}
+	if (sh->aborted_parse)
+		return (ast_list_free(redirs), NULL);
 	return (redirs);
 }
 

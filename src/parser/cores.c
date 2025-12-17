@@ -59,7 +59,7 @@ t_ast	*parse_grouping(t_minishell *sh)
 }
 
 static void	parse_cmd_pieces(t_minishell *sh, char ***argv, int *argc,
-	t_ast_list *redirs)
+		t_ast_list **redirs)
 {
 	while (!sh->aborted_parse)
 	{
@@ -67,7 +67,7 @@ static void	parse_cmd_pieces(t_minishell *sh, char ***argv, int *argc,
 					TOK_ASSIGNMENT_WORD)) && ++(*argc))
 			*argv = str_arr_append(*argv, sh->ts->tk->lexeme);
 		else if (is_redir_ahead(sh->ts))
-			ast_list_push_list(&redirs, parse_core_redirs(sh));
+			ast_list_push_list(redirs, parse_core_redirs(sh));
 		else
 			break ;
 	}
@@ -79,6 +79,7 @@ t_ast	*parse_command(t_minishell *sh)
 	int			argc;
 	char		**argv;
 	t_ast_list	*redirs;
+	t_ast		*node;
 
 	if (sh->aborted_parse)
 		return (NULL);
@@ -86,12 +87,17 @@ t_ast	*parse_command(t_minishell *sh)
 	argc = 0;
 	argv = NULL;
 	redirs = NULL;
-	parse_cmd_pieces(sh, &argv, &argc, redirs);
+	parse_cmd_pieces(sh, &argv, &argc, &redirs);
 	if (sh->aborted_parse)
 		return (free_until_null((char ***)&argv),
 			ast_list_free(redirs),
 			free_until_null((char ***)&assignments), NULL);
-	return (ast_make_command_node(assignments, argv, argc, redirs));
+	node = ast_make_command_node(assignments, argv, argc, redirs);
+	if (!node)
+		return (free_until_null((char ***)&argv),
+			ast_list_free(redirs),
+			free_until_null((char ***)&assignments), node);
+	return (node);
 }
 
 const char	**parse_assignments(t_minishell *sh)
