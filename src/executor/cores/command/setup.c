@@ -50,6 +50,7 @@
  *
  * What was that? Something about a... "refactor"? Confused and waking up
  * to a horizon threatened by command setup's light, and once again staring
+
  * into the abyss between each other's eyes, in those eyes' reflections
  * a new day had dawned upon them:
  * While Bash may have been but a fantasy, ft_split had become their reality,

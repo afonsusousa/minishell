@@ -71,23 +71,30 @@ static t_word	**build_result(t_word *exp_result, t_word **matches)
 
 t_word	**expand_cwd_wildcards(t_word *word)
 {
-	t_word	**splits;
+	t_word	**spls;
 	t_word	**matches;
+	char	*tmp;
 
 	if (!word || !word->content)
 		return (NULL);
 	if (!has_unquoted_wildcard(word))
 		return (word_array_append_word(NULL, word));
-	splits = word_split(word, is_slash, false);
-	if (!splits)
+	spls = word_split(word, is_slash, false);
+	if (!spls)
 		return (NULL);
-	if (splits[1])
-		matches = get_matches(splits[0]->content, &splits[1]);
+	if (*word->content == '/')
+	{
+		tmp = spls[0]->content;
+		spls[0]->content = ft_strjoin("/", spls[0]->content);
+		free(tmp);
+	}
+	if (spls[1])
+		matches = get_matches(spls[0]->content, &spls[1]);
 	else
-		matches = get_matches("", splits);
-	word_free_until_null(splits);
+		matches = get_matches("", spls);
 	if (!matches)
-		return (word_array_append_word(NULL, word));
+		return (word_free_until_null(spls), word_array_append_word(NULL, word));
+	word_free_until_null(spls);
 	return (matches);
 }
 
