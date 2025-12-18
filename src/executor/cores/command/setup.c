@@ -93,15 +93,16 @@ static t_word	**split_expanded(t_word **expanded)
 	t_word	**temp;
 	int		i;
 
-	if (!expanded || !expanded[0])
+	if (!expanded)
 		return (expanded);
+	if (!expanded[0])
+		return (free(expanded), NULL);
 	split = NULL;
 	i = 0;
 	while (expanded[i])
 	{
 		temp = word_split(expanded[i], is_space, true);
-		if (temp)
-			split = word_array_join(split, temp);
+		split = word_array_join(split, temp);
 		word_free(expanded[i]);
 		i++;
 	}

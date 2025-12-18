@@ -62,18 +62,17 @@ t_word	**word_array_append_cstr(t_word **arr, const char *content,
 	if (!word)
 		return (NULL);
 	len = word_array_len(arr);
-	result = malloc(sizeof(t_word *) * (len + 2));
+	result = ft_calloc(sizeof(t_word *), (len + 2));
 	if (!result)
 		return (word_free(word), NULL);
 	i = 0;
 	while (i < len)
 	{
-		result[i] = arr[i];
+		result[i] = word_dup(arr[i]);
 		i++;
 	}
 	result[len] = word;
 	result[len + 1] = NULL;
-	if (arr)
-		free(arr);
+	word_free_until_null(arr);
 	return (result);
 }

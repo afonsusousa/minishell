@@ -13,6 +13,8 @@
 #include "../../includes/globbing.h"
 #include <stdlib.h>
 
+#include "libft.h"
+
 void	word_free_until_null(t_word **splits)
 {
 	size_t	i;
@@ -41,22 +43,24 @@ t_word	**word_array_join(t_word **a, t_word **b)
 	size_t	a_len;
 	size_t	b_len;
 	t_word	**dst;
+	t_word	**a_bak;
+	t_word	**b_bak;
 
 	a_len = word_array_len(a);
 	b_len = word_array_len(b);
-	result = malloc(sizeof(t_word *) * (a_len + b_len + 1));
+	a_bak = a;
+	b_bak = b;
+	result = ft_calloc(sizeof(t_word *), (a_len + b_len + 1));
 	if (!result)
 		return (NULL);
 	dst = result;
 	while (a && *a)
-		*dst++ = *a++;
+		*dst++ = word_dup(*a++);
 	while (b && *b)
-		*dst++ = *b++;
+		*dst++ = word_dup(*b++);
 	*dst = NULL;
-	if (a)
-		free(a - a_len);
-	if (b)
-		free(b - b_len);
+	word_free_until_null(a_bak);
+	word_free_until_null(b_bak);
 	return (result);
 }
 
@@ -71,18 +75,17 @@ t_word	**word_array_append_word(t_word **arr, const t_word *word)
 	len = 0;
 	while (arr && arr[len])
 		len++;
-	result = malloc(sizeof(t_word *) * (len + 2));
+	result = ft_calloc(sizeof(t_word *), (len + 2));
 	if (!result)
 		return (NULL);
 	i = 0;
 	while (i < len)
 	{
-		result[i] = arr[i];
+		result[i] = word_dup(arr[i]);
 		i++;
 	}
+	word_free_until_null(arr);
 	result[len] = word_dup(word);
 	result[len + 1] = NULL;
-	if (arr)
-		free(arr);
 	return (result);
 }

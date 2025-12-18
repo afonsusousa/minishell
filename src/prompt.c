@@ -48,19 +48,21 @@ static void	build_prompt(const char *buffer, const char *user,
 	ft_strlcat((char *)buffer, ":", 1024);
 }
 
-static char	*get_prompt(void)
+// prompt for school machines
+static char	*get_prompt(t_minishell *sh)
 {
-	const char	*home;
+	(void ) sh;
+	char		*home;
 	const char	*user;
 	const char	*hostname;
 	char		cwd[1024];
 	char		buffer[1024];
 
-	home = getenv("HOME");
+	home = envp_getvar_value(sh->env, "HOME", sh->last_status);
 	user = getenv("USER");
 	hostname = getenv("HOSTNAME");
 	if (!user || !hostname)
-		return (ft_strdup("minishell> "));
+		return (free(home), ft_strdup("minishell> "));
 	ft_bzero(buffer, 1024);
 	build_prompt(buffer, user, hostname);
 	getcwd(cwd, 1024);
@@ -72,7 +74,7 @@ static char	*get_prompt(void)
 	else
 		ft_strlcat(buffer, cwd, 1024);
 	ft_strlcat(buffer, "> ", 1024);
-	return (ft_strdup(buffer));
+	return (free(home), ft_strdup(buffer));
 }
 
 int	rl_loop(t_minishell *sh)
@@ -80,7 +82,7 @@ int	rl_loop(t_minishell *sh)
 	signal_setup();
 	while (1)
 	{
-		sh->prompt = get_prompt();
+		sh->prompt = get_prompt(sh);
 		sh->line = readline(sh->prompt);
 		if (sh->line == NULL)
 			break ;

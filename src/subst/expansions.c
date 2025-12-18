@@ -122,6 +122,7 @@ t_word	**expand_argv_word(const t_minishell *sh, const char *word)
 	else
 		matches = NULL;
 	ret = build_result(exp_word, matches);
+	word_free_until_null(matches);
 	if (ret)
 		return (word_free(exp_word), ret);
 	return (word_free(exp_word), word_array_append_cstr(NULL, word, false));

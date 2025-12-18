@@ -73,6 +73,8 @@ static DIR	*setup_get_matches(char *cwd, char *path, struct dirent **entry)
 		dir = opendir(cwd);
 	else
 		dir = opendir(".");
+	if (!dir)
+		return (NULL);
 	if (cwd[0])
 	{
 		strcpy(path, cwd);
@@ -84,6 +86,7 @@ static DIR	*setup_get_matches(char *cwd, char *path, struct dirent **entry)
 	return (dir);
 }
 
+// review . and ..
 static t_word	**process_entry(struct dirent *entry, t_word **wildstr,
 		const char *path)
 {

@@ -24,19 +24,19 @@ bool	is_core_builtin(t_minishell *sh, const t_ast *core)
 	int		argc;
 	bool	ret;
 
-	argc = 0;
-	if (!core)
+	if (!core || core->type != AST_COMMAND || !core->u_as.s_command.argv
+		|| !core->u_as.s_command.argv[0])
 		return (false);
+	argc = 0;
 	argv = argv_to_arr(sh, core->u_as.s_command.argv, &argc);
-	if (core->type == AST_COMMAND && !core->u_as.s_command.argv)
-		return (true);
-	if (core->type == AST_COMMAND && core->u_as.s_command.argv[0])
+	if (!argv || !*argv)
 	{
-		ret = is_builtin(*argv);
 		free_argv(argv);
-		return (ret);
+		return (false);
 	}
-	return (false);
+	ret = is_builtin(*argv);
+	free_argv(argv);
+	return (ret);
 }
 
 int	pipeline_fork_error(t_minishell *sh, int fd[2])

@@ -41,7 +41,7 @@ t_word	*word_dup(const t_word *ts)
 	if (!new_ts->quoted_map)
 		return (free(new_ts->content), free(new_ts), NULL);
 	i = 0;
-	while (i <= ts->len)
+	while (i <= ts->len && ts->quoted_map)
 	{
 		new_ts->quoted_map[i] = ts->quoted_map[i];
 		i++;
