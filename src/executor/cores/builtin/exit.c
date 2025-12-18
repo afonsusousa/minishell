@@ -67,6 +67,7 @@ int	exec_exit(t_minishell *sh, char **argv, const int argc)
 					36) & 0) | 2);
 	}
 	free_argv(argv);
+	restore_fds(sh);
 	minishell_free(sh);
 	exit(code);
 }

@@ -18,14 +18,24 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-bool	is_core_builtin(const t_ast *core)
+bool	is_core_builtin(t_minishell *sh, const t_ast *core)
 {
+	char	**argv;
+	int		argc;
+	bool	ret;
+
+	argc = 0;
 	if (!core)
 		return (false);
+	argv = argv_to_arr(sh, core->u_as.s_command.argv, &argc);
 	if (core->type == AST_COMMAND && !core->u_as.s_command.argv)
 		return (true);
 	if (core->type == AST_COMMAND && core->u_as.s_command.argv[0])
-		return (is_builtin(core->u_as.s_command.argv[0]));
+	{
+		ret = is_builtin(*argv);
+		free_argv(argv);
+		return (ret);
+	}
 	return (false);
 }
 

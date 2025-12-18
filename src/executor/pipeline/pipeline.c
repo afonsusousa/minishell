@@ -94,7 +94,7 @@ int	exec_pipeline(t_minishell *sh, const t_ast_list *cores)
 	ft_memset(sh->pipeline.pids, -1, 1024);
 	if (!cores)
 		return (0);
-	if (!cores->next && is_core_builtin(cores->node))
+	if (!cores->next && is_core_builtin(sh, cores->node))
 		return (exec_core(sh, cores->node, false));
 	curr = cores;
 	while (curr && sh->pipeline.count < 1024)

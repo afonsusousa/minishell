@@ -48,7 +48,8 @@ bool	is_builtin(const char *word);
 # define READ_END 0
 # define WRITE_END 1
 
-bool	is_core_builtin(const t_ast *core);
+bool	is_core_builtin(t_minishell *sh, const t_ast *core);
+void	restore_fds(t_minishell *sh);
 int		pipeline_fork_error(t_minishell *sh, int fd[2]);
 int		wait_pids(const t_pipeline *pipeline);
 

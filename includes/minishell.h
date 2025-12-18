@@ -35,6 +35,7 @@ typedef struct s_pipeline
 	pid_t				pids[1024];
 	size_t				count;
 	int					prev_read;
+	int					*saved_fds;
 }						t_pipeline;
 
 typedef struct s_heredoc
