@@ -94,8 +94,7 @@ t_word	**expand_cwd_wildcards(t_word *word)
 		matches = get_matches("", spls);
 	if (!matches)
 		return (word_free_until_null(spls), word_array_append_word(NULL, word));
-	word_free_until_null(spls);
-	return (matches);
+	return (word_free_until_null(spls), matches);
 }
 
 t_word	**expand_argv_word(const t_minishell *sh, const char *word)
@@ -114,9 +113,8 @@ t_word	**expand_argv_word(const t_minishell *sh, const char *word)
 	else
 		exp_word = expanded(sh->env, word, sh->last_status,
 				EXPAND_VARS | CONSUME_QUOTES);
-	free(tilde_exp);
 	if (!exp_word)
-		return (NULL);
+		return (free(tilde_exp), NULL);
 	if (has_unquoted_wildcard(exp_word))
 		matches = expand_cwd_wildcards(exp_word);
 	else
@@ -124,6 +122,6 @@ t_word	**expand_argv_word(const t_minishell *sh, const char *word)
 	ret = build_result(exp_word, matches);
 	word_free_until_null(matches);
 	if (ret)
-		return (word_free(exp_word), ret);
+		return (free(tilde_exp), word_free(exp_word), ret);
 	return (word_free(exp_word), word_array_append_cstr(NULL, word, false));
 }

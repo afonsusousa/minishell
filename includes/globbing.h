@@ -96,4 +96,5 @@ t_word	**word_array_append_word(t_word **arr,
 char	*word_to_cstr(const t_word *word);
 char	**word_to_cstr_array(t_word **words);
 size_t	word_array_len(t_word **arr);
+bool	word_dup_assign(t_word **dest, t_word *word);
 #endif

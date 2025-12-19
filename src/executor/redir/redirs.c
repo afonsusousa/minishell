@@ -49,13 +49,8 @@ static int	handle_heredoc_redir(const t_ast *node)
 	fd = node->u_as.s_redir.u_target.heredoc;
 	if (fd < 0)
 		return (0);
-	if (dup2(fd, get_redir_fd(node->u_as.s_redir.kind)) < 0)
-	{
-		print_dup2_error();
-		close(fd);
-		return (1);
-	}
-	close(fd);
+	if (dup2(fd, STDIN_FILENO) < 0)
+		return (print_dup2_error(), 1);
 	return (0);
 }
 
@@ -67,11 +62,10 @@ static int	handle_file_redir(t_minishell *sh, const t_ast *node)
 
 	filename_words = expand_argv_word(sh,
 			(char *)node->u_as.s_redir.u_target.file_name);
-	if (filename_words && *filename_words && filename_words[1] != NULL)
+	if (!filename_words
+		|| (*filename_words && filename_words[1] != NULL))
 		return (handle_ambiguous_redirect(node->u_as.s_redir.u_target.file_name,
 				filename_words));
-	if (!filename_words)
-		return (0);
 	filename = word_to_cstr(*filename_words);
 	fd = open_redir_file(node->u_as.s_redir.kind, filename);
 	if (fd < 0)

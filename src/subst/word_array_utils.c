@@ -17,13 +17,13 @@
 
 void	word_free_until_null(t_word **splits)
 {
-	size_t	i;
+	t_word	**iter;
 
-	if (!splits)
+	iter = splits;
+	if (!iter)
 		return ;
-	i = 0;
-	while (splits[i])
-		word_free(splits[i++]);
+	while (*iter)
+		word_free(*iter++);
 	free(splits);
 }
 
@@ -39,53 +39,48 @@ size_t	word_array_len(t_word **arr)
 
 t_word	**word_array_join(t_word **a, t_word **b)
 {
-	t_word	**result;
-	size_t	a_len;
-	size_t	b_len;
+	t_word	**ret;
 	t_word	**dst;
-	t_word	**a_bak;
-	t_word	**b_bak;
+	t_word	**aa;
+	t_word	**bb;
 
-	a_len = word_array_len(a);
-	b_len = word_array_len(b);
-	a_bak = a;
-	b_bak = b;
-	result = ft_calloc(sizeof(t_word *), (a_len + b_len + 1));
-	if (!result)
+	aa = a;
+	bb = b;
+	ret = ft_calloc(sizeof(t_word *),
+			(word_array_len(a) + word_array_len(b) + 1));
+	if (!ret)
 		return (NULL);
-	dst = result;
+	dst = ret;
 	while (a && *a)
-		*dst++ = word_dup(*a++);
+		if (!word_dup_assign(dst++, *a++))
+			return (word_free_until_null(ret), word_free_until_null(aa),
+				word_free_until_null(bb), NULL);
 	while (b && *b)
-		*dst++ = word_dup(*b++);
+		if (!word_dup_assign(dst++, *b++))
+			return (word_free_until_null(ret), word_free_until_null(aa),
+				word_free_until_null(bb), NULL);
 	*dst = NULL;
-	word_free_until_null(a_bak);
-	word_free_until_null(b_bak);
-	return (result);
+	return (word_free_until_null(aa),
+		word_free_until_null(bb), ret);
 }
 
 t_word	**word_array_append_word(t_word **arr, const t_word *word)
 {
-	t_word	**result;
-	size_t	len;
-	size_t	i;
+	t_word	**og;
+	t_word	**dst;
+	t_word	**ret;
 
 	if (!word)
 		return (arr);
-	len = 0;
-	while (arr && arr[len])
-		len++;
-	result = ft_calloc(sizeof(t_word *), (len + 2));
-	if (!result)
+	dst = ft_calloc(sizeof(t_word *), (word_array_len(arr) + 2));
+	ret = dst;
+	og = arr;
+	if (!dst)
 		return (NULL);
-	i = 0;
-	while (i < len)
-	{
-		result[i] = word_dup(arr[i]);
-		i++;
-	}
-	word_free_until_null(arr);
-	result[len] = word_dup(word);
-	result[len + 1] = NULL;
-	return (result);
+	while (arr && *arr)
+		if (!word_dup_assign(dst++, *arr++))
+			return (word_free_until_null(ret), word_free_until_null(og), NULL);
+	*dst++ = word_dup(word);
+	*dst = NULL;
+	return (word_free_until_null(og), ret);
 }

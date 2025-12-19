@@ -27,7 +27,6 @@ int	exec_line(t_minishell *sh)
 	sh->aborted_parse = false;
 	token_stream_init(sh);
 	parse(sh);
-	add_history(sh->line);
 	free(sh->line);
 	sh->line = NULL;
 	token_stream_free(sh->ts);
@@ -51,7 +50,6 @@ static void	build_prompt(const char *buffer, const char *user,
 // prompt for school machines
 static char	*get_prompt(t_minishell *sh)
 {
-	(void ) sh;
 	char		*home;
 	const char	*user;
 	const char	*hostname;
@@ -88,6 +86,7 @@ int	rl_loop(t_minishell *sh)
 			break ;
 		if (*sh->line != '\0')
 			exec_line(sh);
+		add_history(sh->line);
 		free(sh->prompt);
 		sh->prompt = NULL;
 	}

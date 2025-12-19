@@ -87,6 +87,7 @@ static DIR	*setup_get_matches(char *cwd, char *path, struct dirent **entry)
 }
 
 // review . and ..
+// malloc unchecked but unharmful
 static t_word	**process_entry(struct dirent *entry, t_word **wildstr,
 		const char *path)
 {

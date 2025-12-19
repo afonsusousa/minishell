@@ -49,6 +49,16 @@ t_word	*word_dup(const t_word *ts)
 	return (new_ts);
 }
 
+bool	word_dup_assign(t_word **dest, t_word *word)
+{
+	if (!dest)
+		return (false);
+	*dest = word_dup(word);
+	if (!*dest)
+		return (false);
+	return (true);
+}
+
 t_word	*word_new(const char *content, bool all_quoted)
 {
 	t_word	*word;

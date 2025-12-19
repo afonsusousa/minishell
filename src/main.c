@@ -12,14 +12,12 @@
 
 #include "../includes/envp.h"
 #include "../includes/executor.h"
-#include "../includes/parser.h"
 #include "../includes/sig.h"
 #include "../includes/tokens.h"
+#include "../includes/utils.h"
 #include "../lib/libft/libft.h"
 #include <readline/history.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 
 static void	minishell_init(t_minishell *sh, t_token_stream *ts, t_envp *env,
@@ -61,6 +59,40 @@ static void	init_env(t_minishell *sh, char **envp)
 	}
 }
 
+static int	argv_run(t_minishell *sh, int argc, char **argv)
+{
+	if (argc > 1)
+	{
+		if (ft_strcmp(argv[1], "-c") == 0 && argc > 2)
+			sh->line = ft_strdup(argv[2]);
+		else if (ft_strcmp(argv[1], "-c") == 0 && argc <= 2)
+		{
+			ft_putendl_fd("minishell: -c: option requires an argument", 2);
+			minishell_free(sh);
+			return (1);
+		}
+		else
+			sh->line = ft_strdup(argv[1]);
+		exec_line(sh);
+		minishell_free(sh);
+		return (1);
+	}
+	return (0);
+}
+
+static int	no_tty_run(t_minishell *sh)
+{
+	if (!isatty(STDIN_FILENO))
+	{
+		while (notty_line(sh))
+			if (sh->line && *sh->line != '\0')
+				exec_line(sh);
+		minishell_free(sh);
+		return (1);
+	}
+	return (0);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	t_minishell		sh;
@@ -70,20 +102,9 @@ int	main(int argc, char **argv, char **envp)
 
 	minishell_init(&sh, &ts, &env, &ctx);
 	init_env(&sh, envp);
-	if (argc > 1)
-	{
-		sh.line = ft_strdup(argv[1]);
-		exec_line(&sh);
-		minishell_free(&sh);
+	if (argv_run(&sh, argc, argv))
 		return (sh.last_status);
-	}
-	if (!isatty(STDIN_FILENO))
-	{
-		while (notty_line(&sh))
-			if (sh.line && *sh.line != '\0')
-				exec_line(&sh);
-		minishell_free(&sh);
+	if (no_tty_run(&sh))
 		return (sh.last_status);
-	}
 	return (rl_loop(&sh), sh.last_status);
 }
