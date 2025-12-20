@@ -38,7 +38,7 @@ static void	free_redir(const t_ast *node)
 {
 	if (node->u_as.s_redir.kind == TOK_OPEN_HEREDOC)
 		close(node->u_as.s_redir.u_target.heredoc);
-	else
+	else if (node->u_as.s_redir.kind != TOK_HEREDOC)
 		free((char *)node->u_as.s_redir.u_target.file_name);
 }
 
