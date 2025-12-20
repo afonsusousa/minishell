@@ -84,11 +84,12 @@ int	exec_redirs(t_minishell *sh, const t_ast_list *r)
 	int	result;
 
 	memset(&sh->heredoc, 0, sizeof(t_heredoc));
+	result = 1;
 	while (r)
 	{
-		if (r->node->u_as.s_redir.kind == TOK_HEREDOC)
+		if (r->node->u_as.s_redir.kind == TOK_OPEN_HEREDOC)
 			result = handle_heredoc_redir(r->node);
-		else
+		else if (r->node->u_as.s_redir.kind != TOK_HEREDOC)
 			result = handle_file_redir(sh, r->node);
 		if (result != 0)
 			return (1);

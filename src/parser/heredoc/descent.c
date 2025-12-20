@@ -28,9 +28,11 @@ static int	redir_leaf(t_minishell *sh, const t_ast_list *redir)
 					redir->node->u_as.s_redir.u_target.file_name,
 					sh->last_status, CONSUME_QUOTES);
 			free((char *)redir->node->u_as.s_redir.u_target.file_name);
-			redir->node->u_as.s_redir.u_target.heredoc = -1;
+			redir->node->u_as.s_redir.u_target.file_name = NULL;
 			status = heredoc_setup(sh,
 					&redir->node->u_as.s_redir.u_target.heredoc);
+			if (redir->node->u_as.s_redir.u_target.file_name)
+				redir->node->u_as.s_redir.kind = TOK_OPEN_HEREDOC;
 			if (status)
 				return (status);
 		}

@@ -21,6 +21,10 @@ t_ast	*ast_make_redir_node(t_token_type type)
 	if (!n)
 		return (NULL);
 	n->u_as.s_redir.kind = type;
+	if (type == TOK_HEREDOC)
+		n->u_as.s_redir.u_target.heredoc = -1;
+	else
+		n->u_as.s_redir.u_target.file_name = NULL;
 	return (n);
 }
 

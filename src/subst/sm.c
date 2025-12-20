@@ -168,6 +168,8 @@ t_word	*expanded(t_envp *env, const char *str, int last_status, int flags)
 		return (free(result->content), free(result), NULL);
 	ft_memcpy(result->quoted_map, sm.quoted_map, result->len * sizeof(bool));
 	result->quoted_map[result->len] = false;
+	if (!*result->content && result->len)
+		result->quoted_map[0] = true;
 	return (result);
 }
 

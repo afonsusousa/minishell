@@ -22,7 +22,7 @@ char	*expand_tilde(const t_minishell *sh, char *cmd)
 	char	*home;
 	char	*expanded;
 
-	if (cmd[0] != '~')
+	if (!cmd || cmd[0] != '~')
 		return (NULL);
 	home = envp_getvar_value(sh->env, "HOME", sh->last_status);
 	if (!home)

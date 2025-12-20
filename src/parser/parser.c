@@ -11,12 +11,7 @@
 /* ************************************************************************** */
 
 #include "../../includes/parser.h"
-#include "libft.h"
 #include "minishell.h"
-#include "parser.h"
-#include "utils.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 
 t_ast	*parse_command_line(t_minishell *sh, bool subshell)
@@ -51,8 +46,14 @@ void	parse(t_minishell *sh)
 		return ;
 	}
 	sh->ast = parse_command_line(sh, false);
+	if (sh->aborted_parse)
+	{
+		ast_free(sh->ast);
+		sh->ast = NULL;
+		return ;
+	}
 	here_status = heredoc_descend(sh, sh->ast);
-	if (here_status)
+	if (here_status != 0)
 	{
 		ast_free(sh->ast);
 		sh->ast = NULL;
