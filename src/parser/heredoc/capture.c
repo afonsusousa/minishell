@@ -15,9 +15,9 @@
 #include "../../../includes/sig.h"
 #include "../../../includes/utils.h"
 #include "../../../lib/libft/libft.h"
+#include <stdio.h>
 #include <readline/readline.h>
 #include <signal.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>

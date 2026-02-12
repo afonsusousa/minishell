@@ -16,9 +16,9 @@
 #include "../includes/sig.h"
 #include "../lib/libft/libft.h"
 #include <linux/limits.h>
+#include <stdio.h>
 #include <readline/history.h>
 #include <readline/readline.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -43,7 +43,7 @@ static void	build_prompt(const char *buffer, const char *user,
 {
 	ft_strlcat((char *)buffer, (char *)user, 1024);
 	ft_strlcat((char *)buffer, "@", 1024);
-	ft_strlcat((char *)buffer, (char *)hostname, 1024);
+	ft_strlcat((char *)buffer, (char *)hostname + 6, ft_strlen((char *)buffer) + 7);
 	ft_strlcat((char *)buffer, ":", 1024);
 }
 
@@ -52,14 +52,14 @@ static char	*get_prompt(t_minishell *sh)
 {
 	char		*home;
 	const char	*user;
-	const char	*hostname;
+	char		*hostname;
 	char		cwd[1024];
 	char		buffer[1024];
 
 	home = envp_getvar_value(sh->env, "HOME", sh->last_status);
 	user = getenv("USER");
-	hostname = getenv("HOSTNAME");
-	if (!user || !hostname)
+	hostname = getenv("SESSION_MANAGER");
+	if (!user || !(hostname))
 		return (free(home), ft_strdup("minishell> "));
 	ft_bzero(buffer, 1024);
 	build_prompt(buffer, user, hostname);

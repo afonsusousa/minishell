@@ -16,7 +16,7 @@
 #include "../includes/tokens.h"
 #include "../includes/utils.h"
 #include "../lib/libft/libft.h"
-#include <readline/history.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
