@@ -5,19 +5,12 @@ command_line_endopt ::= ";"
                      | ε
                      ;
 
-list ::= or_list ;
+list ::= pipeline list_tail ;
 
-or_list ::= and_list or_list_tail ;
-
-or_list_tail ::= "||" and_list or_list_tail
-               | ε
-               ;
-
-and_list ::= pipeline and_list_tail ;
-
-and_list_tail ::= "&&" pipeline and_list_tail
-                | ε
-                ;
+list_tail ::= "&&" pipeline list_tail
+            | "||" pipeline list_tail
+            | ε
+            ;
 
 //  PIPELINE
 pipeline ::= core pipeline_tail ;
