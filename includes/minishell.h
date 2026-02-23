@@ -60,6 +60,7 @@ typedef struct s_minishell
 	int					last_status;
 }						t_minishell;
 
+extern int				g_signal_status;
 int						rl_loop(t_minishell *sh);
 int						exec_line(t_minishell *sh);
 int						notty_line(t_minishell *sh);

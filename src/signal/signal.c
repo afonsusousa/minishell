@@ -14,10 +14,14 @@
 #include <readline/readline.h>
 #include <signal.h>
 #include <unistd.h>
+#include "minishell.h"
+
+int	g_signal_status = 0;
 
 void	sigint_handler(const int signum)
 {
 	(void)signum;
+	g_signal_status = SIGINT;
 	write(1, "\n", 1);
 	rl_on_new_line();
 	rl_replace_line("", 0);

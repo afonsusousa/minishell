@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <readline/readline.h>
 
 static void	minishell_init(t_minishell *sh, t_token_stream *ts, t_envp *env,
 		t_envp *ctx)
@@ -106,5 +107,7 @@ int	main(int argc, char **argv, char **envp)
 		return (sh.last_status);
 	if (no_tty_run(&sh))
 		return (sh.last_status);
-	return (rl_loop(&sh), sh.last_status);
+	rl_loop(&sh);
+	rl_clear_history();
+	return (sh.last_status);
 }

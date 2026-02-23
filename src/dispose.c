@@ -18,7 +18,6 @@
 
 void	minishell_free(t_minishell *sh)
 {
-	rl_clear_history();
 	ast_free(sh->ast);
 	if (sh->prompt)
 	{
