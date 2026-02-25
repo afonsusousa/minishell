@@ -43,7 +43,12 @@ You can also execute commands directly using the `-c` flag:
 - **Subshells**: Supports grouping commands using parentheses `( ... )` to execute them in a subshell.
 - **Signals**: Handles signals like `SIGINT` (Ctrl+C), `SIGQUIT` (Ctrl+\), and `SIGEOF` (Ctrl+D) appropriately.
 - **Built-ins**: `echo`, `cd`, `pwd`, `export`, `unset`, `env`, and `exit` are provided with a minimal feature set.
-
+- **Assignments**: Simple assignments that can be ran either in combination with commands or standalone:
+  
+  ```` bash
+  minishell> a="Hello, World!" [cmd] #  These are only valid for the children's env and do not affect the running env.
+  ````
+  
 ## Under the Hood
 
 ### Lexer
@@ -129,8 +134,8 @@ word ::= WORD
 
 ### Executor
 The Executor, on the other hand, was where the most shenanigans were encountered, especially when it came to substitutions and expansions, which are not as trivial as one would expect at
-face value. A lot of work went into this, from the development of a state machine to handle expansions, to the implementation of a t_word type, mainly to compensate for the lexer's simplicity 
-in defining a "word" On the other hand, the executor was a "reversal" of the parser, which made it somewhat easy to implement, execution logic-wise. 
+face value. A lot of work went into this, from the development of a state machine to handle expansions, to the implementation of a t_word type, mainly to compensate for the lexer's simplicity
+in defining a "word" On the other hand, the executor was a "reversal" of the parser, which made it somewhat easy to implement, execution logic-wise.
 
 #### Expansions
 To handle variable expansions and quote removal correctly, we implemented a state machine. This machine transitions between different "character consumption" states (DEFAULT, IN_SQ, IN_DQ, IN_VAR), allowing us to accurately identify which parts of a string should be expanded and which should remain literal.
