@@ -43,6 +43,7 @@ You can also execute commands directly using the `-c` flag:
 - **Subshells**: Supports grouping commands using parentheses `( ... )` to execute them in a subshell.
 - **Signals**: Handles signals like `SIGINT` (Ctrl+C), `SIGQUIT` (Ctrl+\), and `SIGEOF` (Ctrl+D) appropriately.
 - **Built-ins**: `echo`, `cd`, `pwd`, `export`, `unset`, `env`, and `exit` are provided with a minimal feature set.
+- **Assignments**: Simple assignments that can be ran either in combination with commands or standalone `mininshell> a="Hello, World!"`. These are only valid for the children's env and do not affect the running env. 
 
 ## Under the Hood
 
