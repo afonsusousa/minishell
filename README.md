@@ -167,7 +167,7 @@ The state machine generates a `t_word` structure, which contains not only the ex
 │   ├── ast.h
 │   ├── envp.h
 │   ├── executor.h
-│   ├── globbing.h
+│   ├── globbing.h              # t_word, quote machine and expansion structs
 │   ├── lexer.h
 │   ├── minishell.h
 │   ├── parser.h
@@ -175,28 +175,28 @@ The state machine generates a `t_word` structure, which contains not only the ex
 │   ├── tokens.h
 │   └── utils.h
 └─ src
-    ├── dispose.c
+    ├── dispose.c                # Shell resource cleanup on exit
     ├── main.c
-    ├── prompt.c
+    ├── prompt.c                 # Prompt display and input-to-execution pipeline
     ├── ast
     │   ├── ast.c
     │   ├── ast_free.c
     │   ├── ast_list.c
-    │   ├── ast_nodes_branches.c
-    │   └── ast_nodes_leafs.c
+    │   ├── ast_nodes_branches.c # Binary operator nodes (&&, ||, |)
+    │   └── ast_nodes_leafs.c    # Leaf nodes (commands, redirections)
     ├── env
-    │   ├── api.c
+    │   ├── api.c                # Assignment string parsing (e.g. "KEY=value")
     │   ├── getters.c
     │   ├── setters.c
     │   └── utils.c
     ├── executor
     │   ├── error.c
-    │   ├── executor.c
-    │   ├── logical.c
+    │   ├── executor.c           # Main dispatch across AST node types
+    │   ├── logical.c            # && and || execution
     │   ├── cores
-    │   │   ├── cores.c
+    │   │   ├── cores.c          # Command dispatch with I/O and signal setup
     │   │   ├── builtin
-    │   │   │   ├── builtins.c
+    │   │   │   ├── builtins.c   # Builtin command dispatcher
     │   │   │   ├── builtins.h
     │   │   │   ├── cd.c
     │   │   │   ├── echo.c
@@ -208,8 +208,8 @@ The state machine generates a `t_word` structure, which contains not only the ex
     │   │   │   └── unset.c
     │   │   └── command
     │   │   │   ├── command.c
-    │   │   │   ├── path_finding.c
-    │   │   │   ├── setup.c
+    │   │   │   ├── path_finding.c  # Executable resolution via PATH
+    │   │   │   ├── setup.c         # Argument expansion and preparation
     │   │   │   └── utils.c
     │   ├── pipeline
     │   │   ├── pipeline.c
@@ -219,38 +219,38 @@ The state machine generates a `t_word` structure, which contains not only the ex
     │       └── utils.c
     ├── lexer
     │   ├── lexer.c
-    │   ├── operations.c
-    │   ├── token_stream.c
-    │   ├── token_stream_api.c
+    │   ├── operations.c         # Character reading and lookahead
+    │   ├── token_stream.c       # Builds token array from lexer
+    │   ├── token_stream_api.c   # peek/next/match API for the parser
     │   └── utils.c
     ├── parser
-    │   ├── abort.c
-    │   ├── cores.c
-    │   ├── error.c
+    │   ├── abort.c              # Parse error recovery
+    │   ├── cores.c              # Command and subshell parsing
+    │   ├── error.c              # Syntax error reporting
     │   ├── logical.c
     │   ├── parser.c
     │   ├── pipeline.c
     │   ├── redirs.c
     │   ├── utils.c
     │   └── heredoc
-    │       ├── capture.c
-    │       └── descent.c
+    │       ├── capture.c        # Delimiter and content capture
+    │       └── descent.c        # Heredoc AST traversal and expansion
     ├── signal
     │   └── signal.c
     ├── subst
-    │   ├── expansions.c
+    │   ├── expansions.c         # Tilde and variable expansion
     │   ├── globbing.c
-    │   ├── sm.c
+    │   ├── sm.c                 # Quote/variable expansion state machine
     │   ├── sm_init.c
-    │   ├── sm_operations.c
+    │   ├── sm_operations.c      # State machine transitions
     │   ├── word_array_utils.c
     │   ├── word_cstr_utils.c
     │   ├── word_split.c
     │   └── word_utils.c
     └── utils
         ├── arrays.c
-        ├── libftpp.c
-        ├── predicate.c
+        ├── libftpp.c            # Extended libft string utilities
+        ├── predicate.c          # Character classification helpers
         └── sort.c
 ```
 
