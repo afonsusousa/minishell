@@ -137,6 +137,14 @@ The Executor, on the other hand, was where the most shenanigans were encountered
 face value. A lot of work went into this, from the development of a state machine to handle expansions, to the implementation of a t_word type, mainly to compensate for the lexer's simplicity
 in defining a "word" On the other hand, the executor was a "reversal" of the parser, which made it somewhat easy to implement, execution logic-wise.
 
+#### Expansion Pipeline
+Each command argument goes through a four-stage pipeline before it reaches `execve`:
+
+1. **Tilde Expansion** – A leading `~` is replaced with `$HOME` (e.g. `~/dir` → `/home/user/dir`).
+2. **Variable Expansion & Quote Removal** – The state machine (see below) resolves `$VAR` references and strips syntactic quotes, producing a `t_word` that carries a `quoted_map` alongside the expanded string.
+3. **Word Splitting** – The expanded `t_word` is split on unquoted whitespace. Because the `quoted_map` travels with the string, spaces that were inside quotes are preserved (e.g. `"hello   world"` stays as one argument).
+4. **Globbing** – Each resulting fragment is matched against filesystem entries if it contains an unquoted `*` (see [Globbing](#globbing) below).
+
 #### Expansions
 To handle variable expansions and quote removal correctly, we implemented a state machine. This machine transitions between different "character consumption" states (DEFAULT, IN_SQ, IN_DQ, IN_VAR), allowing us to accurately identify which parts of a string should be expanded and which should remain literal.
 
@@ -159,6 +167,17 @@ The state machine generates a `t_word` structure, which contains not only the ex
      |       |     ^EOVAR
      +-------+
 ```
+
+#### Globbing
+Wildcard expansion (`*`) is handled after variable expansion and word splitting. A pattern is only eligible for globbing when it contains an **unquoted** `*` — quoted asterisks (e.g. `"*"` or `'*'`) are treated as literal characters, thanks to the `quoted_map` carried by `t_word`.
+
+The matching algorithm works recursively across path segments:
+1. The pattern is split on `/` into segments.
+2. For each segment that contains a wildcard, the corresponding directory is opened and every entry is tested against the segment pattern.
+3. If further segments remain, the algorithm recurses into matching subdirectories, building full paths as it goes.
+4. Results are collected and sorted alphabetically before being returned to the caller.
+
+Hidden files (entries starting with `.`) are skipped unless the pattern itself starts with a dot, mirroring bash's default behavior.
 
 ### Project Structure
 ```
