@@ -75,7 +75,7 @@ static char	*get_prompt(t_minishell *sh)
 	}
 	else
 		ft_strlcat(buffer, cwd, 1024);
-	ft_strlcat(buffer, "> ", 1024);
+	ft_strlcat(buffer, "$ ", 1024);
 	return (free(home), ft_strdup(buffer));
 }
 
