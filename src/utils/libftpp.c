@@ -71,3 +71,36 @@ int	ft_memucmp(void *s1, void *s2)
 {
 	return (ft_strcmp((const char *)s1, (const char *)s2));
 }
+
+char	**ft_arrjoin(char **s1, char **s2)
+{
+	char	**ret;
+	size_t	len1;
+	size_t	len2;
+	size_t	i;
+
+	len1 = 0;
+	while (s1 && s1[len1])
+		len1++;
+	len2 = 0;
+	while (s2 && s2[len2])
+		len2++;
+	ret = ft_calloc(len1 + len2 + 1, sizeof(char *));
+	if (!ret)
+		return (NULL);
+	i = -1;
+	while (++i < len1)
+	{
+		ret[i] = ft_strdup(s1[i]);
+		if (!ret[i])
+			return (free_until_null((char ***)&ret), NULL);
+	}
+	i = -1;
+	while (++i < len2)
+	{
+		ret[len1 + i] = ft_strdup(s2[i]);
+		if (!ret[len1 + i])
+			return (free_until_null((char ***)&ret), NULL);
+	}
+	return (ret);
+}

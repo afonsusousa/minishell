@@ -32,6 +32,8 @@ static int	exec_assignments(t_minishell *sh, const char **a, bool context)
 	else
 		env = sh->env;
 	flags = EXPORT | EXPAND_VARS | CONSUME_QUOTES;
+	if (env == sh->env)
+		flags &= !EXPORT;
 	while (a && *a)
 		if (envp_setvar_str(env, *a++, sh->last_status, flags) == NULL)
 			return (1);
@@ -76,6 +78,7 @@ static void	execve_error(char ***argv, char *orig_cmd)
 int	execve_wrapper(t_minishell *sh, char ***argv)
 {
 	char	**env_arr;
+	char	**ctx_arr;
 	char	*orig_cmd;
 
 	if (!argv || !*argv || !**argv)
@@ -84,6 +87,9 @@ int	execve_wrapper(t_minishell *sh, char ***argv)
 	**argv = find_path(sh, **argv);
 	envp_setvar(sh->env, "_", **argv, EXPORT);
 	env_arr = get_envp_array(sh->env, true);
+	ctx_arr = get_envp_array(sh->ctx, true);
+	env_arr = ft_arrjoin(env_arr, ctx_arr);
+	free_until_null(&ctx_arr);
 	minishell_free(sh);
 	execve(**argv, *argv, env_arr);
 	free_envp(sh->ctx);
@@ -111,7 +117,6 @@ int	exec_command(t_minishell *sh, const t_ast *core)
 	if (is_builtin(argv[0]))
 	{
 		status = exec_builtin(sh, argv, core->u_as.s_command.argc);
-		free_argv(argv);
 		sh->last_status = status;
 		return (status);
 	}

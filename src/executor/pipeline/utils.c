@@ -24,10 +24,10 @@ bool	is_core_builtin(t_minishell *sh, const t_ast *core)
 	int		argc;
 	bool	ret;
 
-	if (!core || core->type != AST_COMMAND || !core->u_as.s_command.argv
-		|| !core->u_as.s_command.argv[0])
+	if (!core || core->type != AST_COMMAND)
 		return (false);
-	argc = 0;
+	if ((!core->u_as.s_command.argv || !*core->u_as.s_command.argv) && core->u_as.s_command.assignments)
+		return (true);
 	argv = argv_to_arr(sh, core->u_as.s_command.argv, &argc);
 	if (!argv || !*argv)
 	{

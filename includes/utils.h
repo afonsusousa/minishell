@@ -27,6 +27,7 @@ char					**str_arr_append(char **arr, const char *s);
 char					*ft_strndup(const char *str, size_t size);
 char					*ft_strnjoin(const char *s1, const char *s2,
 							size_t scnd);
+char					**ft_arrjoin(char **s1, char **s2);
 bool					is_valid(char c);
 int						ft_strcmp(const char *s1, const char *s2);
 int						ft_memucmp(void *s1, void *s2);
