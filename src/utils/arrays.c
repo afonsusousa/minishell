@@ -97,6 +97,6 @@ char	**cstr_arr_join(char **s1, char **s2)
 	while (*s1)
 		*ret++ = *s1++;
 	while (*s2)
-		*ret++ = *s1++;
+		*ret++ = *s2++;
 	return (ret);
 }
