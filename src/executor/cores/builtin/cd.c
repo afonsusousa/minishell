@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-static int	cd_error(const char *msg, const char *path)
+static void	cd_error(const char *msg, const char *path)
 {
 	write(2, "minishell: cd: ", 15);
 	if (path)
@@ -32,7 +32,6 @@ static int	cd_error(const char *msg, const char *path)
 		write(2, msg, ft_strlen(msg));
 	else
 		perror(NULL);
-	return (1);
 }
 
 static int	get_home_path(const t_minishell *sh, char *path)
@@ -41,7 +40,7 @@ static int	get_home_path(const t_minishell *sh, char *path)
 
 	subst = envp_getvar_value(sh->env, "HOME", sh->last_status);
 	if (!subst)
-		return (cd_error("HOME not set\n", NULL));
+		return (cd_error("HOME not set\n", NULL), 1);
 	ft_strlcpy(path, subst, ARG_MAX);
 	free(subst);
 	return (0);
@@ -53,7 +52,7 @@ static int	get_oldpwd_path(const t_minishell *sh, char *path)
 
 	subst = envp_getvar_value(sh->env, "OLDPWD", sh->last_status);
 	if (!subst)
-		return (cd_error("OLDPWD not set\n", NULL));
+		return (cd_error("OLDPWD not set\n", NULL), 1);
 	ft_strlcpy(path, subst, ARG_MAX);
 	write(1, path, ft_strlen(path));
 	write(1, "\n", 1);
@@ -68,7 +67,7 @@ static int	resolve_path(const t_minishell *sh, char **argv, int argc,
 
 	no_op_follow = (argc >= 2) && ft_strcmp(argv[1], "--") == 0;
 	if (argc > 2 + no_op_follow)
-		return (cd_error("too many arguments\n", NULL));
+		return (cd_error("too many arguments\n", NULL), 2);
 	if (argc == 1 || (argc == 2 && no_op_follow))
 		return (get_home_path(sh, path));
 	if (!*argv[1 + no_op_follow])
@@ -91,7 +90,7 @@ int	exec_cd(const t_minishell *sh, char **argv, const int argc)
 		return (ret);
 	getcwd(oldpwd, ARG_MAX);
 	if (chdir(path) == -1)
-		return (cd_error(NULL, path));
+		return (cd_error(NULL, path), 1);
 	envp_setvar(sh->env, "OLDPWD", oldpwd, EXPORT);
 	envp_setvar(sh->env, "PWD", getcwd(path, ARG_MAX), EXPORT);
 	return (0);
