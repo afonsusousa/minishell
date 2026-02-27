@@ -33,7 +33,7 @@ static int	exec_assignments(t_minishell *sh, const char **a, bool context)
 		env = sh->env;
 	flags = EXPORT | EXPAND_VARS | CONSUME_QUOTES;
 	if (env == sh->env)
-		flags &= !EXPORT;
+		flags &= ~EXPORT;
 	while (a && *a)
 		if (envp_setvar_str(env, *a++, sh->last_status, flags) == NULL)
 			return (1);
@@ -88,7 +88,7 @@ int	execve_wrapper(t_minishell *sh, char ***argv)
 	envp_setvar(sh->env, "_", **argv, EXPORT);
 	env_arr = get_envp_array(sh->env, true);
 	ctx_arr = get_envp_array(sh->ctx, true);
-	env_arr = ft_arrjoin(env_arr, ctx_arr);
+	env_arr = cstr_arr_join(env_arr, ctx_arr);
 	free_until_null(&ctx_arr);
 	minishell_free(sh);
 	execve(**argv, *argv, env_arr);

@@ -74,3 +74,29 @@ char	**str_arr_append(char **arr, const char *s)
 		free(arr);
 	return (res);
 }
+
+size_t	cstr_arr_len(char **arr)
+{
+	size_t	len;
+
+	len = 0;
+	while (arr && arr[len])
+		len++;
+	return (len);
+}
+
+char	**cstr_arr_join(char **s1, char **s2)
+{
+	char	**ret;
+
+	ret = ft_calloc(cstr_arr_len(s1)
+		+ cstr_arr_len(s2) + 1,
+		sizeof(char *));
+	if (!ret)
+		return (NULL);
+	while (*s1)
+		*ret++ = *s1++;
+	while (*s2)
+		*ret++ = *s1++;
+	return (ret);
+}
