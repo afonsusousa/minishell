@@ -94,6 +94,8 @@ int	rl_loop(t_minishell *sh)
 			add_history(sh->line);
 		free(sh->prompt);
 		sh->prompt = NULL;
+		free(sh->line);
+		sh->line = NULL;
 	}
 	minishell_free(sh);
 	return (true);

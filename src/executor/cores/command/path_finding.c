@@ -66,6 +66,7 @@ char	*find_path(t_minishell *sh, char *cmd)
 		result = search_path(sh, cmd);
 	if (expanded_cmd != cmd)
 		free(expanded_cmd);
-	free(cmd);
+	if (result != cmd)
+		free(cmd);
 	return (result);
 }

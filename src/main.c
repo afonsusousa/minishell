@@ -86,8 +86,12 @@ static int	no_tty_run(t_minishell *sh)
 	if (!isatty(STDIN_FILENO))
 	{
 		while (notty_line(sh))
+		{
 			if (sh->line && *sh->line != '\0')
 				exec_line(sh);
+			free(sh->line);
+			sh->line = NULL;
+		}
 		minishell_free(sh);
 		return (1);
 	}

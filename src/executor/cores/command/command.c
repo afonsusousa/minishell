@@ -47,7 +47,7 @@ static void	exit_wrapper(char ***argv, char *orig_cmd, int exit_code)
 	exit(exit_code);
 }
 
-static void	execve_error(char ***argv, char *orig_cmd)
+static void	execve_error(char ***argv, char *orig_cmd, char **env_arr)
 {
 	struct stat	path_stat;
 	char		*cmd;
@@ -59,6 +59,7 @@ static void	execve_error(char ***argv, char *orig_cmd)
 	else
 		write(2, "''", 2);
 	write(2, ": ", 2);
+	free_until_null(&env_arr);
 	if (!ft_strchr(cmd, '/'))
 		exit_wrapper(argv, orig_cmd, (write(2, "command not found\n",
 					18) & 0) | 127);
@@ -93,8 +94,7 @@ int	execve_wrapper(t_minishell *sh, char ***argv)
 	minishell_free(sh);
 	execve(**argv, *argv, env_arr);
 	free_envp(sh->ctx);
-	free_until_null(&env_arr);
-	execve_error(argv, orig_cmd);
+	execve_error(argv, orig_cmd, env_arr);
 	return (126);
 }
 
@@ -118,6 +118,7 @@ int	exec_command(t_minishell *sh, const t_ast *core)
 	{
 		status = exec_builtin(sh, argv, core->u_as.s_command.argc);
 		sh->last_status = status;
+		free_argv(argv);
 		return (status);
 	}
 	status = execve_wrapper(sh, &argv);
