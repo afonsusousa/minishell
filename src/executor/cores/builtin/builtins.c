@@ -10,9 +10,18 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <stdio.h>
+#include <unistd.h>
+
 #include "../../../../includes/executor.h"
 #include "../../../../includes/minishell.h"
 #include "../../../../includes/utils.h"
+
+static int exec_src_error(void)
+{
+	write(2, ".: source not implemented", 25);
+	return (2);
+};
 
 int	exec_builtin(t_minishell *sh, char **argv, int argc)
 {
@@ -32,5 +41,7 @@ int	exec_builtin(t_minishell *sh, char **argv, int argc)
 		return (exec_unset(sh, argv, argc));
 	if (ft_strcmp("..", *argv) == 0)
 		return (exec_cd(sh, argv, argc));
+	if (ft_strcmp(".", *argv) == 0)
+		return (exec_src_error());
 	return (1);
 }

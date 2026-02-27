@@ -65,7 +65,7 @@ static void	parse_cmd_pieces(t_minishell *sh, char ***argv, int *argc,
 	{
 		if ((ts_match(sh->ts, TOK_WORD) || ts_match(sh->ts,
 					TOK_ASSIGNMENT_WORD)) && ++(*argc))
-			*argv = str_arr_append(*argv, sh->ts->tk->lexeme);
+			*argv = cstr_arr_append(*argv, sh->ts->tk->lexeme);
 		else if (is_redir_ahead(sh->ts))
 			ast_list_push_list(redirs, parse_core_redirs(sh));
 		else
@@ -109,7 +109,7 @@ const char	**parse_assignments(t_minishell *sh)
 	{
 		if (!sh->ts->tk || !ts_match(sh->ts, TOK_ASSIGNMENT_WORD))
 			break ;
-		assignments = str_arr_append(assignments, sh->ts->tk->lexeme);
+		assignments = cstr_arr_append(assignments, sh->ts->tk->lexeme);
 	}
 	return ((const char **)assignments);
 }

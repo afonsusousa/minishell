@@ -48,7 +48,7 @@ char	*strjoin_three(char *s1, char *s2, char *s3)
 	return (ret);
 }
 
-char	**str_arr_append(char **arr, const char *s)
+char	**cstr_arr_append(char **arr, const char *s)
 {
 	size_t	len;
 	char	**res;
