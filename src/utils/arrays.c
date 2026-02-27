@@ -87,16 +87,18 @@ size_t	cstr_arr_len(char **arr)
 
 char	**cstr_arr_join(char **s1, char **s2)
 {
-	char	**ret;
+	char	**res;
+	char	**ptr;
 
-	ret = ft_calloc(cstr_arr_len(s1)
+	res = ft_calloc(cstr_arr_len(s1)
 		+ cstr_arr_len(s2) + 1,
 		sizeof(char *));
-	if (!ret)
+	if (!res)
 		return (NULL);
-	while (*s1)
-		*ret++ = *s1++;
-	while (*s2)
-		*ret++ = *s2++;
-	return (ret);
+	ptr = res;
+	while (s1 && *s1)
+		*ptr++ = *s1++;
+	while (s2 && *s2)
+		*ptr++ = *s2++;
+	return (res);
 }
