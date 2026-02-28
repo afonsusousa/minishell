@@ -91,8 +91,8 @@ char	**cstr_arr_join(char **s1, char **s2)
 	char	**ptr;
 
 	res = ft_calloc(cstr_arr_len(s1)
-		+ cstr_arr_len(s2) + 1,
-		sizeof(char *));
+			+ cstr_arr_len(s2) + 1,
+			sizeof(char *));
 	if (!res)
 		return (NULL);
 	ptr = res;

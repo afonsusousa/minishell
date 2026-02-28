@@ -79,12 +79,8 @@ char	**ft_arrjoin(char **s1, char **s2)
 	size_t	len2;
 	size_t	i;
 
-	len1 = 0;
-	while (s1 && s1[len1])
-		len1++;
-	len2 = 0;
-	while (s2 && s2[len2])
-		len2++;
+	len1 = cstr_arr_len(s1);
+	len2 = cstr_arr_len(s2);
 	ret = ft_calloc(len1 + len2 + 1, sizeof(char *));
 	if (!ret)
 		return (NULL);
