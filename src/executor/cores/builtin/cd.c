@@ -64,18 +64,20 @@ static int	resolve_path(const t_minishell *sh, char **argv, int argc,
 		char *path)
 {
 	bool	no_op_follow;
+	bool	dotdot;
 
 	no_op_follow = (argc >= 2) && ft_strcmp(argv[1], "--") == 0;
+	dotdot = argc == 1 && ft_strcmp("..", *argv) == 0;
 	if (argc > 2 + no_op_follow)
 		return (cd_error("too many arguments\n", NULL), 2);
-	if (argc == 1 || (argc == 2 && no_op_follow))
+	if (argc + dotdot == 1  || (argc == 2 && no_op_follow))
 		return (get_home_path(sh, path));
-	if (!*argv[1 + no_op_follow])
+	if (!*argv[1 + no_op_follow - dotdot])
 		ft_strlcpy(path, ".", 2);
-	else if (ft_strcmp(argv[1 + no_op_follow], "-") == 0)
+	else if (ft_strcmp(argv[1 + no_op_follow - dotdot], "-") == 0)
 		return (get_oldpwd_path(sh, path));
 	else
-		ft_strlcpy(path, argv[1 + no_op_follow], ARG_MAX);
+		ft_strlcpy(path, argv[1 + no_op_follow - dotdot], ARG_MAX);
 	return (0);
 }
 

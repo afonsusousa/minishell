@@ -97,8 +97,8 @@ char	**cstr_arr_join(char **s1, char **s2)
 		return (NULL);
 	ptr = res;
 	while (s1 && *s1)
-		*ptr++ = *s1++;
+		*ptr++ = ft_strdup(*s1++);
 	while (s2 && *s2)
-		*ptr++ = *s2++;
+		*ptr++ = ft_strdup(*s2++);
 	return (res);
 }

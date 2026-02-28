@@ -79,6 +79,7 @@ static void	execve_error(char ***argv, char *orig_cmd, char **env_arr)
 int	execve_wrapper(t_minishell *sh, char ***argv)
 {
 	char	**env_arr;
+	char	**og_env;
 	char	**ctx_arr;
 	char	*orig_cmd;
 
@@ -88,9 +89,11 @@ int	execve_wrapper(t_minishell *sh, char ***argv)
 	**argv = find_path(sh, **argv);
 	envp_setvar(sh->env, "_", **argv, EXPORT);
 	env_arr = get_envp_array(sh->env, true);
+	og_env = env_arr;
 	ctx_arr = get_envp_array(sh->ctx, true);
 	env_arr = cstr_arr_join(env_arr, ctx_arr);
 	free_until_null(&ctx_arr);
+	free_until_null(&og_env);
 	minishell_free(sh);
 	execve(**argv, *argv, env_arr);
 	free_envp(sh->ctx);
