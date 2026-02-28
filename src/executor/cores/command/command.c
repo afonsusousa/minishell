@@ -35,7 +35,7 @@ static int	exec_assignments(t_minishell *sh, const char **a, bool context)
 	if (env == sh->env)
 		flags &= ~EXPORT;
 	while (a && *a)
-		if (envp_setvar_str(env, *a++, sh->last_status, flags) == NULL)
+		if (envp_appendvar_str(env, *a++, sh->last_status, flags) == NULL)
 			return (1);
 	return (0);
 }
