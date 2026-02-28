@@ -17,7 +17,7 @@
 
 static int	exec_src_error(void)
 {
-	write(2, ".: source not implemented", 25);
+	write(2, ".: source not implemented\n", 26);
 	return (2);
 }
 

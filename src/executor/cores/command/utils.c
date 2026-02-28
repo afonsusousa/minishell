@@ -21,5 +21,6 @@ bool	is_builtin(const char *word)
 	return (ft_strcmp("export", word) == 0 || ft_strcmp("unset", word) == 0
 		|| ft_strcmp("cd", word) == 0 || ft_strcmp("echo", word) == 0
 		|| ft_strcmp("env", word) == 0 || ft_strcmp("pwd", word) == 0
-		|| ft_strcmp("exit", word) == 0 || ft_strcmp("..", word) == 0);
+		|| ft_strcmp("exit", word) == 0 || ft_strcmp("..", word) == 0
+		|| ft_strcmp(".", word) == 0);
 }
